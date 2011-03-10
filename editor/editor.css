@@ -1,0 +1,10 @@
+div.blogtext_syntax_link {
+  text-align: center;
+  font-size: 10px;
+  padding: 1px 6px;
+  background-color: #f5f5f5;
+}
+
+#quicktags #ed_strike {
+  text-decoration: line-through;
+}

@@ -1,0 +1,224 @@
+/* Represents list items the consists of text and block elements. It's necessary to
+   wrap the texts in <p> tags but they should not have a bottom margin. */
+li p.no-margin, dd p.no-margin, dt p.no-margin {
+  margin-bottom: 0 !important;
+}
+
+span.strike {
+  text-decoration: line-through;
+}
+
+span.underline {
+  text-decoration: underline;
+}
+
+/*
+ * Link icons
+ */
+a.attachment {
+  background: url(common-icons/attachment.gif) no-repeat left center transparent;
+  padding-left: 19px;
+}
+
+a.external-file {
+  background: url(fileicons/file.png) no-repeat left center transparent;
+  padding-left: 19px;
+}
+
+a.external {
+  background: url(common-icons/link-external.png) no-repeat left center transparent;
+  padding-left: 19px;
+}
+
+a.external-http {
+  background-image: url(common-icons/link-http.png) !important;
+}
+
+a.external-https {
+  background-image: url(common-icons/link-https.gif) !important;
+}
+
+a.external-wiki {
+  background-image: url(common-icons/wikipedia.png) !important;
+}
+
+a.external-search {
+  background-image: url(common-icons/search.png) !important;
+}
+
+a.internal-not-available {
+  background: url(common-icons/link-error.gif) no-repeat left center transparent !important;
+  padding-left: 19px;
+}
+
+/*
+ * Alignment
+ */
+.align-left {
+  float: left;
+  margin-right: 10px;
+}
+
+.align-right {
+  float: right;
+  margin-left: 10px;
+}
+
+.align-center {
+  margin: 0 auto;
+}
+
+/*
+ * Image frame
+ */
+div.image-frame {
+  border: 1px solid #999;
+  background-color: #ccc;
+}
+
+  div.image-frame div.image {
+    margin: 0;
+    padding: 0;
+  }
+
+  div.image-frame div.caption {
+    margin: 0;
+    padding: 0 0.5em;
+    font-size: 80%;
+  }
+
+/*
+ * TOC
+ */
+.toc {
+  /*display: table; /* Make the TOC as small as it needs to be. */
+  max-width: 200px;
+  float: right;
+
+	border: 1px solid #AAA;
+	background-color: #F9F9F9;
+
+	padding: 5px 25px;
+	margin: 5px 10px;
+
+	font-size: 80%;
+}
+
+.toc .toc-title {
+  font-size: 1.2em;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 0.5em;
+}
+
+  .toc .toc-toggle {
+    font-size: 75%;
+    text-decoration: none;
+
+    display: block;
+    float: right;
+    margin-left: 5px;
+  }
+
+.toc ul {
+	list-style-type: none;
+	list-style-image: none;
+	margin-left: 0;
+  margin-bottom: 0 !important;
+	padding-left: 0;
+	text-align: left;
+}
+
+.toc ul ul {
+	margin: 0 0 0 1.5em;
+}
+
+/*
+ * Heading anchor
+ */
+a.heading-link:link, a.heading-link:visited {
+  color: #D7D7D7;
+  text-decoration: none;
+}
+
+* > a.heading-link:link, * > a.heading-link:visited {
+    visibility: hidden;
+}
+
+h1:hover a.heading-link,
+h2:hover a.heading-link,
+h3:hover a.heading-link,
+h4:hover a.heading-link,
+h5:hover a.heading-link,
+h6:hover a.heading-link {
+    visibility: visible;
+}
+
+/*
+ * Code blocks
+ */
+pre, .code {
+  white-space: pre;
+	padding: 5px;
+  margin-bottom: 24px;
+  overflow-x: scroll;
+}
+
+  .code table pre {
+    /* necessary to hide additional scrollbars, since Geshi places <pre> tags inside of <pre> tags (when line
+       numbering is enabled) */
+    overflow: visible;
+  }
+
+div.code-linenum {
+  white-space: normal;
+}
+
+/* For line numbering */
+.code table, .code tr, .code td, .code td pre {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border-width: 0 !important;
+}
+
+.code td {
+  vertical-align: baseline;
+}
+
+.code td.ln { /* cell containing the line numbers */
+  padding-right: 4px !important;
+}
+
+.code td.de1 { /* cell containing the code */
+  padding-left: 6px !important;
+}
+
+/*
+ * errors (either as <span> or <div>)
+ */
+.error {
+  -moz-border-radius: 3px 3px 3px 3px;
+  background-color: #FFEBE8;
+  border: 1px solid #CC0000;
+  padding: 0 0.6em;
+}
+
+div.error {
+  margin: 5px 15px 2px;
+}
+
+div.error p, div.error pre.stack-trace {
+  line-height: 1.2 !important;
+  margin: 0.5em 0 !important;
+  padding: 2px !important;
+  font-size: 12px !important;
+}
+
+div.error pre.stack-trace {
+  background-color: #FFEBE8;
+  overflow-x: scroll;
+}
+
+div.error pre.stack-trace .func-name {
+  font-weight: bold;
+}

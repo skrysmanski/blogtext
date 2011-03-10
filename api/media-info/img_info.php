@@ -1,0 +1,250 @@
+<?php
+#########################################################################################
+#
+# Copyright 2010-2011  Maya Studios (http://www.mayastudios.com)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#########################################################################################
+
+
+require_once(dirname(__FILE__).'/base_file_info.php');
+
+/**
+ * This class determines width, height and type of images. Works both on local and remote images. Only 
+ * necessary information are read from the images. Thus using this class is usually a lot faster than calls
+ * to "getimagesize()" or "imagecreatefrom...()", as those need to download the whole image file.
+ */
+class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
+  const name = 'MSCL_ImageInfo';
+
+  const TYPE_JPEG = 0;
+  const TYPE_PNG = 1;
+  const TYPE_GIF = 2;
+
+  private static $SUPPORTED_FORMAT_COUNT = 3;
+
+  private static $JPEG_HEADER = "\xFF\xD8\xFF\xE0";
+  private static $JPEG_HEADER_LEN = 18; // FFD8 + see http://en.wikipedia.org/wiki/JPEG_File_Interchange_Format
+
+  private static $PNG_HEADER = "\x89PNG\r\n\x1A\n";
+  private static $PNG_HEADER_LEN = 24; // 8 bytes header + 4 bytes chunk length + 4 bytes "IHDR" + 2 * 4 byte for width and height
+
+  private static $GIF_HEADER_v89 = "GIF89a";
+  private static $GIF_HEADER_v87 = "GIF87a";
+  private static $GIF_HEADER_LEN = 10; // GIF89a + 2 bytes width + 2 bytes height
+
+  private $type = null;
+  private $width = null;
+  private $height = null;
+
+  protected function __construct($file_path, $cache_date=null) {
+    // determines file info - see "handle_data()" and "finish_initialization()"
+    parent::__construct($file_path, $cache_date);
+    if ($this->is_remote_file() && is_logging_available()) {
+      log_info("Checking remote image info for: ".$file_path);
+    }
+  }
+
+  protected function finish_initialization() {
+    if ($this->type === null) {
+      throw new MSCL_MediaFileFormatException("Could not determine image type.", $file_path, $this->is_remote_file());
+    }
+
+    if ($this->width === null) {
+      throw new MSCL_MediaFileFormatException("Could not determine image size.", $file_path, $this->is_remote_file());
+    }
+  }
+
+  public static function get_instance($file_path, $cache_date=null) {
+    $info = self::get_cached_remote_file_info($file_path, self::name);
+    if ($info === null) {
+      $info = new MSCL_ImageInfo($file_path, $cache_date);
+    }
+    return $info;
+  }
+
+  public function get_type() {
+    return $this->type;
+  }
+
+  public function get_mime_type() {
+    return self::convert_to_mime_type($this->type);
+  }
+
+  public static function convert_to_mime_type($img_type) {
+    switch ($img_type) {
+      case self::TYPE_JPEG:
+        return 'image/jpeg';
+      case self::TYPE_PNG:
+        return 'image/png';
+      case self::TYPE_GIF:
+        return 'image/gif';
+      default:
+        throw new Exception("Unsupported image type: ".$img_type);
+    }
+  }
+
+  public function get_width() {
+    return $this->width;
+  }
+
+  public function get_height() {
+    return $this->height;
+  }
+
+  protected function handle_data($data) {
+    if ($this->type === null) {
+      // image type not yet determined
+      if (!$this->find_data_type($data)) {
+        return false;
+      }
+    }
+
+    // image type determined
+    switch ($this->type) {
+      case self::TYPE_JPEG:
+        $info = $this->check_jpg_data($data);
+        break;
+
+      case self::TYPE_PNG:
+        $info = $this->check_png_data($data);
+        break;
+
+      case self::TYPE_GIF:
+        $info = $this->check_gif_data($data);
+        break;
+
+      default:
+        throw new Exception("Programming error: ".$this->type);
+    }
+
+    if ($info === false) {
+      return false;
+    }
+
+    list($this->width, $this->height) = $info;
+    return true;
+  }
+
+  private function find_data_type($data) {
+    $len = strlen($data);
+    $types_checked = 0;
+
+    // JPEG
+    if ($len >= self::$JPEG_HEADER_LEN) {
+      if ($this->is_jpg($data)) {
+        $this->type = self::TYPE_JPEG;
+        return true;
+      }
+      $types_checked++;
+    }
+
+    // PNG
+    if ($len >= self::$PNG_HEADER_LEN) {
+      if ($this->is_png($data)) {
+        $this->type = self::TYPE_PNG;
+        return true;
+      }
+      $types_checked++;
+    }
+
+    // GIF
+    if ($len >= self::$GIF_HEADER_LEN) {
+      if ($this->is_gif($data)) {
+        $this->type = self::TYPE_GIF;
+        return true;
+      }
+      $types_checked++;
+    }
+
+    if ($types_checked >= self::$SUPPORTED_FORMAT_COUNT) {
+      throw new MSCL_MediaFileFormatException("Could not determine image type.", $this->get_file_path(), $this->is_remote_file());
+    }
+
+    return false;
+  }
+
+  private function is_jpg($data) {
+    return self::starts_with($data, self::$JPEG_HEADER);
+  }
+
+  private function check_jpg_data($data) {
+    if (!self::starts_with($data, "JFIF\0", 6)) {
+      throw new MSCL_MediaFileFormatException("Malformed jpeg image.", $this->get_file_path(), $this->is_remote_file());
+    }
+
+    // NOTE: (int)$data parses the character while ord($data) converts it.
+    $density = ord($data[11]);
+    if ($density == 0) {
+      // Special case where the image's dimension are directly at the beginning of the file.
+      // TODO: Does this special case work?
+      $width  = self::unpack_short($data, 12);
+      $height = self::unpack_short($data, 14);
+      return array($width, $height);
+    }
+
+    //
+    // Dig a little deeper to find the image's size. Note that we need to skip almost all header data which
+    // might be a lot (26kb in our test image).
+    // See: http://www.64lines.com/jpeg-width-height
+    //
+    $pos = 4;
+    $len = strlen($data);
+    while ($pos + 2 < $len) {
+      $block_size = self::unpack_short($data, $pos);;
+      $pos += $block_size;
+      if ($pos + 2 >= $len) {
+        break;
+      }
+      if (ord($data[$pos]) != 0xFF) {
+        throw new MSCL_MediaFileFormatException("Malformed jpeg image.", $this->get_file_path(), $this->is_remote_file());
+      }
+      if (ord($data[$pos+1]) == 0xC0 && $pos + 9 < $len) {
+        // 0xFFC0 is the "Start of frame" marker which contains the image size
+        // Note that height and width are "exchanged" (ie. they don't come as "width", "height")
+        $height = self::unpack_short($data, $pos + 5);
+        $width  = self::unpack_short($data, $pos + 7);
+        return array($width, $height);
+      }
+      $pos += 2;
+    }
+
+    return false;
+  }
+
+  private function is_png($data) {
+    return self::starts_with($data, self::$PNG_HEADER);
+  }
+
+  private function check_png_data($data) {
+    if (!self::starts_with($data, 'IHDR', 12)) {
+      throw new MSCL_MediaFileFormatException("Malformed png image.", $this->get_file_path(), $this->is_remote_file());
+    }
+    $width  = self::unpack_int($data, 16);
+    $height = self::unpack_int($data, 20);
+    return array($width, $height);
+  }
+
+  private function is_gif($data) {
+    return self::starts_with($data, self::$GIF_HEADER_v89) || self::starts_with($data, self::$GIF_HEADER_v87);
+  }
+
+  private function check_gif_data($data) {
+    $width  = self::unpack_short($data, 6, false);
+    $height = self::unpack_short($data, 8, false);
+    return array($width, $height);
+  }
+}
+?>
