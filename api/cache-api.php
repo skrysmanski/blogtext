@@ -91,13 +91,17 @@ class MSCL_PersistentObjectCache extends MSCL_AbstractCache {
    */
   public function clear_cache() {
     global $wpdb;
-    // TODO: Make this a transaction, if possible
+
+    @mysql_query("BEGIN", $wpdb->dbh); // begin transaction
+
     // NOTE: The % token must be added to the parameter and not directly in the SQL statement as this doesn't
     //   work.
     $col = $wpdb->get_col($wpdb->prepare("SELECT option_name FROM $wpdb->options WHERE option_name like %s", $this->get_prefix().'%'));
     foreach ($col as $entry) {
       delete_option($entry);
     }
+    
+    @mysql_query("COMMIT", $wpdb->dbh); // commit transaction
   }
 }
 ?>

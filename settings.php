@@ -27,7 +27,6 @@ MSCL_Api::load(MSCL_Api::OPTIONS_API);
 
 require_once(dirname(__FILE__).'/docu.php');
 
-// TODO: Add descriptions for options
 class BlogTextSettings {
   const OWN_GESHI_STYLE = 'own';
 

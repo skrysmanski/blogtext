@@ -168,8 +168,12 @@ abstract class MSCL_AbstractFileInfo {
     if ($file_path === null) {
       return $this->is_remote_file;
     } else {
-      // TODO: Check for "file://" urls
-      return (preg_match('/^[a-zA-Z0-9\+\.\-]+\:\/\/.+$/', $file_path) == 1);
+      $found = preg_match('/^([a-zA-Z0-9\+\.\-]+)\:\/\/.+/', $file_path, $matches);
+      if (!$found) {
+        return false;
+      }
+
+      return ($matches[1] != 'file');
     }
   }
 
