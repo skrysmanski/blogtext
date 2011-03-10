@@ -75,8 +75,8 @@ class MediaMacro implements IInterlinkMacro {
   public function handle_macro($link_resolver, $prefix, $params, $generate_html, $before_text, $after_text) {
     $post_id = get_the_ID();
     list($is_attachment, $ref) = $this->get_file_info($params[0], $post_id);
-    if ($is_attachment && is_null($ref)) {
-      $html = $this->generate_error_html($params[0], true);
+    if ($is_attachment && $ref === null) {
+      $html = self::generate_error_html($params[0], true);
     } else {
       if ($prefix == 'image') {
         $html = $this->generate_img_tag($link_resolver, $is_attachment, $ref, $params, $generate_html);
@@ -88,7 +88,7 @@ class MediaMacro implements IInterlinkMacro {
     return $before_text.$html.$after_text;
   }
 
-  private function generate_error_html($message, $not_found=false) {
+  private static function generate_error_html($message, $not_found=false) {
     if ($not_found) {
       return '<span class="error error-attachment-not-found">Attachment "'.$message.'" not found</span>';
     }
@@ -111,6 +111,13 @@ class MediaMacro implements IInterlinkMacro {
       } else {
         return $ref;
       }
+    }
+
+    if (   !$is_attachment
+        && MSCL_AbstractFileInfo::is_remote_file($ref)
+        && !MSCL_AbstractFileInfo::is_protocol_supported($ref)) {
+      // Remote image whose protocol isn't supported. Create a good looking error message here.
+      return self::generate_error_html("Protocol for remote file '".$ref."' isn't supported.");
     }
 
     // Identify parameters
@@ -236,11 +243,11 @@ class MediaMacro implements IInterlinkMacro {
         }
       }
     } catch (MSCL_MediaFileNotFoundException $e) {
-      return $this->generate_error_html($e->get_file_path(), true);
+      return self::generate_error_html($e->get_file_path(), true);
     } catch (MSCL_MediaInfoException $e) {
-      return $this->generate_error_html($e->getMessage());
+      return self::generate_error_html($e->getMessage());
     } catch (MSCL_ThumbnailException $e) {
-      return $this->generate_error_html($e->getMessage());
+      return self::generate_error_html($e->getMessage());
     }
 
     //

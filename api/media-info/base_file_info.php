@@ -80,12 +80,20 @@ abstract class MSCL_AbstractFileInfo {
    * Checks whether the specified protocol (eg. "ftp", "http", "https", ...) is supported. Note that
    * @see is_remote_support_enabled() must return "true" for this method to work.
    *
-   * @param string $protocol the protocol (ie. the part before "://").
+   * @param string $url the url for which the protocol to be checked. Alternatively the protocol can be passed
+   *   directly (ie. the part before "://").
    * @return bool
    */
-  public static function is_protocol_supported($protocol) {
+  public static function is_protocol_supported($url) {
     static $supported_protocols = null;
 
+    $url_parts = explode('://', $url, 2);
+    if (count($url_parts) == 2) {
+      $protocol = $url_parts[0];
+    } else {
+      $protocol = $url;
+    }
+    
     if ($protocol == 'file') {
       return true;
     }
@@ -243,7 +251,6 @@ abstract class MSCL_AbstractFileInfo {
   }
 
   private static function prepare_curl_handle($file_path, $cache_date) {
-    // TODO: Is there a way to check whether protocol is supported?
     $ch = curl_init($file_path);
     if ($cache_date !== null) {
       // The date needs to be formatted as RFC 1123, eg. "Sun, 06 Nov 1994 08:49:37 GMT"
