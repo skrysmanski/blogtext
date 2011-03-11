@@ -118,7 +118,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
   public function get_handled_prefixes() {
     return array('', 
                  'attachment', 'attach', 'att',
-                 'category');
+                 'category', 'tag');
   }
   
   /**
@@ -137,6 +137,9 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
 
       case 'category':
         return $this->resolve_category_link($params);
+
+      case 'tag':
+        return $this->resolve_tag_link($params);
 
       default:
         throw new Exception('Unexpected prefix: '.$prefix);
@@ -251,6 +254,36 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
     $link = get_category_link($category_id);
     if (count($params) == 1) {
       $title = get_cat_name($category_id);
+    }
+
+    return array($link, $title, $is_external, $type);
+  }
+
+  private function resolve_tag_link($params) {
+    $link = null;
+    $title = null;
+    $is_external = false;
+    $type = self::TYPE_TAG;
+
+    // Get the ID of a given category
+    if (is_numeric($params[0])) {
+      $tag_id = (int)$params[0];
+      $tag = get_tag($tag_id);
+      if ($tag === null) {
+        throw new LinkNotFoundException();
+      }
+    } else {
+      $tag = get_term_by('name', $params[0], 'post_tag');
+      if ($tag == false) {
+        throw new LinkNotFoundException();
+      }
+      $tag_id = $tag->term_id;
+    }
+
+    // Get the URL of this category
+    $link = get_tag_link($tag_id);
+    if (count($params) == 1) {
+      $title = $tag->name;
     }
 
     return array($link, $title, $is_external, $type);

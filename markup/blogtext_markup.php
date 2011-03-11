@@ -693,13 +693,18 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     } else {
       // Unknown prefix; in most cases this is a url like "http://www.lordb.de" where "http" is the prefix
       // and "//www.lordb.de" is the first parameter.
-      // TODO: Handle case when prefix is empty
-      $link = $prefix.':'.$params[0];
-      $is_external = true;
-      if (count($params) == 1 && substr($params[0], 0, 2) == '//' && ($prefix == 'http' || $prefix == 'https')) {
-        // strip prefix for beautier names; but only for http and https and only if no title has been
-        // specified in the last parameter
-        $title = substr($params[0], 2);
+      if (empty($prefix)) {
+        // Special case: if the user (for some reasons) has removed the interlink handler for the empty
+        // prefix.
+        $not_found_reason = LinkNotFoundException::REASON_DONT_EXIST;
+      } else {
+        $link = $prefix.':'.$params[0];
+        $is_external = true;
+        if (count($params) == 1 && substr($params[0], 0, 2) == '//' && ($prefix == 'http' || $prefix == 'https')) {
+          // strip prefix for beautier names; but only for http and https and only if no title has been
+          // specified in the last parameter
+          $title = substr($params[0], 2);
+        }
       }
     }
 
