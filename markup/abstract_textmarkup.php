@@ -20,6 +20,48 @@
 
 
 abstract class AbstractTextMarkup {
+  //
+  // Interlinks
+  //
+
+  protected static function register_interlink(&$interlinks, $prefix, $handler) {
+    $interlinks[$prefix] = $handler;
+  }
+
+  protected static function register_interlink_pattern(&$interlinks, $prefix, $pattern, $is_external,
+                                                       $highest_para_num) {
+    $interlinks[$prefix] = array('pattern' => $pattern, 'external' => $is_external,
+                                 'highest' => $highest_para_num);
+  }
+
+  protected static function register_all_interlink_patterns(&$interlinks) {
+    foreach (BlogTextSettings::get_interlinks() as $prefix => $data) {
+      // find the hightest parameter number
+      // NOTE: This doesn't need to be the same as the number of parameters as the user may has an interlink
+      //   like this: http://www.mydomain/$3 (which only has one parameter but the highest number is three).
+      $highest_para_num = 0;
+      preg_match_all('/\$([0-9]+)/', $pattern, $matches, PREG_SET_ORDER);
+      foreach ($matches as $match) {
+        $num = (int)$match[1];
+        if ($num > $hightest_num) {
+          $hightest_num = $num;
+        }
+      }
+
+      self::register_interlink_pattern($interlinks, $prefix, $data[0], $data[1], $highest_para_num);
+    }
+  }
+
+  protected static function register_interlink_resolver(&$interlinks, $resolver) {
+    foreach ($resolver->get_handled_prefixes() as $prefix) {
+      self::register_interlink($interlinks, $prefix, $resolver);
+    }
+  }
+
+
+  //
+  // Convert method
+  //
   public abstract function convert_post_to_html($post, $markup_content, $is_rss, $is_excerpt);
 
   //

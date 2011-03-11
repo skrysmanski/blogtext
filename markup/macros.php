@@ -26,51 +26,6 @@ interface IInterlinkMacro {
   public function handle_macro($link_resolver, $prefix, $params, $generate_html, $before_text, $after_text);
 }
 
-interface IInterlinkLinkResolver {
-  public function resolve_link($prefix, $params);
-}
-
-class WordpressLinkProvider implements IInterlinkLinkResolver {
-  public function resolve_link($prefix, $params) {
-    $link = '';
-    $title = '';
-    $is_external = false;
-
-    // TODO: Add tags, blogroll, and archive
-    switch ($prefix) {
-      case 'category':
-        $this->get_category_info($params, $link, $title);
-        break;
-
-      default:
-        throw new Exception('Invalid prefix: '.$prefix);
-    }
-
-    return array($link, $title, $is_external);
-  }
-
-  private function get_category_info($params, &$link, &$title) {
-    // Get the ID of a given category
-    if (is_numeric($params[0])) {
-      $category_id = (int)$params[0];
-    } else {
-      $category_id = get_cat_ID($params[0]);
-    }
-
-    // Get the URL of this category
-    $link = get_category_link($category_id);
-    if (count($params) > 1) {
-      $title = $params[-1];
-    } else {
-      if (is_numeric($params[0])) {
-        $title = get_cat_name($category_id);
-      } else {
-        $title = $params[0];
-      }
-    }
-  }
-}
-
 class MediaMacro implements IInterlinkMacro {
   public function handle_macro($link_resolver, $prefix, $params, $generate_html, $before_text, $after_text) {
     $post_id = get_the_ID();

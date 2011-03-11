@@ -55,6 +55,57 @@ class MarkupUtil {
   }
 
   /**
+   * Returns the post for the specified ref. Ref may be a post id (integer), a post title (string), or "null".
+   * If "$ref = null", the current post from the post loop is returned. Returns "null", if the post could not
+   * be found.
+   *
+   * NOTE: Due to revisioning in Wordpress this method must also be called when the page id is an integer. As
+   *   with each new revision the real page id changes (increases).
+   *
+   * @param null|int|string $ref  the id/name of the post to be returned
+   * @param bool $id_only  when this is "true", only the post's id will be returned; otherwise a post object
+   *    will be returned
+   *
+   * @return null|int|object  return the id or object (depending on $id_only) or "null", if the post could not
+   *   be found
+   */
+  public static function get_post($ref, $id_only=false) {
+    if ($ref === null) {
+      global $post;
+      if ($post && $id_only) {
+        return $post->ID;
+      }
+      return $post;
+    }
+
+    global $wpdb;
+    // NOTE: "is_numeric" also checks for numeric strings (which "is_int()" doesn't). So don't use "is_int()"
+    //  here.
+    if(!is_numeric($ref)) {
+      $where = "post_name='%s'";
+      // Remove punctuation characters and so for. Function provided by Wordpress.
+      $ref = sanitize_title($ref);
+    } else {
+      $where = "ID=%d";
+    }
+    $row = $wpdb->get_row($wpdb->prepare(
+      "SELECT ID, post_parent, post_type FROM `$wpdb->posts` WHERE ".$where, $ref),ARRAY_A);
+    if(!$row) {
+      return null;
+    }
+    if($row['post_type'] == 'revision') {
+      $post_id = $row['post_parent'];
+    } else {
+      $post_id = $row['ID'];
+    }
+
+    if ($id_only) {
+      return $post_id;
+    }
+	  return get_post($post_id);
+  }
+
+  /**
    * Checks whether the specified id is an attachment.
    *
    * @param int $id the id

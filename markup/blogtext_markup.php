@@ -27,6 +27,7 @@ MSCL_Api::load(MSCL_Api::CACHE_API);
 
 require_once(dirname(__FILE__).'/abstract_textmarkup.php');
 require_once(dirname(__FILE__).'/macros.php');
+require_once(dirname(__FILE__).'/resolver.php');
 
 
 class MarkupException extends Exception {
@@ -145,28 +146,16 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     // interlinks
     //
 
-    // wordpress links
-    $wordpress_provider = new WordpressLinkProvider();
-    self::$interlinks['category'] = $wordpress_provider;
+    // Handles regular links to post (ie. without prefix), as well as attachment and Wordpress links (such
+    // as categories, tags, blogroll, and archive).
+    self::register_interlink_resolver(new WordpressLinkProvider(), self::$interlinks);
 
     // let the custom interlinks overwrite the wordpress link provider, but not the media macro.
-    foreach (BlogTextSettings::get_interlinks() as $name => $data) {
-      // count the number of params
-      $pattern = $data[0];
-      $hightest_num = 0;
-      preg_match_all('/\$([0-9]+)/', $pattern, $matches, PREG_SET_ORDER);
-      foreach ($matches as $match) {
-        $num = (int)$match[1];
-        if ($num > $hightest_num) {
-          $hightest_num = $num;
-        }
-      }
-
-      self::$interlinks[$name] = array('pattern' => $pattern, 'external' => $data[1], 'highest' => $hightest_num);
-    }
+    self::register_all_interlink_patterns(self::$interlinks);
 
     // Media macro (images) - load it as the last one (to overwrite any previously created custom interlinks)
-    self::$interlinks['image'] = new MediaMacro();
+    // TODO: Create "register_interlink_macro()" function like the other register functions
+    self::register_interlink(self::$interlinks, 'image', new MediaMacro());
 
     self::$INITIALIZED = true;
   }
@@ -637,50 +626,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     }
   }
 
-  /**
-   * Returns the post for the specified ref. Ref may be a post id (integer), a post title (string), or "null".
-   * If "$ref = null", the current post from the post loop is returned. Returns "null", if the post could not
-   * be found.
-   *
-   * NOTE: Due to revisioning in Wordpress this method must also be called when the page id is an integer. As
-   *   with each new revision the real page id changes (increases).
-   */
-  private function get_post($ref, $id_only=false) {
-    if ($ref === null) {
-      global $post;
-      if ($post && $id_only) {
-        return $post->ID;
-      }
-      return $post;
-    }
-
-    global $wpdb;
-    // NOTE: "is_numeric" also checks for numeric strings (which "is_int()" doesn't). So don't use "is_int()"
-    //  here.
-    if(!is_numeric($ref)) {
-      $where = "post_name='%s'";
-      // Remove punctuation characters and so for. Function provided by Wordpress.
-      $ref = sanitize_title($ref);
-    } else {
-      $where = "ID=%d";
-    }
-    $row = $wpdb->get_row($wpdb->prepare(
-      "SELECT ID, post_parent, post_type FROM `$wpdb->posts` WHERE ".$where, $ref),ARRAY_A);
-    if(!$row) {
-      return null;
-    }
-    if($row['post_type'] == 'revision') {
-      $post_id = $row['post_parent'];
-    } else {
-      $post_id = $row['ID'];
-    }
-
-    if ($id_only) {
-      return $post_id;
-    }
-	  return get_post($post_id);
-  }
-
   public static function get_prefix($link) {
     // determine prefix
     $parts = explode(':', $link, 2);
@@ -707,175 +652,125 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
    * @return string HTML code or the link (which may be "null")
    */
   public function resolve_link($prefix, $params, $generate_html, $text_before, $text_after) {
-    $name = '';
-    $link = '';
-    $css_classes = array();
-    $not_found_reason = '';
+    $post_id = $this->get_post(null, true);
+
+    $link = null;
+    $title = null;
     $is_external = false;
     $is_attachment = false;
-    $new_window = false;
+    $link_type = null;
 
-    if (!empty($prefix) && ($prefix != 'attachment' || array_key_exists('attachment', self::$interlinks))) {
-      if (array_key_exists($prefix, self::$interlinks)) {
-        $prefix_handler = self::$interlinks[$prefix];
-        if (is_array($prefix_handler)) {
-          // Simple text replacement
-          // Unfortunately as a hack we need to store the current params in a member variable. This is necessary
-          // because we can't pass them directly to the callback method, nested functions can't be used as
-          // callback functions and anonymous function are only available in PHP 5.3 and higher.
-          $this->cur_interlink_params = $params;
-          $link = preg_replace_callback('/\$(\d+)/', array($this, 'interlink_params_callback'), self::$interlinks[$prefix]['pattern']);
-          $is_external = self::$interlinks[$prefix]['external'];
-        } else {
-          if ($prefix_handler instanceof IInterlinkLinkResolver) {
-            list($link, $name, $is_external) = $prefix_handler->resolve_link($prefix, $params);
-          } else if ($prefix_handler instanceof IInterlinkMacro) {
-            // Assume IInterlinkMacro class
-            // Let the macro create the HTML code and return it directly.
-            return $prefix_handler->handle_macro($this, $prefix, $params, $generate_html, $text_before, $text_after);
-          } else {
-            throw new Exception("Invalid prefix handler: ".gettype($prefix_handler));
-          }
+    $not_found_reason = '';
+
+    if (array_key_exists($prefix, self::$interlinks)) {
+      // NOTE: The prefix may even be empty.
+      $prefix_handler = self::$interlinks[$prefix];
+
+      if ($prefix_handler instanceof IInterlinkMacro) {
+        // Let the macro create the HTML code and return it directly.
+        return $prefix_handler->handle_macro($this, $prefix, $params, $generate_html, $text_before, $text_after);
+      }
+
+      if ($prefix_handler instanceof IInterlinkLinkResolver) {
+        try {
+          list($link, $title, $is_external, $link_type) = $prefix_handler->resolve_link($post_id, $prefix, $params);
+          $is_attachment = ($link_type == IInterlinkLinkResolver::TYPE_ATTACHMENT);
+        } catch (LinkNotFoundException $e) {
+          $not_found_reason = $e->get_reason();
+          $title = $e->get_title();
         }
+      } else if (is_array($prefix_handler)) {
+        // Simple text replacement
+        // Unfortunately as a hack we need to store the current params in a member variable. This is necessary
+        // because we can't pass them directly to the callback method, nested functions can't be used as
+        // callback functions and anonymous function are only available in PHP 5.3 and higher.
+        $this->cur_interlink_params = $params;
+        $link = preg_replace_callback('/\$(\d+)/', array($this, 'interlink_params_callback'), self::$interlinks[$prefix]['pattern']);
+        $is_external = self::$interlinks[$prefix]['external'];
       } else {
-        // Unknown prefix; in most cases this is a url like "http://www.lordb.de" where "http" is the prefix
-        // and "//www.lordb.de" is the first parameter.
-        $link = $prefix.':'.$params[0];
-        $is_external = true;
-        if (substr($params[0], 0, 2) == '//' && ($prefix == 'http' || $prefix == 'https')) {
-          // strip prefix for beautier names; but only for http and https
-          $name = substr($params[0], 2);
-        }
-      }
-      if (!$generate_html) {
-        return $link;
-      }
-
-      // new window for external links
-      if ($is_external && BlogTextSettings::new_window_for_external_links()) {
-        $new_window = true;
-      }
-
-      // Replace "+" and "." for the css name as they have special meaning in CSS.
-      // NOTE: When this is just an URL the prefix will be the protocol (eg. "http", "ftp", ...)
-      $prefix_css_name = str_replace(array('+', '.'), '-', $prefix);
-      if ($is_external) {
-        $css_classes = array('external', "external-$prefix_css_name");
-      } else {
-        $css_classes = array('internal', "internal-$prefix_css_name");
+        throw new Exception("Invalid prefix handler: ".gettype($prefix_handler));
       }
     } else {
-      if ($prefix == 'attachment') {
-        $att_id = MarkupUtil::get_attachment_id($params[0], $this->get_post(null, true));
-        $anchor = '';
-        if ($att_id === null) {
-          // post not found
-          if (!$generate_html) {
-            return null;
-          }
-          $post = null;
-          $not_found_reason = 'not found';
-        } else {
-          $post = $this->get_post($att_id);
-        }
-        // Store the first param in the "page_id" so that it can be used as title, if no title is provided.
-        // NOTE: For post (ie. not attachments) the page id may not be identical to the first param. That's
-        //   why we use a new variable instead of $params[0] directly (see else branch).
-        $page_id = $params[0];
-      } else {
-        // empty prefix means internal link to a page or posting
-        // the first parameter names the page
-        $parts = explode('#', $params[0], 2);
-        if (count($parts) == 2) {
-          $page_id = $parts[0];
-          $anchor = $parts[1];
-        } else {
-          $page_id = $parts[0];
-          $anchor = '';
-        }
+      // Unknown prefix; in most cases this is a url like "http://www.lordb.de" where "http" is the prefix
+      // and "//www.lordb.de" is the first parameter.
+      // TODO: Handle case when prefix is empty
+      $link = $prefix.':'.$params[0];
+      $is_external = true;
+      if (count($params) == 1 && substr($params[0], 0, 2) == '//' && ($prefix == 'http' || $prefix == 'https')) {
+        // strip prefix for beautier names; but only for http and https and only if no title has been
+        // specified in the last parameter
+        $title = substr($params[0], 2);
+      }
+    }
 
-        $css_classes = array('internal');
-        $post = $this->get_post($page_id);
+    if (!$generate_html) {
+      return $link;
+    }
+
+    // new window for external links - if enabled in the settings
+    $new_window = ($is_external && BlogTextSettings::new_window_for_external_links());
+
+    //
+    // CSS classes
+    // NOTE: We store them as associative array to prevent inserting the same CSS class twice.
+    //
+    if ($is_attachment) {
+      // Attachments are a special case.
+      $css_classes = array('attachment' => true);
+    } else {
+      if ($is_external) {
+        $css_classes = array('external' => true);
+      } else {
+        $css_classes = array('internal' => true);
       }
 
-      if ($post) {
-        if (MarkupUtil::is_attachment_type($post->post_type)) {
-          $name = MarkupUtil::get_attachment_title($post);
-        } else {
-          $name = apply_filters('the_title', $post->post_title);
-        }
-        if($name == '') {
-          $name = $page_id;
-        }
-
-        // Posting must be published. Ignore the status for attachments.
-        if (MarkupUtil::is_attachment_type($post->post_type)) {
-          // attachment
-          $link = wp_get_attachment_url($post->ID);
-          $css_classes = array('attachment');
-          $is_attachment = true;
-        } else if ($post->post_status == 'publish') {
-          // post or page
-          $link = get_permalink($post->ID);
-          if (!$generate_html) {
-            return $link;
-          }
-          // NOTE: Only add post type when the posting is available. This way this doesn't conflict with
-          //   the 'internal-not-found' CSS class.
-          // post_type: post|page|attachment
-          $css_classes[] = 'internal-'.$post->post_type;
-        } else {
-          $not_found_reason = 'unpublished';
-        }
-      } else {
-        // post not found
-        if (!$generate_html) {
-          return null;
-        }
-        $not_found_reason = 'not found';
+      if (!empty($prefix)) {
+        // Replace "+" and "." for the css name as they have special meaning in CSS.
+        // NOTE: When this is just an URL the prefix will be the protocol (eg. "http", "ftp", ...)
+        $css_name = ($is_external ? 'external-' : 'internal-')
+                  . str_replace(array('+', '.'), '-', $prefix);
+        $css_classes[$css_name] = true;
       }
 
-      if (!empty($not_found_reason)) {
-        // Page not found
-        $link = '#';
-        if (count($params) == 1) {
-          // provide special name when no name has been provided
-          $name = $page_id;
-        } else {
-          $name = $params[0];
-        }
-        $css_classes[] = 'internal-not-available';
-      } else {
-        if (!empty($anchor)) {
-          // append anchor (but only if the page could be found)
-          $link .= '#'.$anchor;
-        }
+      if (!empty($link_type)) {
+        // Replace "+" and "." for the css name as they have special meaning in CSS.
+        $css_name = ($is_external ? 'external-' : 'internal-')
+                  . str_replace(array('+', '.'), '-', $link_type);
+        $css_classes[$css_name] = true;
       }
+    }
+
+
+    if (!empty($not_found_reason)) {
+      // Page not found
+      $link = '#';
     }
 
     //
     // Determine link name
     //
-    if (count($params) > 1) {
+    if (!empty($title) && count($params) > 1) {
       // if there's more than one parameter, the last parameter is the link's name
       // NOTE: For "[[wiki:Portal|en]]" this would create a link to the wikipedia articel "Portal" and at the
       // same time name the link "Portal"; this is quite clever. If this interlink had only one parameter,
       // one would use "[[wiki:Portal|]]" (note the empty last param).
-      $name = $params[count($params) - 1];
-      if (empty($name)) {
+      $title = $params[count($params) - 1];
+      if (empty($title)) {
         // an empty name is a shortcut for using the first param as name
-        $name = $params[0];
+        $title = $params[0];
       }
     }
 
-    if (empty($name)) {
+    if (empty($title)) {
       // If no name has been specified explicitly, we use the link instead.
       // Note that internal links will always have its name set.
-      $name = $link;
+      $title = $link;
     }
 
     if (!empty($not_found_reason)) {
-      $name .= '['.$not_found_reason.']';
+      // Page not found
+      $title .= '['.$not_found_reason.']';
+      $css_classes['not-found'] = true;
     } else if ($is_attachment || $is_external) {
       // Check for file extension
       if ($is_attachment) {
@@ -903,7 +798,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
             break;
 
           default:
-            $css_classes = array($is_attachment ? 'attachment' : 'external-file');
+            if (!$is_attachment) {
+              $css_classes = array('external-file' => true);
+            }
             if ($suffix == 'txt') {
               // certain file types can't be uploaded by default (eg. .php). A common fix would be to add the
               // ".txt" extension (eg. "phpinfo.php.txt"). Wordpress converts this file name to
@@ -930,7 +827,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
                 }
               }
             }
-            $css_classes[] = 'file-'.$suffix;
+            $css_classes['file-'.$suffix] = true;
             break;
         }
 
