@@ -125,7 +125,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
    * Implements @see IInterlinkLinkResolver::resolve_link().
    */
   public function resolve_link($post_id, $prefix, $params) {
-    // TODO: Add tags, blogroll, and archive
+    // TODO: Add support for blogroll (links) and archive (see get_year_link())
     switch ($prefix) {
       case '':
         return $this->resolve_regular_link($params);

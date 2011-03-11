@@ -1030,7 +1030,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       array_pop($level);
     }
 
-    return "<div class=\"toc\">\n<div class=\"toc-title\">Table of Contents "
+    return "<div class=\"toc\">\n<div class=\"toc-title\">".BlogTextSettings::get_toc_title()
            .' <span class="toc-toggle">[<a id="_toctoggle_'.$post->ID.'" href="javascript:toggle_toc('.$post->ID.');">hide</a>]</span>'
            ."</div>\n<div id=\"_toclist_$post->ID\">$toc\n</div></div>";
   }

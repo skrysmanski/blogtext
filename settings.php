@@ -30,6 +30,17 @@ require_once(dirname(__FILE__).'/docu.php');
 class BlogTextSettings {
   const OWN_GESHI_STYLE = 'own';
 
+  public static function get_toc_title($get_option=false) {
+    static $option = null;
+    if ($option == null) {
+      $option = new MSCL_TextfieldOption('blogtext_toc_title', 'Title for TOCs',
+              'long', 'Table of Contents',
+              'Specifies the title for TOCs (Table of Contents) added to a post or page by using '
+              .'<code>[[[TOC]]]</code>.');
+    }
+    return $get_option ? $option : $option->get_value();
+  }
+
   /**
    * Callback function.
    */

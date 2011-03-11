@@ -34,6 +34,7 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
     parent::__construct(self::FORM_ID);
 
     $section = new MSCL_OptionsPageSection('blogtext_behavior', 'Behavior Settings', '');
+    $section->add_option(BlogTextSettings::get_toc_title(true));
     $section->add_option(BlogTextSettings::get_top_level_heading_level(true));
     $section->add_option(BlogTextSettings::new_window_for_external_links(true));
     $section->add_option(BlogTextSettings::get_default_small_img_alignment(true));
@@ -57,12 +58,13 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
 
   protected function on_options_updated($updated_options) {
     if ($this->need_to_clear_cache()) {
-      ActionButtonsForm::clear_page_cache();
+      BlogTextActionButtonsForm::clear_page_cache();
     }
   }
 
   private function need_to_clear_cache() {
     if (   $this->is_option_updated(BlogTextSettings::get_top_level_heading_level(true))
+        || $this->is_option_updated(BlogTextSettings::get_toc_title(true))
         || $this->is_option_updated(BlogTextSettings::new_window_for_external_links(true))
         || $this->is_option_updated(BlogTextSettings::get_default_small_img_alignment(true))
         || $this->is_option_updated(BlogTextSettings::use_frame_for_thumbs(true))

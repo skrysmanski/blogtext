@@ -376,10 +376,11 @@ abstract class MSCL_AbstractOptionsForm {
   public function option_update_finished_wrapper($location) {
     // NOTE: We abuse the "wp_redirect" filter here. If we had not sufficient rights to edit this option page,
     //   Wordpress would have "died" before getting here.
-    //   Still we need to check whether the passed URL is really the one we're looking for. This goback
+    //   Still we need to check whether the passed URL is really the one we're looking for. This location
     //   address is constructed in "wordpress/wp-admin/options.php".
-    $goback = add_query_arg( 'updated', 'true',  wp_get_referer() );
-    if ($location == $goback) {
+    $query_vars = parse_url($location, PHP_URL_QUERY);
+    parse_str($query_vars, $query_vars_arr);
+    if (isset($query_vars_arr['settings-updated']) && $query_vars_arr['settings-updated'] == true) {
       $this->cleanup_settings_errors();
       $this->on_options_updated($this->updated_options);
       if ($this->settings_error_changed) {
