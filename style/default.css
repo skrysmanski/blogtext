@@ -46,7 +46,7 @@ a.external-search {
   background-image: url(common-icons/search.png) !important;
 }
 
-a.internal-not-available {
+a.not-available {
   background: url(common-icons/link-error.gif) no-repeat left center transparent !important;
   padding-left: 19px;
 }

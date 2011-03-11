@@ -744,33 +744,39 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     if (!empty($not_found_reason)) {
       // Page not found
       $link = '#';
+      // NOTE: Create title as otherwise "#" (the link) will be used as title
+      if (count($params) == 1) {
+        $title = $params[0];
+      }
     }
 
     //
     // Determine link name
     //
-    if (!empty($title) && count($params) > 1) {
-      // if there's more than one parameter, the last parameter is the link's name
-      // NOTE: For "[[wiki:Portal|en]]" this would create a link to the wikipedia articel "Portal" and at the
-      // same time name the link "Portal"; this is quite clever. If this interlink had only one parameter,
-      // one would use "[[wiki:Portal|]]" (note the empty last param).
-      $title = $params[count($params) - 1];
-      if (empty($title)) {
-        // an empty name is a shortcut for using the first param as name
-        $title = $params[0];
-      }
-    }
-
     if (empty($title)) {
-      // If no name has been specified explicitly, we use the link instead.
-      // Note that internal links will always have its name set.
-      $title = $link;
+      if (count($params) > 1) {
+        // if there's more than one parameter, the last parameter is the link's name
+        // NOTE: For "[[wiki:Portal|en]]" this would create a link to the wikipedia articel "Portal" and at the
+        // same time name the link "Portal"; this is quite clever. If this interlink had only one parameter,
+        // one would use "[[wiki:Portal|]]" (note the empty last param).
+        $title = $params[count($params) - 1];
+        if (empty($title)) {
+          // an empty name is a shortcut for using the first param as name
+          $title = $params[0];
+        }
+      }
+
+      // No "else if" here as (although unlikely) the first parameter may be empty
+      if (empty($title)) {
+        // If no name has been specified explicitly, we use the link instead.
+        $title = $link;
+      }
     }
 
     if (!empty($not_found_reason)) {
       // Page not found
       $title .= '['.$not_found_reason.']';
-      $css_classes['not-found'] = true;
+      $css_classes = array('not-found' => true);
     } else if ($is_attachment || $is_external) {
       // Check for file extension
       if ($is_attachment) {
