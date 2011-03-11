@@ -65,7 +65,7 @@ interface IInterlinkLinkResolver {
   /**
    * Represents a page in the current blog. The value equals to "$post->post_type".
    */
-  const TYPE_POST = 'page';
+  const TYPE_PAGE = 'page';
   /**
    * Represents an attachment. The value equals to "$post->post_type".
    */
@@ -220,10 +220,10 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
 
     // Determine title - but only if the title wasn't specified explicitely.
     if (count($params) == 1) {
-      $title = MarkupUtil::get_attachment_title($post);
+      $title = MarkupUtil::get_attachment_title($att_id);
     }
 
-    $link = wp_get_attachment_url($post->ID);
+    $link = wp_get_attachment_url($att_id);
 
     return array($link, $title, $is_external, $type);
   }

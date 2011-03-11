@@ -36,6 +36,8 @@ abstract class AbstractTextMarkup {
 
   protected static function register_all_interlink_patterns(&$interlinks) {
     foreach (BlogTextSettings::get_interlinks() as $prefix => $data) {
+      $pattern = $data[0];
+
       // find the hightest parameter number
       // NOTE: This doesn't need to be the same as the number of parameters as the user may has an interlink
       //   like this: http://www.mydomain/$3 (which only has one parameter but the highest number is three).
@@ -43,12 +45,12 @@ abstract class AbstractTextMarkup {
       preg_match_all('/\$([0-9]+)/', $pattern, $matches, PREG_SET_ORDER);
       foreach ($matches as $match) {
         $num = (int)$match[1];
-        if ($num > $hightest_num) {
-          $hightest_num = $num;
+        if ($num > $highest_para_num) {
+          $highest_para_num = $num;
         }
       }
 
-      self::register_interlink_pattern($interlinks, $prefix, $data[0], $data[1], $highest_para_num);
+      self::register_interlink_pattern($interlinks, $prefix, $pattern, $data[1], $highest_para_num);
     }
   }
 

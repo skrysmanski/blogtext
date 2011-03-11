@@ -148,7 +148,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     // Handles regular links to post (ie. without prefix), as well as attachment and Wordpress links (such
     // as categories, tags, blogroll, and archive).
-    self::register_interlink_resolver(new WordpressLinkProvider(), self::$interlinks);
+    self::register_interlink_resolver(self::$interlinks, new WordpressLinkProvider());
 
     // let the custom interlinks overwrite the wordpress link provider, but not the media macro.
     self::register_all_interlink_patterns(self::$interlinks);
@@ -652,7 +652,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
    * @return string HTML code or the link (which may be "null")
    */
   public function resolve_link($prefix, $params, $generate_html, $text_before, $text_after) {
-    $post_id = $this->get_post(null, true);
+    $post_id = MarkupUtil::get_post(null, true);
 
     $link = null;
     $title = null;
@@ -862,9 +862,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       }
     }
 
-    $name = $text_before.$name.$text_after;
+    $title = $text_before.$title.$text_after;
 
-    return $this->generate_link_tag($link, $name, $css_classes, $new_window, $is_attachment);
+    return $this->generate_link_tag($link, $title, array_keys($css_classes), $new_window, $is_attachment);
   }
 
 
