@@ -59,6 +59,7 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
   protected function on_options_updated($updated_options) {
     if ($this->need_to_clear_cache()) {
       BlogTextActionButtonsForm::clear_page_cache();
+      $this->add_settings_error('cache_cleared', __("BlogText's Page cache has been cleared."), 'updated');
     }
   }
 
@@ -92,7 +93,7 @@ class BlogTextActionButtonsForm extends MSCL_ButtonsForm {
     if ($button_id == self::CLEAR_CACHE_BUTTON_NAME) {
       // explicit cache clearing
       self::clear_page_cache();
-      $this->add_settings_error('cache_cleared', __('Page cache has been cleared.'), 'updated');
+      $this->add_settings_error('cache_cleared', __("BlogText's Page cache has been cleared."), 'updated');
       return;
     }
   }
