@@ -106,7 +106,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
   private $placeholders = array();
 
-  private $table_level = 0;
   /**
    * This array contains the amount each id has occured in this posting. This is used to alter ids (by
    * appending a number) so that the remain unique. Eg. this will result in "my_id", "my_id_2", "my_id_3", ...
@@ -226,7 +225,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     $this->is_rss = $is_rss;
     $this->is_excerpt = $is_excerpt;
     $this->placeholders = array();
-    $this->table_level = 0;
     $this->id_suffix = array();
     $this->headings = array();
     $this->thumbs_used = array();
@@ -1169,81 +1167,60 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     $rows = $matches[3];
 
     if (array_key_exists(4, $matches)) {
-      $this->table_level += 3;
-      $rows = $this->execute_regex('table', $rows);
-      $this->table_level -= 3;
+      // nested tables
+      $rows = $this->execute_regex('complex_table', $rows);
     }
+
+    $table = new ATM_Table();
+    $table->tag_attributes = $attrs;
+    $table->caption = $table_caption;
 
     $rregex = '/(?:^(\||!)-|\G)(.*?)^(.*?)(?=(?:\|-|!-|\z))/msi';
-    $rows = preg_replace_callback($rregex, array($this, 'rows_callback'), $rows);
-
-    $start = $attrs == "" ? "<table>" : "<table {$attrs}>";
-    $end = "</table>";
-
-
-    if (strlen($table_caption) > 0) {
-      $end .= "\n<p class=\"table-caption\">".$table_caption.'</p>';
+    preg_match_all($rregex, $rows, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      if (empty($match[0])) {
+        continue;
+      }
+      $table->rows[] = $this->handle_complex_table_row($match);
     }
-    $ret = $start."\n".$rows.$end."\n";
 
-    return $ret;
+    return $this->generate_table_code($table);
   }
 
   /**
    * The callback function for rows in tables
    */
-  private function rows_callback($matches) {
-    $whole = $matches[0];
+  private function handle_complex_table_row($matches) {
     $attrs = trim($matches[2]);
     $cells = $matches[3];
 
-    if ($whole == "")
-      return $whole;
+    $row = new ATM_TableRow();
+    $row->tag_attributes = $attrs;
 
     $cregex = '#((?:\||!|\|\||!!|\G))(?:([^|\n]*?)\|(?!\|))?(.+?)(?=\||!|\|\||!!|\z)#msi';
-    $cells = preg_replace_callback($cregex, array(&$this, 'cells_callback'), $cells);
+    preg_match_all($cregex, $cells, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      if (empty($match[0])) {
+        continue;
+      }
+      $row->cells[] = $this->handle_complex_table_cell($match);
+    }
 
-    $start = $attrs == "" ? "<tr>" : "<tr {$attrs}>";
-    $end = "</tr>";
-
-//    $ret =
-//      str_repeat("\t", $this->table_level + 1).$start."\n".
-//      $cells.
-//      str_repeat("\t", $this->table_level + 1).$end."\n";
-    $ret = $start."\n".$cells.$end."\n";
-
-    return $ret;
+    return $row;
   }
 
   /**
    * The callback function for cols in rows
    */
-  private function cells_callback($matches) {
-    $whole = $matches[0];
+  private function handle_complex_table_cell($matches) {
     $type = $matches[1];
     $attrs = trim($matches[2]);
-    $cell = trim($matches[3]);
+    $content = trim($matches[3]);
 
-    if($whole == "")
-      return $whole;
+    $cell = new ATM_TableCell($type == '!' ? ATM_TableCell::TYPE_TH : ATM_TableCell::TYPE_TD, $content);
+    $cell->tag_attributes = $attrs;
 
-    if ($type == '!') {
-      $start = $attrs == "" ? "<th>" : "<th {$attrs}>";
-      $end = "</th>";
-    }
-    else {
-      $start = $attrs == "" ? "<td>" : "<td {$attrs}>";
-      $end = "</td>";
-    }
-
-//    $ret =
-//      str_repeat("\t", $this->table_level + 2).$start."\n".
-//      str_repeat("\t", $this->table_level + 3).$cell."\n".
-//      str_repeat("\t", $this->table_level + 2).$end."\n";
-    $ret = $start."\n".$cell."\n".$end."\n";
-
-    return $ret;
+    return $cell;
   }
-
 }
 ?>

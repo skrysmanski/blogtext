@@ -19,10 +19,12 @@
 #########################################################################################
 
 require_once(dirname(__FILE__).'/list_base.php');
-
+require_once(dirname(__FILE__).'/table_base.php');
 
 
 abstract class AbstractTextMarkup {
+
+  ////////////////////////////////////////////////////////////////////
   //
   // Interlinks
   //
@@ -64,11 +66,14 @@ abstract class AbstractTextMarkup {
   }
 
 
+  ////////////////////////////////////////////////////////////////////
   //
   // Convert method
   //
   public abstract function convert_post_to_html($post, $markup_content, $is_rss, $is_excerpt);
 
+
+  ////////////////////////////////////////////////////////////////////
   //
   // Lists
   //
@@ -218,6 +223,75 @@ abstract class AbstractTextMarkup {
         return '</dd>';
     }
     throw new Exception();
+  }
+
+
+  ////////////////////////////////////////////////////////////////////
+  //
+  // Tables
+  //
+
+  protected function generate_table_code($table) {
+    $code = $this->open_table($table->tag_attributes, $table->caption);
+
+    $row_nr = 0;
+    foreach ($table->rows as $row) {
+      $code .= $this->open_table_row($row->tag_attributes, $row_nr);
+
+      $cell_nr = 0;
+      foreach ($row->cells as $cell) {
+        $code .= $this->open_table_cell($cell->cell_type, $cell->tag_attributes, $row_nr, $cell_nr)
+               . $cell->cell_content
+               . $this->close_table_cell($cell->cell_type, $row_nr, $cell_nr);
+        $cell_nr++;
+      }
+
+      $code .= $this->close_table_row($row_nr);
+      $row_nr++;
+    }
+
+    return $code.$this->close_table($table->caption);
+  }
+
+  protected function open_table($tag_attributes, $caption) {
+    if (empty($tag_attributes)) {
+      return "\n<table>\n";
+    } else {
+      return "\n<table $tag_attributes>\n";
+    }
+  }
+
+  protected function close_table($caption) {
+    $code = "</table>\n";
+    if (!empty($caption)) {
+      $code .= '<p class="table-caption">'.$caption."</p>\n";
+    }
+    return $code;
+  }
+
+  protected function open_table_row($tag_attributes, $row_nr) {
+    if (empty($tag_attributes)) {
+      return "<tr>\n";
+    } else {
+      return "<tr $tag_attributes>\n";
+    }
+  }
+
+  protected function close_table_row($row_nr) {
+    return "</tr>\n";
+  }
+
+  protected function open_table_cell($type, $tag_attributes, $row_nr, $cell_nr) {
+    // NOTE: No "\n" after the tag; we don't want to introduce unnecessary white space to the cell's content
+    if (empty($tag_attributes)) {
+      return "<$type>";
+    } else {
+      return "<$type $tag_attributes>";
+    }
+  }
+
+  protected function close_table_cell($type, $row_nr, $cell_nr) {
+    return "</$type>\n";
   }
 }
 ?>
