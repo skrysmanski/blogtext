@@ -74,13 +74,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     // Block quotes
     'blockquote' => '/\n>(.*?\n)(?!>)/s',
 
-    // Emphasis with '
-    'emphasis' => "/(?<!')'('{1,4})(.*?)\\1'(?!')/",
+    // Emphasis and bold
+    'bold' => '/(?<!\*)\*\*(.+?)\*\*(?!\*)/',
+    'emphasis' => '@(?<!/)//(.+?)//(?!/)@',
     // Underline, strike-though, super script, and sub script
-    'underline' => '/(?<!_)__(.*?)__(?!_)/',
-    'strike_through' => '/(?<!~)~~(.*?)~~(?!~)/',
-    'super_script' => '/(?<!\^)\^\^(.*?)\^\^(?!\^)/',
-    'sub_script' => '/(?<!,),,(.*?),,(?!,)/',
+    'underline' => '/(?<!_)__(.+?)__(?!_)/',
+    'strike_through' => '/(?<!~)~~(.+?)~~(?!~)/',
+    'super_script' => '/(?<!\^)\^\^(.+?)\^\^(?!\^)/',
+    'sub_script' => '/(?<!,),,(.+?),,(?!,)/',
     // InterLinks using the [[ ]] syntax
     // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
     // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
@@ -522,26 +523,12 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   // RegExp callbacks
   //
 
-  /**
-   * The callback function for bold and italic
-   */
+  private function bold_callback($matches) {
+    return '<strong>'.$matches[1].'</strong>';
+  }
+
   private function emphasis_callback($matches) {
-    $type = $matches[1];
-    $text = $matches[2];
-
-    // NOTE: The length is one less than the actual count due to the regular expression
-    switch (strlen($type)) {
-      case 1: // only italics
-        return "<em>$text</em>";
-      case 2: // only bold
-        return "<strong>$text</strong>";
-      case 4: // bold and italics
-        return "<em><strong>$text</strong></em>";
-      case 3: // special case '''' interpreted as bold and one tick
-        return "<strong>'$text'</strong>";
-    }
-
-    return "$type$text$type";
+    return '<em>'.$matches[1].'</em>';
   }
 
   private function underline_callback($matches) {
@@ -1181,8 +1168,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     $table = new ATM_Table();
     $table->caption = $caption;
-
-    var_dump($table_code);
 
     foreach (explode("\n", $table_code) as $row_code) {
       $row = new ATM_TableRow();
