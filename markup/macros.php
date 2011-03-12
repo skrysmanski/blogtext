@@ -112,7 +112,7 @@ class MediaMacro implements IInterlinkMacro {
         } else {
           $link = $ref;
         }
-      } else if ($param == 'frame') {
+      } else if ($param == 'caption') {
         $has_frame = true;
       } else if ($param == 'left' || $param == 'right' || $param == 'center') {
         $alignment = $param;
