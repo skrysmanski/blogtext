@@ -154,14 +154,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     // Handles regular links to post (ie. without prefix), as well as attachment and Wordpress links (such
     // as categories, tags, blogroll, and archive).
-    self::register_interlink_resolver(self::$interlinks, new WordpressLinkProvider());
+    self::register_interlink_handler(self::$interlinks, new WordpressLinkProvider());
 
     // let the custom interlinks overwrite the wordpress link provider, but not the media macro.
     self::register_all_interlink_patterns(self::$interlinks);
 
     // Media macro (images) - load it as the last one (to overwrite any previously created custom interlinks)
-    // TODO: Create "register_interlink_macro()" function like the other register functions
-    self::register_interlink(self::$interlinks, 'image', new MediaMacro());
+    self::register_interlink_handler(self::$interlinks, new MediaMacro());
 
     self::$INITIALIZED = true;
   }

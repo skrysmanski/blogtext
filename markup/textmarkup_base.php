@@ -59,9 +59,14 @@ abstract class AbstractTextMarkup {
     }
   }
 
-  protected static function register_interlink_resolver(&$interlinks, $resolver) {
-    foreach ($resolver->get_handled_prefixes() as $prefix) {
-      self::register_interlink($interlinks, $prefix, $resolver);
+  /**
+   * Registers an interlink handler, that is either a resolver or a macro.
+   * @param <type> $interlinks
+   * @param <type> $handler
+   */
+  protected static function register_interlink_handler(&$interlinks, $handler) {
+    foreach ($handler->get_handled_prefixes() as $prefix) {
+      self::register_interlink($interlinks, $prefix, $handler);
     }
   }
 
