@@ -24,6 +24,15 @@ require_once(dirname(__FILE__).'/table_base.php');
 
 abstract class AbstractTextMarkup {
 
+  public static function generate_error_html($message, $additional_css='') {
+    if (!empty($additional_css)) {
+      return '<span class="error '.$additional_css.'">'.$message.'</span>';
+    }
+
+    return '<span class="error">'.$message.'</span>';
+  }
+
+
   ////////////////////////////////////////////////////////////////////
   //
   // Interlinks

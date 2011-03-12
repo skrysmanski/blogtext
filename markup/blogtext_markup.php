@@ -80,6 +80,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
     // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
     'interlinks' => '/((?<![[:alpha:]])[[:alpha:]]*)(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
+    // Interlink without arguments [[[ ]]] (three brackets instead of two)
+    'simple_interlinks' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
     // External links (plain text urls)
     'plain_text_urls' => '/(?<=[ \t])(([a-zA-Z0-9\+\.\-]+)\:\/\/(\S+))( [[:punct:]])?/',
     // Horizontal lines
@@ -95,9 +97,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     'strike_through' => '/(?<!~)~~(.+?)~~(?!~)/',
     'super_script' => '/(?<!\^)\^\^(.+?)\^\^(?!\^)/',
     'sub_script' => '/(?<!,),,(.+?),,(?!,)/',
-
-    // Generate TOC
-    'toc' => '/^[ \t]*\[\[\[toc\]\]\][ \t]*$/mi',
   );
 
   // Rules to remove white space at the beginning of line that don't expect this (headings, lists, quotes)
@@ -1029,8 +1028,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     return str_replace('%', '.', rawurlencode($ret));
   }
 
-  private function toc_callback($matches) {
-    return $this->generate_toc();
+  private function simple_interlinks_callback($matches) {
+    // TODO: Make this "real" plugins - not just hardcoded TOC
+    switch (strtolower($matches[1])) {
+      case 'toc':
+        return $this->generate_toc();
+      default:
+        return self::generate_error_html('Plugin "'.$matches[1].'" not found.');
+    }
   }
 
   /**

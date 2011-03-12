@@ -59,10 +59,10 @@ class MediaMacro implements IInterlinkMacro {
 
   private static function generate_error_html($message, $not_found=false) {
     if ($not_found) {
-      return '<span class="error error-attachment-not-found">Attachment "'.$message.'" not found</span>';
+      return AbstractTextMarkup::generate_error_html('Attachment "'.$message.'" not found', 'error-attachment-not-found');
     }
 
-    return '<span class="error">'.$message.'</span>';
+    return AbstractTextMarkup::generate_error_html($message);
   }
 
   private function generate_img_tag($link_resolver, $is_attachment, $ref, $params, $generate_html) {
