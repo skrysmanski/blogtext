@@ -714,18 +714,20 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     $not_found_reason = '';
 
-    if (array_key_exists($prefix, self::$interlinks)) {
+    $prefix_lowercase = strtolower($prefix);
+
+    if (isset(self::$interlinks[$prefix_lowercase])) {
       // NOTE: The prefix may even be empty.
-      $prefix_handler = self::$interlinks[$prefix];
+      $prefix_handler = self::$interlinks[$prefix_lowercase];
 
       if ($prefix_handler instanceof IInterlinkMacro) {
         // Let the macro create the HTML code and return it directly.
-        return $prefix_handler->handle_macro($this, $prefix, $params, $generate_html, $text_before, $text_after);
+        return $prefix_handler->handle_macro($this, $prefix_lowercase, $params, $generate_html, $text_before, $text_after);
       }
 
       if ($prefix_handler instanceof IInterlinkLinkResolver) {
         try {
-          list($link, $title, $is_external, $link_type) = $prefix_handler->resolve_link($post_id, $prefix, $params);
+          list($link, $title, $is_external, $link_type) = $prefix_handler->resolve_link($post_id, $prefix_lowercase, $params);
           $is_attachment = ($link_type == IInterlinkLinkResolver::TYPE_ATTACHMENT);
         } catch (LinkNotFoundException $e) {
           $not_found_reason = $e->get_reason();
@@ -737,8 +739,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
         // because we can't pass them directly to the callback method, nested functions can't be used as
         // callback functions and anonymous function are only available in PHP 5.3 and higher.
         $this->cur_interlink_params = $params;
-        $link = preg_replace_callback('/\$(\d+)/', array($this, 'interlink_params_callback'), self::$interlinks[$prefix]['pattern']);
-        $is_external = self::$interlinks[$prefix]['external'];
+        $link = preg_replace_callback('/\$(\d+)/', array($this, 'interlink_params_callback'), 
+                                      self::$interlinks[$prefix_lowercase]['pattern']);
+        $is_external = self::$interlinks[$prefix_lowercase]['external'];
       } else {
         throw new Exception("Invalid prefix handler: ".gettype($prefix_handler));
       }
