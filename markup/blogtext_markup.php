@@ -76,9 +76,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     // Emphasis with '
     'emphasis' => "/(?<!')'('{1,4})(.*?)\\1'(?!')/",
-    // Underline and strike-though
-    'underline' => "/(?<!_)__(.*?)__(?!_)/",
-    'strike_through' => "/(?<!~)~~(.*?)~~(?!~)/",
+    // Underline, strike-though, super script, and sub script
+    'underline' => '/(?<!_)__(.*?)__(?!_)/',
+    'strike_through' => '/(?<!~)~~(.*?)~~(?!~)/',
+    'super_script' => '/(?<!\^)\^\^(.*?)\^\^(?!\^)/',
+    'sub_script' => '/(?<!,),,(.*?),,(?!,)/',
     // InterLinks using the [[ ]] syntax
     // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
     // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
@@ -552,6 +554,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     // NOTE: <strike> is no longer a valid tag in HTML5. So we use
     //   a <span> together with CSS instead.
     return '<span class="strike">'.$matches[1].'</span>';
+  }
+
+  private function super_script_callback($matches) {
+    return '<sup>'.$matches[1].'</sup>';
+  }
+
+  private function sub_script_callback($matches) {
+    return '<sub>'.$matches[1].'</sub>';
   }
 
   /**
