@@ -37,6 +37,7 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
     $section->add_option(BlogTextSettings::get_toc_title(true));
     $section->add_option(BlogTextSettings::get_top_level_heading_level(true));
     $section->add_option(BlogTextSettings::new_window_for_external_links(true));
+    $section->add_option(BlogTextSettings::remove_common_protocol_prefixes(true));
     $section->add_option(BlogTextSettings::get_default_small_img_alignment(true));
     $section->add_option(BlogTextSettings::use_frame_for_thumbs(true));
     $this->add_section($section);
@@ -67,6 +68,7 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
   private function need_to_clear_cache() {
     if (   $this->is_option_updated(BlogTextSettings::get_top_level_heading_level(true))
         || $this->is_option_updated(BlogTextSettings::get_toc_title(true))
+        || $this->is_option_updated(BlogTextSettings::remove_common_protocol_prefixes(true))
         || $this->is_option_updated(BlogTextSettings::new_window_for_external_links(true))
         || $this->is_option_updated(BlogTextSettings::get_default_small_img_alignment(true))
         || $this->is_option_updated(BlogTextSettings::use_frame_for_thumbs(true))

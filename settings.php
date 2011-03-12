@@ -60,6 +60,20 @@ class BlogTextSettings {
     return $get_option ? $option : $option->get_value();
   }
 
+  public static function remove_common_protocol_prefixes($get_option=false) {
+    static $option = null;
+    if ($option == null) {
+      $option = new MSCL_BoolOption('blogtext_remove_common_protocol_prefixes',
+              'Render http:// and https:// links shortend',
+              true,
+              'When this is enabled, a link like "http://www.mayastudios.com" will render as '
+              .'"www.mayastudios.com" - when no name is provided for the link. Only the protocols "http://" '
+              .'and "https://" will be removed and only in some cases the prefixes will be removed.');
+      // TODO: Add link to explanation which urls will be shortend.
+    }
+    return $get_option ? $option : $option->get_value();
+  }
+
   public static function new_window_for_external_links($get_option=false) {
     static $option = null;
     if ($option == null) {

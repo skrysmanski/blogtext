@@ -76,22 +76,25 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     // Indention (must be done AFTER lists)
     'indention' => '/\n[ \t]{2,}(.*?\n)(?![ \t]{2})/s',
 
-    // Emphasis and bold
-    'bold' => '/(?<!\*)\*\*(.+?)\*\*(?!\*)/',
-    'emphasis' => '@(?<!/)//(.+?)//(?!/)@',
-    // Underline, strike-though, super script, and sub script
-    'underline' => '/(?<!_)__(.+?)__(?!_)/',
-    'strike_through' => '/(?<!~)~~(.+?)~~(?!~)/',
-    'super_script' => '/(?<!\^)\^\^(.+?)\^\^(?!\^)/',
-    'sub_script' => '/(?<!,),,(.+?),,(?!,)/',
     // InterLinks using the [[ ]] syntax
     // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
     // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
     'interlinks' => '/((?<![[:alpha:]])[[:alpha:]]*)(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
     // External links (plain text urls)
-    'plain_text_urls' => '/(?<=[ \t])(([a-zA-Z0-9\+\.\-]+)\:\/\/\S+)( [[:punct:]])?/',
+    'plain_text_urls' => '/(?<=[ \t])(([a-zA-Z0-9\+\.\-]+)\:\/\/(\S+))( [[:punct:]])?/',
     // Horizontal lines
     'horizontal' => '/^----[\-]*[ \t]*$/m',
+
+    // Emphasis and bold
+    // NOTE: We must check that there's no : before the // in emphasis so that URLs won't be interpreted as
+    //   emphasis.
+    'bold' => '/(?<!\*)\*\*(.+?)\*\*(?!\*)/',
+    'emphasis' => '@(?<![/\:])//(.+?)//(?!/)@',
+    // Underline, strike-though, super script, and sub script
+    'underline' => '/(?<!_)__(.+?)__(?!_)/',
+    'strike_through' => '/(?<!~)~~(.+?)~~(?!~)/',
+    'super_script' => '/(?<!\^)\^\^(.+?)\^\^(?!\^)/',
+    'sub_script' => '/(?<!,),,(.+?),,(?!,)/',
 
     // Generate TOC
     'toc' => '/^[ \t]*\[\[\[toc\]\]\][ \t]*$/mi',
@@ -579,18 +582,57 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   private function plain_text_urls_callback($matches) {
     $protocol = $matches[2];
     $url = $matches[1];
-    if (count($matches) == 4) {
+    if (count($matches) == 5) {
       // if punctuation is found, there has been a blank added between the url and the punctionation;
       // eg.: (my link: http://en.wikipedia.org/wiki/Portal_(Game) )
       // so we remove the blank so that the result looks like expected
-      $punctuation = substr($matches[3], 1);
+      $punctuation = substr($matches[4], 1);
     } else {
       $punctuation = '';
     }
 
+    $title = $this->get_plain_url_name($url);
+
     // Replace "+" and "." for the css name as they have special meaning in CSS.
     $protocol_css_name = str_replace(array('+', '.'), '-', $protocol);
-    return $this->generate_link_tag($url, $url, array('external', "external-$protocol_css_name", $protocol_css_name)).$punctuation;
+    return $this->generate_link_tag($url, $title,
+                                    array('external', "external-$protocol_css_name", $protocol_css_name))
+           .$punctuation;
+  }
+
+  private function get_plain_url_name($url) {
+    if (!BlogTextSettings::remove_common_protocol_prefixes()) {
+      return $url;
+    }
+
+    $url_info = parse_url($url);
+    if ($url_info['scheme'] != 'http' && $url_info['scheme'] != 'https') {
+      // we only handle http and https
+      return $url;
+    }
+
+    if (   isset($url_info['query']) || isset($url_info['fragment'])
+        || isset($url_info['user']) || isset($url_info['pass'])) {
+      // If any of the above mentioned "advanced" URL parts is in the URL, don't shorten the URL.
+      return $url;
+    }
+
+    $hostname_parts = explode('.', $url_info['host'], 3);
+    if (count($hostname_parts) == 3 && $hostname_parts[0] != 'www') {
+      // don't shorten urls like "http://en.wikipedia.org" unless its path part is empty (ie.
+      // "http://en.wikipedia.org/wiki/Article" won't be shorten where as "http://en.wikipedia.org" will be).
+      if (isset($url_info['path'])) {
+        return $url;
+      } else {
+        return $url_info['host'];
+      }
+    }
+
+    if (isset($url_info['path'])) {
+      return $url_info['host'].'/'.$url_info['path'];
+    } else {
+      return $url_info['host'];
+    }
   }
 
   private function generate_link_tag($url, $name, $css_classes, $new_window=true, $is_attachment=false) {
@@ -710,10 +752,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       } else {
         $link = $prefix.':'.$params[0];
         $is_external = true;
-        if (count($params) == 1 && substr($params[0], 0, 2) == '//' && ($prefix == 'http' || $prefix == 'https')) {
-          // strip prefix for beautier names; but only for http and https and only if no title has been
-          // specified in the last parameter
-          $title = substr($params[0], 2);
+        if (count($params) == 1 && substr($params[0], 0, 2) == '//') {
+          $title = $this->get_plain_url_name($link);
         }
       }
     }
