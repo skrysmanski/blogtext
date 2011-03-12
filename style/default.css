@@ -12,6 +12,13 @@ span.underline {
   text-decoration: underline;
 }
 
+p.table-caption {
+  text-align: center;
+  font-size: 80%;
+  font-weight: bold;
+  margin-top: -20px;
+}
+
 /*
  * Link icons
  */

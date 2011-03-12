@@ -65,6 +65,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     'headings' =>'/^(={1,6})(.*?)\1(?:[ \t]+#([^ \t]+))?[ \t]*$/m',
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
+    // simple tables - Creole syntax
+    // NOTE: Need to be done AFTER "complex_tables" as they syntaxes otherwise may collide (eg. on the
+    //   table caption)
+    'simple_table' => '/\n(\|[^\|]+\|.+(?:\n\|[^\|]+\|.+)*)(?:\n\|\+(.+))?/',
     // Ordered (#) and unordered (*, -) lists; indentions (:)
     'list' => '/\n[\*#;].*?\n(?:(?:[\*#; \t].*?)?\n)*/',
     // Block quotes
@@ -1159,7 +1163,50 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   //
 
   /**
-   * The callback function for tables
+   * The callback function for simple tables
+   */
+  private function simple_table_callback($matches) {
+    $table_code = $matches[1];
+    $caption = @$matches[2];
+
+    $table = new ATM_Table();
+    $table->caption = $caption;
+
+    var_dump($table_code);
+
+    foreach (explode("\n", $table_code) as $row_code) {
+      $row = new ATM_TableRow();
+
+      foreach (explode('|', $row_code) as $cell_code) {
+        // NOTE: DON'T trim the cell code here as we need to differentiate between "|= text" and "| =text".
+        if (empty($cell_code)) {
+          // can only be happening on the last element - still we need to add it so that we can remove the
+          // last element below in a secure way
+          $row->cells[] = new ATM_TableCell(ATM_TableCell::TYPE_TD, '');
+        } else {
+          if ($cell_code[0] == '=') {
+            $row->cells[] = new ATM_TableCell(ATM_TableCell::TYPE_TH, trim(substr($cell_code, 1)));
+          } else {
+            $row->cells[] = new ATM_TableCell(ATM_TableCell::TYPE_TD, trim($cell_code));
+          }
+        }
+
+        $last_cell = $row->cells[count($row->cells) - 1];
+        if (empty($last_cell->cell_content) && $last_cell->cell_type == ATM_TableCell::TYPE_TD) {
+          // Remove the last cell, if it's empty. This is the result of "| my cell |" (which would otherwise
+          // result in two cells).
+          array_pop($row->cells);
+        }
+      }
+
+      $table->rows[] = $row;
+    }
+
+    return $this->generate_table_code($table);
+  }
+
+  /**
+   * The callback function for complex tables
    */
   private function complex_table_callback($matches) {
     $attrs = trim($matches[1]);
