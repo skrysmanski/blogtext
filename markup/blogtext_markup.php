@@ -73,6 +73,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     'list' => '/\n[\*#;].*?\n(?:(?:[\*#; \t].*?)?\n)*/',
     // Block quotes
     'blockquote' => '/\n>(.*?\n)(?!>)/s',
+    // Indention (must be done AFTER lists)
+    'indention' => '/\n[ \t]{2,}(.*?\n)(?![ \t]{2})/s',
 
     // Emphasis and bold
     'bold' => '/(?<!\*)\*\*(.+?)\*\*(?!\*)/',
@@ -565,6 +567,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
   private function blockquote_callback($matches) {
     return '<blockquote>'.str_replace("\n>", "\n", $matches[1]).'</blockquote>';
+  }
+
+  private function indention_callback($matches) {
+    return '<p class="indented">'.trim($matches[1]).'</p>';
   }
 
   //

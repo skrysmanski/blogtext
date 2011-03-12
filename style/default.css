@@ -19,6 +19,10 @@ p.table-caption {
   margin-top: -20px;
 }
 
+p.indented {
+  padding-left: 2em;
+}
+
 /*
  * Link icons
  */
