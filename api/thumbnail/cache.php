@@ -48,6 +48,23 @@ class MSCL_ThumbnailCache {
       // NOTE 2: We considered letting the user specify the upload dir in this case but passing it to "do.php"
       //   would be reveal too much of the internal directory structure. So we dumped this idea.
       $base_dir = $plugin_dir;
+      if (MSCL_is_wordpress_loaded()) {
+        // The base upload directory doesn't exist. Check why and give a specific error message in this case.
+        // NOTE: "wp_upload_dir()" will create the upload directory, if it didn't exist.
+        $upload_infos = wp_upload_dir();
+        if (!empty($upload_infos['error'])) {
+          // An error occured while determining the uploads dir
+          throw new MSCL_AdminException('The uploads directory is not accessible.',
+                                        'Error: '.$upload_infos['error']);
+        } else {
+          // uploads dir could be determined; now check whether its the same as the default directory
+          if ($upload_infos['basedir'] == $default_upload_dir) {
+            // "wp_upload_dir()" has now created the uploads dir. So use it.
+            $base_dir = $default_upload_dir;
+          }
+        }
+
+      }
     }
 
     $this->local_file_cache_dir_path = str_replace('//', '/', $base_dir.'/'.LOCAL_IMG_CACHE_DIR);
@@ -57,31 +74,19 @@ class MSCL_ThumbnailCache {
       // Only available when running from inside of Wordpress
       // Note that this isn't a problem though, as the directories already have been created when creating
       // the token files.
-      try {
-        if (!file_exists($this->local_file_cache_dir_path)) {
-          if (!wp_mkdir_p($this->local_file_cache_dir_path)) {
-            throw new MSCL_AdminException("Could not created thumbnail cache directory.",
-                                     "Location: ".$this->local_file_cache_dir_path,
-                                     'could_not_create_cache_local_dir');
-          }
+      if (!file_exists($this->local_file_cache_dir_path)) {
+        if (!wp_mkdir_p($this->local_file_cache_dir_path)) {
+          throw new MSCL_AdminException("Could not created thumbnail cache directory.",
+                                   "Location: ".$this->local_file_cache_dir_path." (maybe not writable?)",
+                                   'could_not_create_cache_local_dir');
         }
+      }
 
-        if (!file_exists($this->remote_file_cache_dir_path)) {
-          if (!wp_mkdir_p($this->remote_file_cache_dir_path)) {
-            throw new MSCL_AdminException("Could not created thumbnail cache directory.",
-                                     "Location: ".$this->remote_file_cache_dir_path,
-                                     'could_not_create_cache_remote_dir');
-          }
-        }
-      } catch (MSCL_AdminException $e) {
-        // The thumbnail directory could not be created. Check whether the uploads directory exists and
-        // give another error message in this case.
-        $upload_infos = wp_upload_dir();
-        if (!empty($upload_infos['error'])) {
-          throw new MSCL_AdminException('The uploads directory is not accessible.', $upload_infos['error'],
-                                        $e->get_error_id());
-        } else {
-          throw $e;
+      if (!file_exists($this->remote_file_cache_dir_path)) {
+        if (!wp_mkdir_p($this->remote_file_cache_dir_path)) {
+          throw new MSCL_AdminException("Could not created thumbnail cache directory.",
+                                   "Location: ".$this->remote_file_cache_dir_path." (maybe not writable?)",
+                                   'could_not_create_cache_remote_dir');
         }
       }
 
