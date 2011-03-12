@@ -239,8 +239,25 @@ abstract class AbstractTextMarkup {
   protected function generate_table_code($table) {
     $code = $this->open_table($table->tag_attributes, $table->caption);
 
+    $has_table_head = true;
     $row_nr = 0;
     foreach ($table->rows as $row) {
+      if ($row_nr == 0) {
+        // check for table head - ie. the first row being only <th> elements
+        foreach ($row->cells as $cell) {
+          if ($cell->cell_type != ATM_TableCell::TYPE_TH) {
+            $has_table_head = false;
+            break;
+          }
+        }
+
+        if ($has_table_head) {
+          $code .= $this->open_table_section('thead');
+        }
+      } else if ($row_nr == 1 && $has_table_head) {
+        $code .= $this->open_table_section('tbody');
+      }
+
       $code .= $this->open_table_row($row->tag_attributes, $row_nr);
 
       $cell_nr = 0;
@@ -252,7 +269,16 @@ abstract class AbstractTextMarkup {
       }
 
       $code .= $this->close_table_row($row_nr);
+
+      if ($row_nr == 0 && $has_table_head) {
+        $code .= $this->close_table_section('thead');
+      }
+
       $row_nr++;
+    }
+
+    if ($has_table_head && $row_nr > 1) {
+      $code .= $this->close_table_section('tbody');
     }
 
     return $code.$this->close_table($table->caption);
@@ -272,6 +298,14 @@ abstract class AbstractTextMarkup {
       $code .= '<p class="table-caption">'.$caption."</p>\n";
     }
     return $code;
+  }
+
+  protected function open_table_section($section_type) {
+    return "<$section_type>\n";
+  }
+
+  protected function close_table_section($section_type) {
+    return "</$section_type>\n";
   }
 
   protected function open_table_row($tag_attributes, $row_nr) {
