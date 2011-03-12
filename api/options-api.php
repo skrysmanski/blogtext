@@ -183,7 +183,7 @@ class MSCL_BoolOption extends MSCL_Option {
     }
     
     if (is_bool($value)) {
-      return true;
+      return $value;
     }
 
     if (is_numeric($value)) {
