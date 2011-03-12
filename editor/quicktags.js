@@ -13,13 +13,13 @@ function get_blogtext_editor_buttons() {
     var curButton = edButtons[i];
     switch (curButton.id) {
       case 'ed_strong':
-        curButton.tagStart = "'''";
-        curButton.tagEnd = "'''";
+        curButton.tagStart = "**";
+        curButton.tagEnd = "**";
         curButton.tooltip = "Bold Font";
         break;
       case 'ed_em':
-        curButton.tagStart = "''";
-        curButton.tagEnd = "''";
+        curButton.tagStart = "//";
+        curButton.tagEnd = "//";
         curButton.tooltip = "Italics Font";
         newEdButtons[newEdButtons.length] = curButton;
 
