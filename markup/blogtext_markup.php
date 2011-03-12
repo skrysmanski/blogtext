@@ -62,7 +62,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   // NOTE: This list is ordered and the order is important.
   private static $RULES = array(
     // heading with optional anchor names
-    'headings' =>'/^(={1,6})(.*?)\1(?:[ \t]+#([^ \t]+))?[ \t]*$/m',
+    'headings' =>'/^(={1,6})(.*?)(?:=[ \t]+#([^ \t]+))?[ \t]*$/m',
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
     // simple tables - Creole syntax
@@ -888,6 +888,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   private function headings_callback($matches) {
     $level = strlen($matches[1]);
     $text = trim($matches[2]);
+    // Remove trailing equal signs
+    $text = trim(rtrim($text, '='));
+
     if (count($matches) == 4) {
       $id = trim($matches[3]);
     } else {
