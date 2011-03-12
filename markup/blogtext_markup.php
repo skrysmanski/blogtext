@@ -381,7 +381,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
         // Special ltrim b/c leading whitespace matters on 1st line of content.
         $code = preg_replace('/^\s*\n/U', '', $contents);
         $code = rtrim($code);
-        $is_multiline = (strpos($code, "\n") !== false);
+        // NOTE: Use $contents here (instead of $code) to differentiate
+        //   "{{{ my code }}}"
+        //   from
+        //   {{{
+        //   my only code line
+        //   }}}
+        $is_multiline = (strpos($contents, "\n") !== false);
         $additional_html_attribs = '';
 
         if ($block_type == '{{{' && !$is_multiline) {
