@@ -47,8 +47,9 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
     $section->add_option(BlogTextSettings::get_geshi_theme(true));
     $this->add_section($section);
 
-    $section = new MSCL_OptionsPageSection('blogtext_warnings', 'Disable Warnings', '');
+    $section = new MSCL_OptionsPageSection('blogtext_warnings', 'Backend Settings', '');
     $section->add_option(BlogTextSettings::disable_fix_invalid_xhtml_warning(true));
+    $section->add_option(BlogTextSettings::enable_monospace_editor_font(true));
     $this->add_section($section);
 
     $section = new MSCL_OptionsPageSection('blogtext_interlinks', 'Interlinks', '');

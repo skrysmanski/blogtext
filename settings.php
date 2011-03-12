@@ -143,6 +143,18 @@ class BlogTextSettings {
     return $get_option ? $option : $option->get_value();
   }
 
+  public static function enable_monospace_editor_font($get_option=false) {
+    static $option = null;
+    if ($option == null) {
+      $option = new MSCL_BoolOption('blogtext_enable_monospace_editor_font',
+                               'Monospace font in editor',
+                               true,
+                               'Use <span style="font-family:monospace;">monospaced</span> font in the post '
+                               .'editor (instead of the default proportional font).');
+    }
+    return $get_option ? $option : $option->get_value();
+  }
+
   ////////////////////////////////////////////////////////////////////////////
 
   public static function get_interlinks($get_option=false, $parse=true) {

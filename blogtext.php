@@ -113,7 +113,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
       $this->add_frontend_stylesheet("style/geshi-css/$geshi_style.css", 'geshi');
     }
 
-    $this->add_backend_stylesheet('editor/editor.css');
+    BlogTextEditor::insert_css_files($this);
   }
 
   private function add_javascripts() {

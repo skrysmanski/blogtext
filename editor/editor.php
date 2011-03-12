@@ -52,6 +52,13 @@ class BlogTextEditor {
     }
   }
 
+  public static function insert_css_files($plugin) {
+    $plugin->add_backend_stylesheet('editor/editor.css');
+    if (BlogTextSettings::enable_monospace_editor_font()) {
+      $plugin->add_backend_stylesheet('editor/editor-monospace.css');
+    }
+  }
+
   public function insert_editor_javascript() {
     // Replace buttons (quick tags) in Wordpress' HTML editor
     echo '<script type="text/javascript" src="'.BlogTextPlugin::get_instance()->get_plugin_url().'/editor/quicktags.js"></script>';
