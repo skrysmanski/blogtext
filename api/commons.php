@@ -31,7 +31,7 @@ class MSCL_Api {
   const CACHE_API = 'cache-api.php';
   const OPTIONS_API = 'options-api.php';
   const USER_API = 'user-api.php';
-  const GESHI = 'geshi/geshi.php';
+  const GESHI = '../thirdparty/geshi/geshi.php';
 
   private static $api_dir = null;
   private static $loaded_apis = array();
