@@ -83,16 +83,23 @@ abstract class MSCL_Option {
   }
 
   public function validate($input) {
+    // IMPORTANT: We need to convert the value here to a string. Otherwise a "false"/0/... value won't be
+    //   be stored. This is a problem, if the default value isn't "false"/0/... . In this case, the option
+    //   would always be the default value.
     if ($this->check_value($input)) {
       if ($this->custom_validator_func !== null) {
         if (call_user_func($this->custom_validator_func, &$input)) {
-          return $input;
+          return $this->convert_to_string($input);
         }
       } else {
-        return $input;
+        return $this->convert_to_string($input);
       }
     }
-    return $this->get_value();
+    return $this->convert_to_string($this->get_value());
+  }
+
+  protected function convert_to_string($input) {
+    return (string)$input;
   }
 
   protected abstract function check_value(&$input);
