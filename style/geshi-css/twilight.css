@@ -15,8 +15,8 @@
 /*
 * Global geshi styles
 **********************/
-.code, code.hl {
-	background: #222223;
+.code, code {
+  background: #222223 !important;
 }
 
 .code td.ln {
@@ -24,11 +24,11 @@
 }
 
 .not-hl, .not-hl td pre, .code td.ln pre {
-	color: #f8f8f8;
+  color: #f8f8f8 !important;
 }
 
 .hl, .hl td pre, code.hl {
-	color:#f8f8f8;
+  color:#f8f8f8 !important;
 }
 
 
