@@ -25,7 +25,7 @@ MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 MSCL_Api::load(MSCL_Api::THUMBNAIL_CACHE);
 MSCL_Api::load(MSCL_Api::CACHE_API);
 
-require_once(dirname(__FILE__).'/abstract_textmarkup.php');
+require_once(dirname(__FILE__).'/textmarkup_base.php');
 require_once(dirname(__FILE__).'/macros.php');
 require_once(dirname(__FILE__).'/resolver.php');
 
@@ -63,8 +63,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   private static $RULES = array(
     // heading with optional anchor names
     'headings' =>'/^(={1,6})(.*?)\1(?:[ \t]+#([^ \t]+))?[ \t]*$/m',
-    // tables - possibly contained in a list
-    'table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
+    // complex tables (possibly contained in a list) - MediaWiki syntax
+    'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
     // Ordered (#) and unordered (*, -) lists; indentions (:)
     'list' => '/\n[\*#;].*?\n(?:(?:[\*#; \t].*?)?\n)*/',
     // Block quotes
@@ -1163,7 +1163,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   /**
    * The callback function for tables
    */
-  private function table_callback($matches) {
+  private function complex_table_callback($matches) {
     $attrs = trim($matches[1]);
     $table_caption = trim($matches[2]);
     $rows = $matches[3];
@@ -1181,12 +1181,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     $end = "</table>";
 
 
-//    $ret =
-//      str_repeat("\t", $this->table_level).$start."\n".
-//      $rows.
-//      str_repeat("\t", $this->table_level).$end."\n";
     if (strlen($table_caption) > 0) {
-      $end .= "\n<p>".$table_caption.'</p>';
+      $end .= "\n<p class=\"table-caption\">".$table_caption.'</p>';
     }
     $ret = $start."\n".$rows.$end."\n";
 
