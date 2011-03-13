@@ -93,12 +93,14 @@ class BlogTextSettings {
     return $get_option ? $option : $option->get_value();
   }
 
-  public static function use_frame_for_thumbs($get_option=false) {
+  public static function display_caption_for_thumbs($get_option=false) {
     static $option = null;
     if ($option == null) {
-      $option = new MSCL_BoolOption('blogtext_use_frame_for_thumbs', 'Use a frame for thumbnails', false,
-              'Specifies whether images specified as "[[image:myimage.jpg|thumb]]" are to be wrapped '
-              .'in a frame &lt;div&gt; tag.');
+      $option = new MSCL_BoolOption('blogtext_display_caption_for_thumbs', 'Display captions for thumbnails',
+              false,
+              'Specifies whether the caption of images specified as <code>[[image:myimage.jpg|thumb]]</code> '
+              .'are displayed by default. If this is enabled, a caption can be disabled by adding '
+              .'<code>nocaption</code> as parameter.');
     }
     return $get_option ? $option : $option->get_value();
   }

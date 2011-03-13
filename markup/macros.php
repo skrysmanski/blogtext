@@ -69,6 +69,7 @@ class MediaMacro implements IInterlinkMacro {
     $link = '';
     $link_params = array();
     $has_frame = false;
+    $no_caption = false;
     $is_thumb = false;
     $alignment = '';
     $title = '';
@@ -114,6 +115,8 @@ class MediaMacro implements IInterlinkMacro {
         }
       } else if ($param == 'caption') {
         $has_frame = true;
+      } else if ($param == 'nocaption') {
+        $no_caption = true;
       } else if ($param == 'left' || $param == 'right' || $param == 'center') {
         $alignment = $param;
       } else if ($param == 'small' || $param == 'medium' || $param == 'large' || substr($param, -2) == 'px') {
@@ -133,7 +136,7 @@ class MediaMacro implements IInterlinkMacro {
     //
     // add frame to thumb
     //
-    if ($is_thumb && BlogTextSettings::use_frame_for_thumbs()) {
+    if ($is_thumb && BlogTextSettings::display_caption_for_thumbs() && !$no_caption) {
       $has_frame = true;
     }
 
