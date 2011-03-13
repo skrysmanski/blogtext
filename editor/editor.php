@@ -87,17 +87,19 @@ class BlogTextEditor {
       //   have no clue on what's the image really is but the attachment identified uniquely.
       //   For now we use the attachment name.
       $code = '[[image:'.get_post($attachment_id)->post_name;
-      if (isset($attachment['align'])) {
-        $code .= '|'.$attachment['align'];
+      if (isset($attachment['align']) && strtolower($attachment['align']) != 'none') {
+        $code .= '|'.strtolower($attachment['align']);
       }
-      if (isset($attachment['image-size'])) {
-        $size = $attachment['image-size'];
+
+      if (isset($attachment['image-size']) && strtolower($attachment['image-size']) != 'full') {
+        $size = strtolower($attachment['image-size']);
         if ($size == 'thumb' || $size == 'thumbnail') {
           $size = 'small';
         }
         $code .= '|'.$size;
       }
-      if (isset($attachment['url'])) {
+
+      if (isset($attachment['url']) && !empty($attachment['url'])) {
         if (   $attachment['url'] == get_attachment_link($attachment_id)
             || $attachment['url'] == wp_get_attachment_url($attachment_id)) {
           $code .= '|thumb';
