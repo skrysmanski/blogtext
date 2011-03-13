@@ -67,17 +67,24 @@ a.not-available {
  */
 .align-left {
   float: left;
-  margin-right: 10px;
+  clear: left; /* prevents floats from stacking */
+  margin: 0 10px 10px 0;
 }
 
 .align-right {
   float: right;
-  margin-left: 10px;
+  clear: right; /* prevents floats from stacking */
+  margin: 0 0 10px 10px;
 }
 
 .align-center {
   margin: 0 auto;
+  text-align: center;
 }
+
+  .align-center > .image-caption {
+    text-align: left;
+  }
 
 /*
  * Image frame
@@ -87,12 +94,12 @@ div.image-frame {
   background-color: #ccc;
 }
 
-  div.image-frame div.image {
+  div.image-frame .image {
     margin: 0;
     padding: 0;
   }
 
-  div.image-frame div.caption {
+  div.image-frame .image-caption {
     margin: 0;
     padding: 0 0.5em;
     font-size: 80%;

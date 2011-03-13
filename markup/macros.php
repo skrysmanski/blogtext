@@ -245,15 +245,14 @@ class MediaMacro implements IInterlinkMacro {
       $align_style = !empty($alignment) ? (' align-'.$alignment) : '';
 
       // NOTE: We need to specify the width here so that long titles break properly.
+      // NOTE 2: We must define the width for the "image-frame" element. It's not sufficient to specify it
+      //   on the "image-caption" element.
       $html = '<div class="image-frame'.$align_style.'" style="width: '.$img_width.'px;">'
             . '<div class="image">'.$html.'</div>'
-            . '<div class="caption">'.$title.'</div>'
+            . '<div class="image-caption">'.$title.'</div>'
             . '</div>';
     } else if (!empty($alignment)) {
-      // Only use the align <div> when no frame is used. We need to do this as otherwise we would not be able
-      // to center the image.
-      $width_style = $alignment == 'center' ? (' style="width: '.$img_width.'px;"') : '';
-      $html = '<div class="align-'.$alignment.'"'.$width_style.'>'.$html.'</div>';
+      $html = '<div class="align-'.$alignment.'">'.$html.'</div>';
     }
 
     return $html;
