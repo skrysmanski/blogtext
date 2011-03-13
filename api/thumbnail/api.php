@@ -150,7 +150,7 @@ class MSCL_ThumbnailApi {
     if ($mode === null) {
       // use default
       $crop = (!is_array($size) && $size == 'small' && self::get_instance()->thumb_crop);
-      return $crop ? MSCL_Thumbnail::MODE_CROP_AND_RESIZE : MSCL_Thumbnail::MODE_RESIZE_IF_LARGER;
+      return $crop ? MSCL_Thumbnail::MODE_CROP : MSCL_Thumbnail::MODE_RESIZE_IF_LARGER;
     }
 
     return $mode;
@@ -180,7 +180,12 @@ class MSCL_ThumbnailApi {
       $instance = self::get_instance();
       $instance->thumbnails[$token] = $thumb;
     }
+    // NOTE: Always call this method (not only when the thumbnail instance hadn't been created yet), as we
+    //   can't assume that the same container was used when the thumbnail was first created. This is
+    //   especially true, when a post's content is checked for thumbnails (in a second "iteration", see
+    //   BlogTextMarkup::check_thumbnails()).
     $thumbnail_container->add_used_thumbnail($thumb);
+
     return array($thumb->get_thumb_image_url(), $thumb->get_thumb_width(), $thumb->get_thumb_height());
   }
 
@@ -785,12 +790,11 @@ class MSCL_Thumbnail {
       if ($this->mode == self::MODE_CROP_AND_RESIZE && ($orig_w < $dest_w || $orig_h < $dest_h)) {
         if ($dest_w == 0) {
           $dest_w = intval($dest_h * $aspect_ratio);
-        }
-        if ($dest_h == 0) {
+        } else if ($dest_h == 0) {
           $dest_h = intval($dest_w / $aspect_ratio);
         }
 
-        $factor = min($dest_w / $orig_w, $dest_h / $orig_h);
+        $factor = max($dest_w / $orig_w, $dest_h / $orig_h);
         $crop_w = $dest_w / $factor;
         $crop_h = $dest_h / $factor;
 
