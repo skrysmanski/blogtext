@@ -194,8 +194,15 @@ class MediaMacro implements IInterlinkMacro {
           // content width isn't available. Make the size 0x0 so that its size isn't added to the HTML code.
           // this way we don't need to check whether this image's size has changed (in order to check whether
           // the cache HTML code can be used).
-          $img_width = 0;
-          $img_height = 0;
+          if ($has_frame && !empty($title)) {
+            // NOTE: For a frame together with a title we need at least the image's width (see below).
+            $info = MSCL_ImageInfo::get_instance($img_url);
+            $img_width = $info->get_width();
+            $img_height = $info->get_height();
+          } else {
+            $img_width = 0;
+            $img_height = 0;
+          }
         }
       }
 
