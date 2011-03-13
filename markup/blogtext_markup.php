@@ -129,6 +129,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
    */
   private $headings = array();
 
+  private $headings_title_map = array();
+
   private $thumbs_used = array();
 
   public function __construct() {
@@ -228,7 +230,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       $ret = $this->execute_regex($name, $ret);
     }
 
-    $ret = $this->decode_no_markup_texts($ret);
+    $ret = $this->decode_placeholders($ret);
 
     // update cache
     $mod_date = MarkupUtil::create_mysql_date();
@@ -278,6 +280,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     $this->placeholders = array();
     $this->id_suffix = array();
     $this->headings = array();
+    $this->headings_title_map = array();
     $this->thumbs_used = array();
   }
 
@@ -358,12 +361,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_inner_tag_urls_callback'), $markup_code);
 
     return $markup_code;
-  }
-
-  private function encode_placeholder($key, $value) {
-    $key = md5($key);
-    $this->placeholders[$key] = $value;
-    return self::$BLOCK_ENCODE_START_DELIM.$key.self::$BLOCK_ENCODE_END_DELIM;
   }
 
   /**
@@ -555,16 +552,28 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     return $this->encode_placeholder($matches[0], $matches[0]);
   }
 
-  private function decode_no_markup_texts($markup_code) {
-    $pattern = '/'.preg_quote(self::$BLOCK_ENCODE_START_DELIM).'(.*)'.preg_quote(self::$BLOCK_ENCODE_END_DELIM).'/U';
-    return preg_replace_callback($pattern, array($this, 'decode_no_markup_texts_callback'), $markup_code);
+  private function encode_placeholder($key, $value, $value_callback_func=null) {
+    $key = md5($key);
+    $this->placeholders[$key] = array($value, $value_callback_func);
+    return self::$BLOCK_ENCODE_START_DELIM.$key.self::$BLOCK_ENCODE_END_DELIM;
+  }
+
+  private function decode_placeholders($markup_code) {
+    // NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
+    $pattern = '/'.preg_quote(self::$BLOCK_ENCODE_START_DELIM).'([a-f0-9]{32})'.preg_quote(self::$BLOCK_ENCODE_END_DELIM).'/';
+    return preg_replace_callback($pattern, array($this, 'decode_placeholders_callback'), $markup_code);
   }
 
   /**
    * The callback function for decode_no_markup_blocks
    */
-  private function decode_no_markup_texts_callback($matches) {
-    return $this->placeholders[$matches[1]];
+  private function decode_placeholders_callback($matches) {
+    list($value, $callback_func) = $this->placeholders[$matches[1]];
+    if ($callback_func !== null) {
+      return call_user_func($callback_func, $value);
+    } else {
+      return $value;
+    }
   }
 
   //
@@ -864,8 +873,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
       // No "else if" here as (although unlikely) the first parameter may be empty
       if (empty($title)) {
-        // If no name has been specified explicitly, we use the link instead.
-        $title = $link;
+        if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+          $title = $this->encode_placeholder('unresolved_anchor_'.$link, substr($link, 1),
+                                             array($this, 'resolve_heading_name'));
+        } else {
+          // If no name has been specified explicitly, we use the link instead.
+          $title = $link;
+        }
       }
     }
 
@@ -1026,6 +1040,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       'id' => $id,
       'text' => $text
     );
+    $this->headings_title_map[$id] = $text;
 
     return $this->format_heading($level, $text, $id, $permalink);
   }
@@ -1074,6 +1089,19 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
         return $this->generate_toc();
       default:
         return self::generate_error_html('Plugin "'.$matches[1].'" not found.');
+    }
+  }
+
+  /**
+   * This is a callback function. Don't call it directly.
+   */
+  public function resolve_heading_name($anchor_name) {
+    // Called from decode_placeholders().
+    if (isset($this->headings_title_map[$anchor_name])) {
+      return $this->headings_title_map[$anchor_name];
+    } else {
+      // Section doesn't exist.
+      return '#'.$anchor_name.'[not existing]';
     }
   }
 

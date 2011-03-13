@@ -70,6 +70,10 @@ interface IInterlinkLinkResolver {
    * Represents an attachment. The value equals to "$post->post_type".
    */
   const TYPE_ATTACHMENT = 'attachment';
+  /**
+   * Anchor to a section heading in the current page.
+   */
+  const TYPE_SAME_PAGE_ANCHOR = 'same-page-anchor';
 
   /**
    * Returns the names of all prefixes handled by this resolver.
@@ -128,7 +132,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
     // TODO: Add support for blogroll (links; see get_bookmarks()) and archive (see get_year_link())
     switch ($prefix) {
       case '':
-        return $this->resolve_regular_link($params);
+        return $this->resolve_regular_link($params, $post_id);
 
       case 'att':
       case 'attach':
@@ -147,7 +151,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
     }
   }
 
-  private function resolve_regular_link($params) {
+  private function resolve_regular_link($params, $cur_post_id) {
     $link = null;
     $title = null;
     $is_external = false;
@@ -155,8 +159,12 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
 
     $ref_parts = explode('#', $params[0], 2);
     if (count($ref_parts) == 2) {
-      $page_id = $ref_parts[0];
-      $anchor = $ref_parts[1];
+      $page_id = trim($ref_parts[0]);
+      $anchor = trim($ref_parts[1]);
+      if (empty($page_id) || $page_id == $cur_post_id) {
+        // link to section on this page
+        return array('#'.$anchor, null, false, self::TYPE_SAME_PAGE_ANCHOR);
+      }
     } else {
       $page_id = $params[0];
       $anchor = '';
