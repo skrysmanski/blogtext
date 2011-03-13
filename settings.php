@@ -87,8 +87,9 @@ class BlogTextSettings {
     static $option = null;
     if ($option == null) {
       $option = new MSCL_ChoiceOption('blogtext_default_small_img_alignment', 'Default alignment of small images',
-                                 array('left' => 'left aligned', 'right' => 'right aligned'), 0,
-              'Specifies how images with size "small" are to be aligned if no alignment is specified.');
+                                 array('left' => 'left aligned', 'right' => 'right aligned'), 1,
+              'Specifies how images with size "small" or "thumb" are to be aligned, when no alignment is '
+              .'specified.');
     }
     return $get_option ? $option : $option->get_value();
   }
