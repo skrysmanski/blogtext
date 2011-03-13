@@ -344,7 +344,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     //
     // IMPORTANT: The implementation of "encode_no_markup_blocks_callback()" depends on the order of the
     //   alternative in this regexp! So don't change the order!
-    $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*)<\/\1>|\{\{\{(.*)\}\}\}|`([^\n]*)`|\{\{!(.*)!\}\}|\{\{%(.*)%\}\}/Usi';
+    $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' // <pre> and <code>
+             . '|\{\{\{(.*?)\}\}\}'  // {{{ ... }}} - multi-line or single line code
+             . '|((?<!\n)[ \t]+|(?<=[^\*;:#\n \t]))##([^\n]*?)##(?!#)'  // ## ... ## single line code - a little bit more complicated
+             . '|\{\{!(.*?)!\}\}'  // {{! ... !}} - no markup
+             . '|(?<!%)%%([^\n]*)(?=\n)/si'; // %% ... - end line comment
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_no_markup_blocks_callback'), $markup_code);
 
     //
@@ -367,6 +371,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
    */
   private function encode_no_markup_blocks_callback($matches) {
     // Depending on the last array key we can find out which type of block was escaped.
+    $prefix = '';
     switch (count($matches)) {
       case 4:
         // HTML tag
@@ -381,17 +386,18 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
           $value = $this->format_no_markup_block('{{{', $parts[0], '');
         }
         break;
-      case 6:
-        // `...`
-        $value = $this->format_no_markup_block('`', $matches[5], '');
-        break;
       case 7:
+        // `...`
+        $prefix = $matches[5];
+        $value = $this->format_no_markup_block('##', $matches[6], '');
+        break;
+      case 8:
         // {{! ... !}}} - ignore syntax
         // Simply return contents - also escape tag brackets (< and >); this way the user can use this
         // syntax to prevent a < to open an HTML tag.
-        $value = htmlspecialchars($matches[6]);
+        $value = htmlspecialchars($matches[7]);
         break;
-      case 8:
+      case 9:
         // {{% ... %}} - comments
         // Simply ignore contents
         $value = '';
@@ -400,7 +406,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
         throw new Exception('Plugin error: unexpected match count in "encode_callback()": '.count($matches));
 
     }
-    return $this->encode_placeholder($matches[0], $value);
+    return $prefix.$this->encode_placeholder($matches[0], $value);
   }
 
   private function format_no_markup_block($block_type, $contents, $attributes) {
@@ -409,7 +415,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
         // No syntax highlighting for <pre>, just for <code>.
         return '<pre'.$attributes.'>'.htmlspecialchars($contents).'</pre>';
         
-      case '`':
+      case '##':
       case 'code':
       case '{{{':
         $language = '';
