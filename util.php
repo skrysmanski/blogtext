@@ -130,12 +130,19 @@ class MarkupUtil {
       "SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_wp_attached_file' AND meta_value LIKE '%%%s'", $filename));
     
     if (count($ids) == 0) {
-      // no attachment found; filename may not contain the file extension
+      // no attachment found; filename may not contain the file extension; check for the image's title
       $ids = $wpdb->get_col($wpdb->prepare(
-        "SELECT ID FROM $wpdb->posts WHERE post_name='%s' AND post_type='attachment'", $filename));
+        "SELECT ID FROM $wpdb->posts WHERE post_title='%s' AND post_type='attachment'", $filename));
       if (count($ids) == 0) {
-        // no attachment found with the specified post_name either
-        return null;
+        // no attachment found with the specified post_title either; check "post_name" as last resort.
+        // Note: We check post_name after post_title as the post_name is never displayed to the user. However,
+        //   it's the filename with out prefix - unless a file with this name already exists. In this case
+        //   a counter is appended to the post_name (eg. "myfile-2", "myfile-3", ...).
+        $ids = $wpdb->get_col($wpdb->prepare(
+          "SELECT ID FROM $wpdb->posts WHERE post_name='%s' AND post_type='attachment'", $filename));
+        if (count($ids) == 0) {
+          return null;
+        }
       }
     }
 
