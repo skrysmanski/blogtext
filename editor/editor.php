@@ -81,12 +81,9 @@ class BlogTextEditor {
    */
   public function fix_media_browser_code($html, $attachment_id, $attachment) {
     if (wp_attachment_is_image($attachment_id)) {
-      // Use the attachment name (ie. filename without file extension) as identification
-      // NOTE: I'm not so sure what's the best way to reference the image here. The image's name is the most
-      //   intuitive way but there could be more than one image with the same name. By using the id the user may
-      //   have no clue on what's the image really is but the attachment identified uniquely.
-      //   For now we use the attachment name.
-      $code = '[[image:'.get_post($attachment_id)->post_name;
+      // Use the attachment's filename as identification. This uniquely identifies the image (like the id).
+      // If the same file is uploaded again, its filename gets a number appended (eg. "myfile2.png").
+      $code = '[[image:'.MarkupUtil::get_attachment_filename($attachment_id);
       if (isset($attachment['align']) && strtolower($attachment['align']) != 'none') {
         $code .= '|'.strtolower($attachment['align']);
       }
