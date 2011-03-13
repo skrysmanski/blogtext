@@ -33,6 +33,7 @@ require_once(dirname(__FILE__).'/api/commons.php');
 require_once(dirname(__FILE__).'/util.php');
 require_once(dirname(__FILE__).'/settings.php');
 require_once(dirname(__FILE__).'/error-checking.php');
+require_once(dirname(__FILE__).'/adminbar.php');
 
 require_once(dirname(__FILE__).'/markup/blogtext_markup.php');
 require_once(dirname(__FILE__).'/settings-page.php');
@@ -47,7 +48,11 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
     // Create error notifier
     new BlogTextErrorNotifier();
-    
+
+    // Create adminbar menu
+    // NOTE: Must run after the "init" action
+    new BlogTextAdminBarMenu();
+
     // add convert filter
     // NOTE: We can't use the "the_content_feed" filter here as its being applied after running the
     //   "the_content" filter. The same is true for "the_excerpt".
@@ -65,6 +70,9 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
       $this->main_options_page = new BlogTextSettingsPage();
     }
 
+  }
+
+  public function wordpress_initialize() {
   }
 
   public static function get_instance() {

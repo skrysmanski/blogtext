@@ -38,6 +38,7 @@ class MarkupException extends Exception {
 
 class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   const SINGLE_PAGE_PREFIX = 'single_';
+  const LOOP_PAGE_PREFIX = 'loop_';
   const RSS_ITEM_PREFIX = 'rss_';
 
   const CONTENT_CACHE_PREFIX = 'content_';
@@ -169,25 +170,37 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     self::$INITIALIZED = true;
   }
 
+  private static function get_content_cache() {
+    return new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::CONTENT_CACHE_PREFIX);
+  }
+
+  private static function get_post_content_cache($type, $post_id) {
+    return new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::CONTENT_CACHE_PREFIX.$type.$post_id);
+  }
+
+  private static function get_thumbnail_last_checked_cache() {
+    return new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::THUMB_CACHE_PREFIX);
+  }
+
   public function convert_post_to_html($post, $markup_content, $is_rss, $is_excerpt) {
     // We need to have two different cached: one for when a post is displayed alone and one when it's
     // displayed together with other posts (in the loop). HTML IDs may vary and if there's a more link the
     // contents differ dramatically. (The same applies for RSS feed item which can be dramatically trimmed
     // down.)
     if ($is_rss) {
-      $content_cache = new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::CONTENT_CACHE_PREFIX.self::RSS_ITEM_PREFIX);
+      $content_cache = self::get_post_content_cache(self::RSS_ITEM_PREFIX, $post->ID);
       $cache_name = 'rss-item';
     } else if ($this->is_single()) {
-      $content_cache = new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::CONTENT_CACHE_PREFIX.self::SINGLE_PAGE_PREFIX);
+      $content_cache = self::get_post_content_cache(self::SINGLE_PAGE_PREFIX, $post->ID);
       $cache_name = 'single-page';
     } else {
-      $content_cache = new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::CONTENT_CACHE_PREFIX);
+      $content_cache = self::get_post_content_cache(self::LOOP_PAGE_PREFIX, $post->ID);
       $cache_name = 'loop-view';
     }
 
     // reuse cached content; significantly speeds up the whole process
-    $cached_content = $content_cache->get_value(self::CONTENT_CACHE_KEY.$post->ID);
-    $cached_content_date = $content_cache->get_value(self::CONTENT_CACHE_DATE_KEY.$post->ID);
+    $cached_content = $content_cache->get_value(self::CONTENT_CACHE_KEY);
+    $cached_content_date = $content_cache->get_value(self::CONTENT_CACHE_DATE_KEY);
     if (   !empty($cached_content)
         && $cached_content_date >= $post->post_modified_gmt
         && $cached_content_date >= self::$MARKUP_MODIFICATION_DATE
@@ -219,18 +232,46 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     // update cache
     $mod_date = MarkupUtil::create_mysql_date();
-    $content_cache->set_value(self::CONTENT_CACHE_DATE_KEY.$post->ID, $mod_date);
-    $content_cache->set_value(self::CONTENT_CACHE_KEY.$post->ID, $ret);
+    $content_cache->set_value(self::CONTENT_CACHE_DATE_KEY, $mod_date);
+    $content_cache->set_value(self::CONTENT_CACHE_KEY, $ret);
 
     // NOTE: We need to do the check here as well as it may not have been executed in the condition above.
     $this->check_thumbnails($post);
 
-    log_info("Cache for post $post->ID (".($this->is_single() ? 'solo view' : 'loop view').") has been updated.");
+    log_info("Cache for post $post->ID ($cache_name) has been updated.");
 
     $generate_comment = '<!-- Generated "'.$cache_name.'" item at '.$cached_content_date." -->\n";
     return $generate_comment.$ret;
   }
   
+  /**
+   * Clears the page cache completely or only for the specified post.
+   * @param int|null $what  if this is "null", the whole cache will be cleared. Otherwise only the cache for
+   *   the specified post/page id will be cleared.
+   */
+  public static function clear_page_cache($what=null) {
+    if ($what === null) {
+      self::get_content_cache()->clear_cache();
+      log_info("The complete page cache has been cleared.");
+    } else {
+      if (is_numeric($what)) {
+        $what = (int)$what;
+      } else {
+        // Check this so that not arbitrary thing are deleted here
+        throw new Exception("Post id must be an integer, but got: ".print_r($what, true));
+      }
+
+      self::get_post_content_cache(self::SINGLE_PAGE_PREFIX, $what)->clear_cache();
+      self::get_post_content_cache(self::LOOP_PAGE_PREFIX, $what)->clear_cache();
+      self::get_post_content_cache(self::RSS_ITEM_PREFIX, $what)->clear_cache();
+
+      log_info("The page cache for post $what has been cleared.");
+    }
+
+    // NOTE: Don't clear the thumbnail info so that we don't loose the information about which thumbs have
+    //   already created.
+  }
+
   private function reset_data($is_rss, $is_excerpt) {
     $this->is_rss = $is_rss;
     $this->is_excerpt = $is_excerpt;
@@ -249,7 +290,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
    * @return Returns "true", if the thumbnails are up-to-date ("false" otherwise).
    */
   private function check_thumbnails($post) {
-    $thumbs_last_checked_cache = new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::THUMB_CACHE_PREFIX);
+    $thumbs_last_checked_cache = self::get_thumbnail_last_checked_cache();
     $thumbs_last_checked_date = $thumbs_last_checked_cache->get_value($post->ID);
     if (   $thumbs_last_checked_date >= $post->post_modified_gmt
         && $thumbs_last_checked_date >= self::$MARKUP_MODIFICATION_DATE) {
@@ -281,14 +322,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
   private function is_single() {
     return is_single() || is_page();
-  }
-
-  public static function clear_page_cache() {
-    $content_cache = new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::CONTENT_CACHE_PREFIX);
-    $content_cache->clear_cache();
-    log_info("The page cache has been cleared.");
-    // NOTE: Don't clear the thumbnail info so that we don't loose the information about which thumbs have
-    //   already created.
   }
 
   public function add_used_thumbnail($thumbnail) {
