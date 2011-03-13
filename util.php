@@ -174,11 +174,59 @@ class MarkupUtil {
     }
   }
 
+  public static function get_attachment_image_alt_text($attachment) {
+		if (is_object($attachment)) {
+			$att_id = $attachment->ID;
+    } else {
+			$att_id = $attachment;
+    }
+
+    return trim(get_post_meta($att_id, '_wp_attachment_image_alt', true));
+  }
+
+  /**
+   * Returns the title and alt text for an image attachment.
+   *
+   * @param int|object $attachment Attachment ID or attachment (post) object.
+   * @return array array as (caption, alt text). alt_text may be empty but caption will never be.
+   *
+   * @see get_attachment_title()
+   */
+  public static function get_attachment_image_titles($attachment) {
+		if (is_object($attachment)) {
+			$att_id = $attachment->ID;
+    } else {
+			$att_id = $attachment;
+      $attachment = get_post($attachment);
+    }
+
+    // Image alt text
+    $img_alt = self::get_attachment_image_alt_text($att_id);
+
+    // First is the "caption" field
+    if (!empty($attachment->post_excerpt)) {
+      return array($attachment->post_excerpt, $img_alt);
+    }
+
+    // last resort is the title, which is usually the file name without file extension. But in this case use
+    // the full file name (including extension).
+    $filename = self::get_attachment_filename($att_id);
+    if (!empty($filename)) {
+      $dotpos = strrpos($filename, '.');
+      if ($dotpos !== false && $attachment->post_title == substr($filename, 0, $dotpos)) {
+        return array($filename, $img_alt);
+      }
+    }
+    return array($attachment->post_title, $img_alt);
+  }
+
   /**
    * Returns the title for an attachment.
    *
    * @param int|object $attachment Attachment ID or attachment (post) object.
    * @return string the title; never null or empty
+   *
+   * @see get_attachment_image_titles()
    */
   public static function get_attachment_title($attachment) {
 		if (is_object($attachment)) {
@@ -188,7 +236,7 @@ class MarkupUtil {
     }
 
     // For images, use the alt text as primary source. Note that this only exists for images.
-    $img_alt = get_post_meta($att_id, '_wp_attachment_image_alt', true);
+    $img_alt = self::get_attachment_image_alt_text($att_id);
     if (!empty($img_alt)) {
       return $img_alt;
     }

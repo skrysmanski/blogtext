@@ -149,11 +149,21 @@ class MediaMacro implements IInterlinkMacro {
     //
     // title
     //
-    if (empty($title) && $is_attachment) {
+    $alt_text = '';
+    if ($is_attachment) {
       // Get image caption as stored in the database - if the attachment is an image
-      $title = MarkupUtil::get_attachment_title($ref);
+      if (empty($title)) {
+        list($title, $alt_text) = MarkupUtil::get_attachment_image_titles($ref);
+      } else {
+        $alt_text = MarkupUtil::get_attachment_image_alt_text($ref);
+      }
     }
     $title = htmlspecialchars(trim($title));
+    if (!empty($alt_text)) {
+      $alt_text = htmlspecialchars($alt_text);
+    } else {
+      $alt_text = $title;
+    }
 
     //
     // size and alignment
@@ -229,7 +239,7 @@ class MediaMacro implements IInterlinkMacro {
     //
     // Generate HTML code
     //
-    $html = '<img src="'.$img_url.'" title="'.$title.'" alt="'.$title.'"';
+    $html = '<img src="'.$img_url.'" title="'.$title.'" alt="'.$alt_text.'"';
     // image width and height may be "null" for remote images for performance reasons. We let the browser
     // determine their size.
     if ($img_width > 0) {
