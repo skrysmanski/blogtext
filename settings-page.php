@@ -118,5 +118,12 @@ class BlogTextSettingsPage extends MSCL_OptionsPage {
     $this->add_form(new BlogTextSettingsMainForm());
     $this->add_form(new BlogTextActionButtonsForm());
   }
+
+  protected function print_before_forms() {
+?>
+<p class="description">Note: You can find more settings in the
+<a href="<?php echo get_admin_url(null, 'options-media.php'); ?>">Media Settings</a>.</p>
+<?php
+  }
 }
 ?>

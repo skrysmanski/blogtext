@@ -683,12 +683,18 @@ class MSCL_OptionsPage {
 <div class="wrap">
 <h2><?php echo $this->get_page_title(); ?></h2>
 <?php
+  $this->print_before_forms();
   foreach ($this->forms as $form) {
     $form->print_form();
   }
+  $this->print_after_forms();
 ?>
 </div>
 <?php
   }
+
+  protected function print_before_forms() { }
+
+  protected function print_after_forms() { }
 }
 ?>
