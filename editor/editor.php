@@ -88,26 +88,55 @@ class BlogTextEditor {
         $code .= '|'.strtolower($attachment['align']);
       }
 
+      $link = '';
+      $link_to_source = false;
+      if (isset($attachment['url']) && !empty($attachment['url'])) {
+        if ($attachment['url'] == wp_get_attachment_url($attachment_id)) {
+          $link_to_source = true;
+        } else {
+          $link = $attachment['url'];
+        }
+      }
+
       if (isset($attachment['image-size']) && strtolower($attachment['image-size']) != 'full') {
         $size = strtolower($attachment['image-size']);
         if ($size == 'thumb' || $size == 'thumbnail') {
           $size = 'small';
         }
-        $code .= '|'.$size;
+      } else {
+        $size = '';
       }
 
-      if (isset($attachment['url']) && !empty($attachment['url'])) {
-        if (   $attachment['url'] == get_attachment_link($attachment_id)
-            || $attachment['url'] == wp_get_attachment_url($attachment_id)) {
-          $code .= '|thumb';
-        } else {
-          $code .= '|link='.$attachment['url'];
+      if ($size == 'small' && $link_to_source) {
+        // thumbnail
+        $code .= '|thumb';
+      } else {
+        if (!empty($size)) {
+          $code .= '|'.$size;
+        }
+
+        if ($link_to_source) {
+          $code .= '|link=source';
+        } else if (!empty($link)) {
+          if ($link == get_attachment_link($attachment_id)) {
+            // link to attachment page (ie. page containing the attachment) instead of attachment itself
+            $code .= '|link='.get_post($attachment_id)->post_name;
+          } else {
+            $code .= '|link='.$link;
+          }
         }
       }
+
       $code .= ']]';
     } else {
-      // if the attachment isn't an image, use the full filename
-      $code = '[[attachment:'.MarkupUtil::get_attachment_filename($attachment_id).']]';
+      // not an image
+      if (isset($attachment['url']) && $attachment['url'] == get_attachment_link($attachment_id)) {
+        // link to the attachment description page
+        $code = '[['.get_post($attachment_id)->post_name.']]';
+      } else {
+        // link directly to the file
+        $code = '[[file:'.MarkupUtil::get_attachment_filename($attachment_id).']]';
+      }
     }
     
     return $code;

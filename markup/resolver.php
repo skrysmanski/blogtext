@@ -117,7 +117,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
    */
   public function get_handled_prefixes() {
     return array('', 
-                 'attachment', 'attach', 'att',
+                 'attachment', 'attach', 'att', 'file',
                  'category', 'tag');
   }
   
@@ -125,7 +125,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
    * Implements @see IInterlinkLinkResolver::resolve_link().
    */
   public function resolve_link($post_id, $prefix, $params) {
-    // TODO: Add support for blogroll (links) and archive (see get_year_link())
+    // TODO: Add support for blogroll (links; see get_bookmarks()) and archive (see get_year_link())
     switch ($prefix) {
       case '':
         return $this->resolve_regular_link($params);
@@ -133,6 +133,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
       case 'att':
       case 'attach':
       case 'attachment':
+      case 'file':
         return $this->resolve_attachment_link($params, $post_id);
 
       case 'category':
@@ -185,7 +186,9 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
     // Posting must be published. Ignore the status for attachments.
     if ($is_attachment) {
       // attachment
-      $link = wp_get_attachment_url($post->ID);
+      // NOTE: Unlike the "attachment:" prefix this doesn't link directly to the attached file but to a
+      //   description page for this attachment.
+      $link = get_attachment_link($post->ID);
       $type = IInterlinkLinkResolver::TYPE_ATTACHMENT;
     } else if ($post->post_status == 'publish') {
       // post or page

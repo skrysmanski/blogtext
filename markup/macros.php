@@ -108,11 +108,7 @@ class MediaMacro implements IInterlinkMacro {
       else if ($param == 'thumb') {
         // Thumbnails always have a link to their fullsize image.
         $is_thumb = true;
-        if ($is_attachment) {
-          $link = wp_get_attachment_url($ref);
-        } else {
-          $link = $ref;
-        }
+        $link = 'source';
       } else if ($param == 'caption') {
         $has_frame = true;
       } else if ($param == 'nocaption') {
@@ -143,7 +139,14 @@ class MediaMacro implements IInterlinkMacro {
     //
     // resolve link
     //
-    if (!empty($link) && !$is_thumb) {
+    if ($link == 'source') {
+      // link to source image
+      if ($is_attachment) {
+        $link = wp_get_attachment_url($ref);
+      } else {
+        $link = $ref;
+      }
+    } else if (!empty($link) && !$is_thumb) {
       list($prefix, $link) = $link_resolver->get_prefix($link);
       array_unshift($link_params, $link); // place the link at the beginning of the params
       $link = $link_resolver->resolve_link($prefix, $link_params, false, '', '');
