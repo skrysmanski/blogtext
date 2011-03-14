@@ -354,16 +354,16 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
    * contain URLs in their attributes (such as <a> or <img>).
    */
   private function encode_no_markup_texts($markup_code) {
-    //
-    // blocks
-    //
+    // comments (%%)
+    $pattern = '/(?<!%)%%(.*)$/m';
+    $markup_code = preg_replace($pattern, '', $markup_code);
+
     // IMPORTANT: The implementation of "encode_no_markup_blocks_callback()" depends on the order of the
     //   alternative in this regexp! So don't change the order!
     $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' // <pre> and <code>
              . '|\{\{\{(.*?)\}\}\}'  // {{{ ... }}} - multi-line or single line code
              . '|((?<!\n)[ \t]+|(?<=[^\*;:#\n \t]))##([^\n]*?)##(?!#)'  // ## ... ## single line code - a little bit more complicated
-             . '|\{\{!(.*?)!\}\}'  // {{! ... !}} - no markup
-             . '|(?<!%)%%([^\n]*)(?=\n)/si'; // %% ... - end line comment
+             . '|\{\{!(.*?)!\}\}/si';  // {{! ... !}} - no markup
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_no_markup_blocks_callback'), $markup_code);
 
     //
