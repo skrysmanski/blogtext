@@ -63,7 +63,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   // NOTE: This list is ordered and the order is important.
   private static $RULES = array(
     // heading with optional anchor names
-    'headings' =>'/^[ \t]*(={1,6})(.*?)(?:=[ \t]*#[ \t]*(?![ \t])(.+)(?<![ \t])[ \t]*)?$/m',
+    // NOTE: We need to allow "&#35;" here to allow the user to specify a # sign
+    'headings' =>'/^[ \t]*(={1,6})(.*?)(?:(?<!&)#[ \t]*(?![ \t])(.+)(?<![ \t])[ \t]*)?$/m',
 
     // InterLinks using the [[ ]] syntax
     // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
