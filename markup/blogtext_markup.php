@@ -1430,7 +1430,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       $table->rows[] = $row;
     }
 
-    return $this->generate_table_code($table);
+    return $this->generate_table_code($table, true);
   }
 
   /**
@@ -1459,7 +1459,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       $table->rows[] = $this->handle_complex_table_row($match);
     }
 
-    return $this->generate_table_code($table);
+    // Don't fill up table cells for complex tables. If the table uses colspan or rowspan (especially through
+    // CSS classes) we can't determine the number of missing cells per row. So don't try.
+    return $this->generate_table_code($table, false);
   }
 
   /**
