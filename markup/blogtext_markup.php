@@ -81,7 +81,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     // simple tables - Creole syntax
     // NOTE: Need to be done AFTER "complex_tables" as they syntaxes otherwise may collide (eg. on the
     //   table caption)
-    'simple_table' => '/\n(\|[^\|]+\|.+(?:\n\|[^\|]+\|.+)*)(?:\n\|\+(.+))?/',
+    'simple_table' => '/\n(\|(?!\+)[^\|]+\|.+(?:\n\|(?!\+)[^\|]+\|.+)*)(?:\n\|\+(.+))?/',
     // Ordered (#) and unordered (*, -) lists; indentions (:)
     'list' => '/\n[\*#;].*?\n(?:(?:[\*#; \t].*?)?\n)*/',
     // Block quotes
