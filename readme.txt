@@ -1,5 +1,5 @@
 === BlogText ===
-Contributors: Sebastian Krysmanski
+Contributors: manski
 Donate link: 
 Tags: formatting, markup, post
 Requires at least: 3.0.0

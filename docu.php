@@ -20,8 +20,7 @@
 
 
 class BlogTextDocumentation {
-  // FIXME: Set correct URL
-  const SYNTAX_DESC = 'http://www.mayastudios.com';
-  const INTERLINKS_HELP = 'http://www.mayastudios.com';
+  const SYNTAX_DESC = 'http://blogtext.mayastudios.com/syntax/';
+  const INTERLINKS_HELP = 'http://blogtext.mayastudios.com/syntax/#interlinks-in-general';
 }
 ?>
