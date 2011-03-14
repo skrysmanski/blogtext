@@ -248,6 +248,14 @@ abstract class AbstractTextMarkup {
   protected function generate_table_code($table) {
     $code = $this->open_table($table->tag_attributes, $table->caption);
 
+    $max_columns = 0;
+    foreach ($table->rows as $row) {
+      $cell_count = count($row->cells);
+      if ($cell_count > $max_columns) {
+        $max_columns = $cell_count;
+      }
+    }
+
     $has_table_head = true;
     $row_nr = 0;
     foreach ($table->rows as $row) {
@@ -275,6 +283,14 @@ abstract class AbstractTextMarkup {
                . $cell->cell_content
                . $this->close_table_cell($cell->cell_type, $row_nr, $cell_nr);
         $cell_nr++;
+      }
+
+      // fill remaining cells for which no content was provided
+      for (; $cell_nr < $max_columns; $cell_nr++) {
+        $cell_type = ($row_nr == 0 && $has_table_head ? ATM_TableCell::TYPE_TH : ATM_TableCell::TYPE_TD);
+        $code .= $this->open_table_cell($cell_type, '', $row_nr, $cell_nr)
+               . '&nbsp;'
+               . $this->close_table_cell($cell_type, $row_nr, $cell_nr);
       }
 
       $code .= $this->close_table_row($row_nr);
