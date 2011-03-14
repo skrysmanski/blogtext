@@ -64,6 +64,17 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   private static $RULES = array(
     // heading with optional anchor names
     'headings' =>'/^[ \t]*(={1,6})(.*?)(?:=[ \t]*#[ \t]*(?![ \t])(.+)(?<![ \t])[ \t]*)?$/m',
+
+    // InterLinks using the [[ ]] syntax
+    // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
+    // NOTE: Must run AFTER "headings" and BEFORE the tables, as the tables also use pipes
+    // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
+    'interlinks' => '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
+    // Interlink without arguments [[[ ]]] (three brackets instead of two)
+    // NOTE: For now this must run after "headings" as otherwise the TOC can't be generated (which is done
+    //   by this rule.
+    'simple_interlinks' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
+
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
     // simple tables - Creole syntax
@@ -77,14 +88,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     // Indention (must be done AFTER lists)
     'indention' => '/\n[ \t]{2,}(.*?\n)(?![ \t]{2})/s',
 
-    // InterLinks using the [[ ]] syntax
-    // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
-    // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
-    'interlinks' => '/((?<![[:alpha:]])[[:alpha:]]*)(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
-    // Interlink without arguments [[[ ]]] (three brackets instead of two)
-    // NOTE: For now this must run after "headings" as otherwise the TOC can't be generated (which is done
-    //   by this rule.
-    'simple_interlinks' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
     // External links (plain text urls)
     'plain_text_urls' => '/(?<=[ \t])(([a-zA-Z0-9\+\.\-]+)\:\/\/(\S+))( [[:punct:]])?/',
     // Horizontal lines
@@ -752,7 +755,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
   private function interlinks_callback($matches) {
     // split at | (but not at \| but at \\|)
-    $params = preg_split('/(?<!(?<!\\\\)\\\\)\|/', $matches[2]);
+    $params = preg_split('/(?<!(?<!\\\\)\\\\)\|/', $matches[1]);
     // unescape \|, \[, and \] - don't escape \\ just yet, as it may still be used in \:
     $params = str_replace(array('\\[', '\\]', '\\|'), array('[', ']', '|'), $params);
     // find prefix (allow \: as escape for :)
@@ -766,9 +769,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     }
     $params = str_replace('\\\\', '\\', $params);
 
-    $text_before = $matches[1]; // like in before[[1]]
-    $text_after = $matches[3];
-    return $this->resolve_link($prefix, $params, true, $text_before, $text_after);
+    $text_after = $matches[2]; // like in [[syntax]]es
+    return $this->resolve_link($prefix, $params, true, $text_after);
   }
 
   private function interlink_params_callback($matches) {
@@ -799,13 +801,12 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
    *   a <a> tag, but may be any other tag (such as "<div>", "<img>", "<span>", ...). If this is "false", only
    *   the link to the specified element will be returned. May be "null", if the link target could not be
    *   found or the prefix doesn't allow direct linking.
-   * @param string $text_before text that comes directly before the link; ie. the text isn't separated from
-   *   the link by a space (like "my[wiki:URL]"). Not use when "$generate_html = false".
-   * @param string $text_after text that comes directly after the link (same as "$text_before";
-   *   eg. "[wiki:URL]s")
+   * @param string $text_after text that comes directly after the link; ie. the text isn't separated from
+   *   the link by a space (like "[wiki:URL]s"). Not used when "$generate_html = false".
+   * 
    * @return string HTML code or the link (which may be "null")
    */
-  public function resolve_link($prefix, $params, $generate_html, $text_before, $text_after) {
+  public function resolve_link($prefix, $params, $generate_html, $text_after) {
     $post_id = MarkupUtil::get_post(null, true);
 
     $link = null;
@@ -824,7 +825,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
       if ($prefix_handler instanceof IInterlinkMacro) {
         // Let the macro create the HTML code and return it directly.
-        return $prefix_handler->handle_macro($this, $prefix_lowercase, $params, $generate_html, $text_before, $text_after);
+        return $prefix_handler->handle_macro($this, $prefix_lowercase, $params, $generate_html, $text_after);
       }
 
       if ($prefix_handler instanceof IInterlinkLinkResolver) {
@@ -1065,7 +1066,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       }
     }
 
-    $title = $text_before.$title.$text_after;
+    $title = $title.$text_after;
 
     return $this->generate_link_tag($link, $title, array_keys($css_classes), $new_window, $is_attachment);
   }
