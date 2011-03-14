@@ -63,7 +63,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   // NOTE: This list is ordered and the order is important.
   private static $RULES = array(
     // heading with optional anchor names
-    'headings' =>'/^(={1,6})(.*?)(?:=[ \t]+#([^ \t]+))?[ \t]*$/m',
+    'headings' =>'/^[ \t]*(={1,6})(.*?)(?:=[ \t]*#[ \t]*(?![ \t])(.+)(?<![ \t])[ \t]*)?$/m',
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
     // simple tables - Creole syntax
@@ -1077,7 +1077,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     $text = trim(rtrim($text, '='));
 
     if (count($matches) == 4) {
-      $id = trim($matches[3]);
+      // Replace spaces and tabs in the anchor name. IMO this is the best way to deal with whitespace in
+      // the anchor name (although it's not recommended).
+      $id = str_replace(array(' ', "\t"), '_', trim($matches[3]));
     } else {
       $id = '';
     }
