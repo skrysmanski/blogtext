@@ -53,7 +53,7 @@ a.external-search {
   background-image: url(common-icons/search.png) !important;
 }
 
-a.not-available, a.section-link-not-existing {
+a.not-found, a.section-link-not-existing {
   background: url(common-icons/link-error.gif) no-repeat left center transparent !important;
   padding-left: 19px;
 }

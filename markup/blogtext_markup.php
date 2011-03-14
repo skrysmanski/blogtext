@@ -855,10 +855,19 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
         // prefix.
         $not_found_reason = LinkNotFoundException::REASON_DONT_EXIST;
       } else {
-        $link = $prefix.':'.$params[0];
-        $is_external = true;
-        if (count($params) == 1 && substr($params[0], 0, 2) == '//') {
-          $title = $this->get_plain_url_name($link);
+        if (substr($params[0], 0, 2) == '//') {
+          // URL
+          $link = $prefix.':'.$params[0];
+          $is_external = true;
+          if (count($params) == 1 && substr($params[0], 0, 2) == '//') {
+            $title = $this->get_plain_url_name($link);
+          }
+        } else {
+          // not an url - assume wrong prefix
+          $not_found_reason = 'unknown prefix';
+          if (count($params) == 1) {
+            $title = "$prefix:$params[0]";
+          }
         }
       }
     }
@@ -920,7 +929,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       // Page not found
       $link = '#';
       // NOTE: Create title as otherwise "#" (the link) will be used as title
-      if (count($params) == 1) {
+      if (empty($title) && count($params) == 1) {
         $title = $params[0];
       }
     }

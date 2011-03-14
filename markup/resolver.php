@@ -23,7 +23,7 @@ require_once(dirname(__FILE__).'/../api/commons.php');
 
 
 class LinkNotFoundException extends Exception {
-  const REASON_DONT_EXIST = 'don\'t exist';
+  const REASON_DONT_EXIST = 'doesn\'t exist';
   const REASON_NOT_PUBLISHED = 'unpublished';
 
   private $reason;
