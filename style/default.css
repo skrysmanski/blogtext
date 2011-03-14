@@ -41,10 +41,6 @@ a.external {
   padding-left: 19px;
 }
 
-a.external-http {
-  background-image: url(common-icons/link-http.png) !important;
-}
-
 a.external-https {
   background-image: url(common-icons/link-https.gif) !important;
 }
