@@ -30,7 +30,7 @@ interface IInterlinkMacro {
    */
   public function get_handled_prefixes();
 
-  public function handle_macro($link_resolver, $prefix, $params, $generate_html, $before_text, $after_text);
+  public function handle_macro($link_resolver, $prefix, $params, $generate_html, $after_text);
 }
 
 class MediaMacro implements IInterlinkMacro {
@@ -38,7 +38,7 @@ class MediaMacro implements IInterlinkMacro {
     return array('img', 'image');
   }
 
-  public function handle_macro($link_resolver, $prefix, $params, $generate_html, $before_text, $after_text) {
+  public function handle_macro($link_resolver, $prefix, $params, $generate_html, $after_text) {
     $post_id = get_the_ID();
     list($is_attachment, $ref) = $this->get_file_info($params[0], $post_id);
     if ($is_attachment && $ref === null) {
@@ -54,7 +54,7 @@ class MediaMacro implements IInterlinkMacro {
       }
     }
 
-    return $before_text.$html.$after_text;
+    return $html.$after_text;
   }
 
   private static function generate_error_html($message, $not_found=false) {
