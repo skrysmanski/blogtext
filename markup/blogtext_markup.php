@@ -1490,7 +1490,15 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   private function handle_complex_table_cell($matches) {
     $type = $matches[1];
     $attrs = trim($matches[2]);
-    $content = trim($matches[3]);
+    if ($type == '!') {
+      // TODO: The regex above seems to be wrong. For "!! text" it matches only the first ! and places the
+      //   second here in the content. This is not how it should work as the syntax requires !! for table
+      //   headings on the same line.
+      // For now we simply trim the !
+      $content = trim(ltrim($matches[3], '!'));
+    } else {
+      $content = trim($matches[3]);
+    }
 
     $cell = new ATM_TableCell($type == '!' ? ATM_TableCell::TYPE_TH : ATM_TableCell::TYPE_TD, $content);
     $cell->tag_attributes = $attrs;
