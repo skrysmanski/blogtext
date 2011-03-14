@@ -57,9 +57,19 @@ a.external-search {
   background-image: url(common-icons/search.png) !important;
 }
 
-a.not-available {
+a.not-available, a.section-link-not-existing {
   background: url(common-icons/link-error.gif) no-repeat left center transparent !important;
   padding-left: 19px;
+}
+
+a.section-link-above {
+  background: url(common-icons/section-above.png) no-repeat left center transparent !important;
+  padding-left: 12px;
+}
+
+a.section-link-below {
+  background: url(common-icons/section-below.png) no-repeat left center transparent !important;
+  padding-left: 12px;
 }
 
 /*

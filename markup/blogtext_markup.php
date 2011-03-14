@@ -82,6 +82,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
     'interlinks' => '/((?<![[:alpha:]])[[:alpha:]]*)(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
     // Interlink without arguments [[[ ]]] (three brackets instead of two)
+    // NOTE: For now this must run after "headings" as otherwise the TOC can't be generated (which is done
+    //   by this rule.
     'simple_interlinks' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
     // External links (plain text urls)
     'plain_text_urls' => '/(?<=[ \t])(([a-zA-Z0-9\+\.\-]+)\:\/\/(\S+))( [[:punct:]])?/',
@@ -130,6 +132,12 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   private $headings = array();
 
   private $headings_title_map = array();
+
+  /**
+   * Contains
+   * @var <type>
+   */
+  private $text_positions = array();
 
   private $thumbs_used = array();
 
@@ -281,6 +289,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     $this->id_suffix = array();
     $this->headings = array();
     $this->headings_title_map = array();
+    $this->text_positions = array();
     $this->thumbs_used = array();
   }
 
@@ -552,15 +561,34 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     return $this->encode_placeholder($matches[0], $matches[0]);
   }
 
-  private function encode_placeholder($key, $value, $value_callback_func=null) {
+  private function encode_placeholder($key, $value, $value_callback_func=null, $requires_text_pos=false) {
     $key = md5($key);
-    $this->placeholders[$key] = array($value, $value_callback_func);
+    $this->placeholders[$key] = array($value, $value_callback_func, $requires_text_pos);
     return self::$BLOCK_ENCODE_START_DELIM.$key.self::$BLOCK_ENCODE_END_DELIM;
   }
 
   private function decode_placeholders($markup_code) {
+    foreach ($this->placeholders as $key => $infos) {
+      list($value, $callback_func, $requires_text_pos) = $infos;
+      if ($requires_text_pos && $callback_func !== null) {
+        // Encode line in the placeholders
+        // NOTE: This is highly inefficient but we don't have any alternative for now.
+        // NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
+        $search = self::$BLOCK_ENCODE_START_DELIM.$key.self::$BLOCK_ENCODE_END_DELIM;
+        $pos = strpos($markup_code, $search);
+        if ($pos !== false) {
+          $markup_code = str_replace($search,
+                  self::$BLOCK_ENCODE_START_DELIM.$key."_{$pos}_".self::$BLOCK_ENCODE_END_DELIM,
+                  $markup_code);
+        }
+      }
+    }
+
+    // NOTE: This must be done AFTER encoding the positions in the placeholders as this changes the text.
+    $this->determine_text_positions($markup_code);
+
     // NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
-    $pattern = '/'.preg_quote(self::$BLOCK_ENCODE_START_DELIM).'([a-f0-9]{32})'.preg_quote(self::$BLOCK_ENCODE_END_DELIM).'/';
+    $pattern = '/'.preg_quote(self::$BLOCK_ENCODE_START_DELIM).'([a-f0-9]{32})(?:_([0-9]+)_)?'.preg_quote(self::$BLOCK_ENCODE_END_DELIM).'/';
     return preg_replace_callback($pattern, array($this, 'decode_placeholders_callback'), $markup_code);
   }
 
@@ -568,11 +596,36 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
    * The callback function for decode_no_markup_blocks
    */
   private function decode_placeholders_callback($matches) {
-    list($value, $callback_func) = $this->placeholders[$matches[1]];
+    list($value, $callback_func, $requires_text_pos) = $this->placeholders[$matches[1]];
     if ($callback_func !== null) {
-      return call_user_func($callback_func, $value);
+      if (!$requires_text_pos) {
+        return call_user_func($callback_func, $value);
+      } else {
+        return call_user_func($callback_func, $value, (int)$matches[2]);
+      }
     } else {
       return $value;
+    }
+  }
+
+  private function add_text_position_request($text) {
+    $this->text_positions[$text] = -1;
+  }
+
+  private function determine_text_positions($markup_code) {
+    foreach ($this->text_positions as $text => $unused) {
+      $pos = strpos($markup_code, $text);
+      if ($pos !== false) {
+        $this->text_positions[$text] = $pos;
+      }
+    }
+  }
+
+  private function get_text_position($text) {
+    if (isset($this->text_positions[$text])) {
+      return $this->text_positions[$text];
+    } else {
+      return -1;
     }
   }
 
@@ -822,6 +875,17 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     if ($is_attachment) {
       // Attachments are a special case.
       $css_classes = array('attachment' => true);
+    } else if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+      // Link on the same page - add text position requests to determine whether the heading is above or
+      // below the link's position.
+      // NOTE: We can't check whether the heading already exists in our headings array to determine whether
+      //   it's above; this would only be possible, if we parsed character after character. We, however,
+      //   execute rule after rule; so at this point all headings are already known.
+      $anchor_name = substr($link, 1);
+      $this->add_text_position_request('"'.$anchor_name.'"');
+      $placeholder = $this->encode_placeholder('section-link'.$anchor_name, $anchor_name, 
+                                               array($this, 'resolve_heading_relative_pos'), true);
+      $css_classes = array('section-link-'.$placeholder => true);
     } else {
       if ($is_external) {
         $css_classes = array('external' => true);
@@ -874,8 +938,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       // No "else if" here as (although unlikely) the first parameter may be empty
       if (empty($title)) {
         if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
-          $title = $this->encode_placeholder('unresolved_anchor_'.$link, substr($link, 1),
-                                             array($this, 'resolve_heading_name'));
+          $anchor_name = substr($link, 1); // remove leading #
+          $title = $this->resolve_heading_name($anchor_name, true);
         } else {
           // If no name has been specified explicitly, we use the link instead.
           $title = $link;
@@ -1095,7 +1159,16 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   /**
    * This is a callback function. Don't call it directly.
    */
-  public function resolve_heading_name($anchor_name) {
+  public function resolve_heading_relative_pos($anchor_name, $pos) {
+    $heading_pos = $this->get_text_position('"'.$anchor_name.'"');
+    if ($heading_pos == -1) {
+      return 'not-existing';
+    }
+
+    return ($heading_pos < $pos ? 'above' : 'below');
+  }
+
+  private function resolve_heading_name($anchor_name) {
     // Called from decode_placeholders().
     if (isset($this->headings_title_map[$anchor_name])) {
       return $this->headings_title_map[$anchor_name];
