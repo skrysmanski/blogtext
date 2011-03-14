@@ -219,6 +219,8 @@ div.code-linenum {
 
 .code td.ln { /* cell containing the line numbers */
   padding-right: 4px !important;
+  width: 0; /* prevent the line column from becoming too wide */
+  overflow-x: visible;
 }
 
 .code td.de1 { /* cell containing the code */
