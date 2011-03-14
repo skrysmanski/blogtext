@@ -367,7 +367,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' // <pre> and <code>
              . '|\{\{\{(.*?)\}\}\}'  // {{{ ... }}} - multi-line or single line code
              . '|((?<!\n)[ \t]+|(?<=[^\*;:#\n \t]))##([^\n]*?)##(?!#)'  // ## ... ## single line code - a little bit more complicated
-             . '|\{\{!(.*?)!\}\}/si';  // {{! ... !}} - no markup
+             . '|\{\{!(!)?(.*?)!\}\}/si';  // {{! ... !}} and {{!! ... !}} - no markup
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_no_markup_blocks_callback'), $markup_code);
 
     //
@@ -404,16 +404,16 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
         $prefix = $matches[5];
         $value = $this->format_no_markup_block('##', $matches[6], '');
         break;
-      case 8:
-        // {{! ... !}}} - ignore syntax
-        // Simply return contents - also escape tag brackets (< and >); this way the user can use this
-        // syntax to prevent a < to open an HTML tag.
-        $value = htmlspecialchars($matches[7]);
-        break;
       case 9:
-        // {{% ... %}} - comments
-        // Simply ignore contents
-        $value = '';
+        // {{! ... !}}} and {{!! ... !}} - ignore syntax
+        if ($matches[7] != '!') {
+          // Simply return contents - also escape tag brackets (< and >); this way the user can use this
+          // syntax to prevent a < to open an HTML tag.
+          $value = htmlspecialchars($matches[8]);
+        } else {
+          // Allow HTML
+          $value = $matches[8];
+        }
         break;
       default:
         throw new Exception('Plugin error: unexpected match count in "encode_callback()": '.count($matches));
