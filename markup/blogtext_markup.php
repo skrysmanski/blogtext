@@ -893,14 +893,18 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       //   it's above; this would only be possible, if we parsed character after character. We, however,
       //   execute rule after rule; so at this point all headings are already known.
       $anchor_name = substr($link, 1);
-      $this->add_text_position_request('"'.$anchor_name.'"');
-      // NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
-      //   get the same position calculated.
-      $placeholder = $this->encode_placeholder('section-link'.$anchor_name.$this->anchor_id_counter,
-                                               $anchor_name,
-                                               array($this, 'resolve_heading_relative_pos'), true);
-      $this->anchor_id_counter++;
-      $css_classes = array('section-link-'.$placeholder => true);
+      if ($this->heading_name_exists($anchor_name)) {
+        $this->add_text_position_request('"'.$anchor_name.'"');
+        // NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
+        //   get the same position calculated.
+        $placeholder = $this->encode_placeholder('section-link'.$anchor_name.$this->anchor_id_counter,
+                                                 $anchor_name,
+                                                 array($this, 'resolve_heading_relative_pos'), true);
+        $this->anchor_id_counter++;
+        $css_classes = array('section-link-'.$placeholder => true);
+      } else {
+        $not_found_reason = 'not existing';
+      }
     } else {
       if ($is_external) {
         $css_classes = array('external' => true);
@@ -965,7 +969,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     if (!empty($not_found_reason)) {
       // Page not found
       $title .= '['.$not_found_reason.']';
-      $css_classes = array('not-found' => true);
+      if ($link_type != IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+        $css_classes = array('not-found' => true);
+      } else {
+        $css_classes = array('section-link-not-existing' => true);
+      }
     } else if ($is_attachment || $is_external) {
       // Check for file extension
       if ($is_attachment) {
@@ -1184,6 +1192,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     return ($heading_pos < $pos ? 'above' : 'below');
   }
+  
+  private function heading_name_exists($anchor_name) {
+    return isset($this->headings_title_map[$anchor_name]);
+  }
 
   private function resolve_heading_name($anchor_name) {
     // Called from decode_placeholders().
@@ -1191,7 +1203,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       return $this->headings_title_map[$anchor_name];
     } else {
       // Section doesn't exist.
-      return '#'.$anchor_name.'[not existing]';
+      return '#'.$anchor_name;
     }
   }
 
