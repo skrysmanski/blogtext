@@ -47,6 +47,7 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
     $section->add_option(BlogTextSettings::use_default_filetype_icons(true));
     $section->add_option(BlogTextSettings::use_default_css(true));
     $section->add_option(BlogTextSettings::get_geshi_theme(true));
+    $section->add_option(BlogTextSettings::get_custom_css(true));
     $this->add_section($section);
 
     $section = new MSCL_OptionsPageSection('blogtext_warnings', 'Backend Settings', '');
@@ -73,6 +74,7 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
         || $this->is_option_updated(BlogTextSettings::new_window_for_external_links(true))
         || $this->is_option_updated(BlogTextSettings::get_default_small_img_alignment(true))
         || $this->is_option_updated(BlogTextSettings::display_caption_for_thumbs(true))
+        || $this->is_option_updated(BlogTextSettings::get_content_width(true))
         || $this->is_option_updated(BlogTextSettings::get_interlinks(true))) {
       return true;
     }

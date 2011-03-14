@@ -64,6 +64,8 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
     $this->add_stylesheets();
     $this->add_javascripts();
+
+    add_action('wp_head', array($this, 'insert_custom_css'));
   }
 
   public function wordpress_initialize() {
@@ -133,6 +135,19 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
   private function add_javascripts() {
     $this->add_frontend_script('js/blogtext.js');
+  }
+
+  public function insert_custom_css() {
+    if (is_admin()) {
+      return;
+    }
+
+    $custom_css = trim(BlogTextSettings::get_custom_css());
+    if (empty($custom_css)) {
+      return;
+    }
+
+    echo '<style type="text/css">'."\n$custom_css\n</style>\n";
   }
 }
 

@@ -181,6 +181,18 @@ class BlogTextSettings {
     return $get_option ? $option : $option->get_value();
   }
 
+  public static function get_custom_css($get_option=false) {
+    static $option = null;
+    if ($option == null) {
+      $option = new MSCL_TextareaOption('blogtext_custom_css', 'Custom CSS', 80, 12, '',
+              'This allows you to specify <a href="http://www.w3schools.com/css/default.asp" target="_blank">'
+              .'custom CSS</a> to override some of your theme\'s CSS styles so that it looks better together '
+              .'with BlogText.');
+    }
+    return $get_option ? $option : $option->get_value();
+  }
+
+
   ////////////////////////////////////////////////////////////////////////////
 
   public static function disable_fix_invalid_xhtml_warning($get_option=false) {
