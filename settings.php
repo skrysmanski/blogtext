@@ -108,6 +108,39 @@ class BlogTextSettings {
 
   ////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * Callback function.
+   */
+  public static function check_content_width(&$input) {
+    return ($input < 0);
+  }
+
+  public static function get_content_width($get_option=false) {
+    static $option = null;
+    if ($option == null) {
+      global $content_width;
+      if (isset($content_width) && $content_width > 0) {
+        $desc_short = $content_width.' pixel';
+        $desc_long = 'The theme specifies its content width with '.$content_width.' pixel. Unless you want '
+                   . 'another content width, you can set this option to zero (0).';
+      } else {
+        $desc_short = 'not specified';
+        $desc_long = 'The theme does <strong>not</strong> specify a content width.';
+      }
+      $option = new MSCL_IntOption('blogtext_content_width', 
+              'Content Width (in Pixels)<br/>(by theme: '.$desc_short.')',
+              0,
+              'Specifies the width available for content (ie. a posting\'s text and images) in pixels. This '
+              .'is used to limit the width of images used in posts and pages. If this is 0, the theme is '
+              .'checked whether it specifies the width in the global variable <code>$content_width</code>. '
+              .'If this variable isn\'t available, the image widths won\' be constrained.'
+              .'<br/><br/>'
+              .$desc_long,
+              'BlogTextSettings::check_content_width');
+    }
+    return $get_option ? $option : $option->get_value();
+  }
+
   public static function use_default_filetype_icons($get_option=false) {
     static $option = null;
     if ($option == null) {

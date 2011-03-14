@@ -43,6 +43,7 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
     $this->add_section($section);
 
     $section = new MSCL_OptionsPageSection('blogtext_theme', 'Theme Settings', '');
+    $section->add_option(BlogTextSettings::get_content_width(true));
     $section->add_option(BlogTextSettings::use_default_filetype_icons(true));
     $section->add_option(BlogTextSettings::use_default_css(true));
     $section->add_option(BlogTextSettings::get_geshi_theme(true));

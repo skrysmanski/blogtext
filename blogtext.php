@@ -64,15 +64,22 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
     $this->add_stylesheets();
     $this->add_javascripts();
+  }
 
+  public function wordpress_initialize() {
+    // NOTE: Create option page here (after "init") so that the theme has already loaded and "content_width"
+    //   is available.
     if (is_admin()) {
       // We're in the backend. Create option page. It registers itself.
       $this->main_options_page = new BlogTextSettingsPage();
     }
 
-  }
-
-  public function wordpress_initialize() {
+    // Set content width
+    $width = BlogTextSettings::get_content_width();
+    if ($width > 0) {
+      global $content_width;
+      $content_width = $width;
+    }
   }
 
   public static function get_instance() {
