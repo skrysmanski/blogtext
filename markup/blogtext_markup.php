@@ -139,6 +139,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
    */
   private $text_positions = array();
 
+  private $anchor_id_counter = 0;
+
   private $thumbs_used = array();
 
   public function __construct() {
@@ -290,6 +292,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     $this->headings = array();
     $this->headings_title_map = array();
     $this->text_positions = array();
+    $this->anchor_id_counter = 0;
     $this->thumbs_used = array();
   }
 
@@ -573,7 +576,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       if ($requires_text_pos && $callback_func !== null) {
         // Encode line in the placeholders
         // NOTE: This is highly inefficient but we don't have any alternative for now.
-        // NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
         $search = self::$BLOCK_ENCODE_START_DELIM.$key.self::$BLOCK_ENCODE_END_DELIM;
         $pos = strpos($markup_code, $search);
         if ($pos !== false) {
@@ -883,8 +885,12 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       //   execute rule after rule; so at this point all headings are already known.
       $anchor_name = substr($link, 1);
       $this->add_text_position_request('"'.$anchor_name.'"');
-      $placeholder = $this->encode_placeholder('section-link'.$anchor_name, $anchor_name, 
+      // NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
+      //   get the same position calculated.
+      $placeholder = $this->encode_placeholder('section-link'.$anchor_name.$this->anchor_id_counter,
+                                               $anchor_name,
                                                array($this, 'resolve_heading_relative_pos'), true);
+      $this->anchor_id_counter++;
       $css_classes = array('section-link-'.$placeholder => true);
     } else {
       if ($is_external) {

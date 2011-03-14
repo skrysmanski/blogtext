@@ -64,12 +64,12 @@ a.not-available, a.section-link-not-existing {
 
 a.section-link-above {
   background: url(common-icons/section-above.png) no-repeat left center transparent !important;
-  padding-left: 12px;
+  padding-left: 11px;
 }
 
 a.section-link-below {
   background: url(common-icons/section-below.png) no-repeat left center transparent !important;
-  padding-left: 12px;
+  padding-left: 11px;
 }
 
 /*
