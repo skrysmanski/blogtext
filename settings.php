@@ -112,7 +112,7 @@ class BlogTextSettings {
    * Callback function.
    */
   public static function check_content_width(&$input) {
-    return ($input < 0);
+    return ($input >= 0);
   }
 
   public static function get_content_width($get_option=false) {
