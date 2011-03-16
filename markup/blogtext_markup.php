@@ -91,7 +91,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     'indention' => '/\n[ \t]{2,}(.*?\n)(?![ \t]{2})/s',
 
     // External links (plain text urls)
-    'plain_text_urls' => '/(?<=[ \t])(([a-zA-Z0-9\+\.\-]+)\:\/\/(\S+))( [[:punct:]])?/',
+    'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/(\S+))( [[:punct:]])?/',
     // Horizontal lines
     'horizontal' => '/^----[\-]*[ \t]*$/m',
 
@@ -718,28 +718,15 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
       return $url;
     }
 
-    if (   isset($url_info['query']) || isset($url_info['fragment'])
+    if (   isset($url_info['path'])
+        || isset($url_info['query']) || isset($url_info['fragment'])
         || isset($url_info['user']) || isset($url_info['pass'])) {
       // If any of the above mentioned "advanced" URL parts is in the URL, don't shorten the URL.
       return $url;
     }
 
-    $hostname_parts = explode('.', $url_info['host'], 3);
-    if (count($hostname_parts) == 3 && $hostname_parts[0] != 'www') {
-      // don't shorten urls like "http://en.wikipedia.org" unless its path part is empty (ie.
-      // "http://en.wikipedia.org/wiki/Article" won't be shorten where as "http://en.wikipedia.org" will be).
-      if (isset($url_info['path'])) {
-        return $url;
-      } else {
-        return $url_info['host'];
-      }
-    }
-
-    if (isset($url_info['path'])) {
-      return $url_info['host'].'/'.$url_info['path'];
-    } else {
-      return $url_info['host'];
-    }
+    // Only shorten URLs that don't have a path (or any other URL parts)
+    return $url_info['host'];
   }
 
   private function generate_link_tag($url, $name, $css_classes, $new_window=true, $is_attachment=false) {
