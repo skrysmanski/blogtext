@@ -54,7 +54,7 @@ function get_blogtext_editor_buttons() {
         break;
       case 'ed_code':
         // Add additional single line code button
-        newEdButtons[newEdButtons.length] = new edButton('ed_code_single', '`code`', '`', '`');
+        newEdButtons[newEdButtons.length] = new edButton('ed_code_single', '##code##', '##', '##');
         newEdButtons[newEdButtons.length-1].tooltip = "Inline Code";
 
         curButton.display = '{{{code}}}';

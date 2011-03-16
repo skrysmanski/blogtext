@@ -21,7 +21,7 @@ Supported markup:
 * Tables
 * Internal and external links
 * Headings
-* Table of content
+* Table of contents
 * Preformatted text and code blocks with syntax highlighting
 
 == Installation ==
