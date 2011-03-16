@@ -167,7 +167,7 @@ class BlogTextSettings {
   public static function get_geshi_theme($get_option=false) {
     static $option = null;
     if ($option == null) {
-      $option = new MSCL_ChoiceOption('blogtext_geshi_theme', 'Theme for syntax highlighting',
+      $option = new MSCL_ChoiceOption('blogtext_geshi_theme', 'Theme for code colorizing (aka. syntax highlighting)',
                                  array('dawn' => "Dawn (bright)",
                                        'mac-classic' => "Mac Classic (bright)",
                                        'twilight' => "Twilight (dark)",
