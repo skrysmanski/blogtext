@@ -82,8 +82,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     // NOTE: Need to be done AFTER "complex_tables" as they syntaxes otherwise may collide (eg. on the
     //   table caption)
     'simple_table' => '/\n(\|(?!\+)[^\|]+\|.+(?:\n\|(?!\+)[^\|]+\|.+)*)(?:\n\|\+(.+))?/',
-    // Ordered (#) and unordered (*, -) lists; indentions (:)
-    'list' => '/\n[\*#;].*?\n(?:(?:[\*#; \t].*?)?\n)*/',
+    // Ordered (#) and unordered (*) lists; definition list(;)
+    // NOTE: The user can't start a list with "**" (list with sublist).
+    'list' => '/\n[\*#;][^\*#;].*?\n(?:(?:[\*#; \t].*?)?\n)*/',
     // Block quotes
     'blockquote' => '/\n>(.*?\n)(?!>)/s',
     // Indention (must be done AFTER lists)
