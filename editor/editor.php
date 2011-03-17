@@ -69,10 +69,19 @@ class BlogTextEditor {
   }
 
   public function add_blogtext_syntax_link($editor_html) {
-    $syntax_link = '<div class="blogtext_syntax_link"><a href="'.BlogTextDocumentation::SYNTAX_DESC.'" target="_blank">BlogText Syntax</a></div>';
+    $syntax_link = '<div class="blogtext_syntax_link">'
+                 . '<a href="'.BlogTextDocumentation::SYNTAX_DESC.'" target="_blank">BlogText Syntax</a>'
+                 . ' &bull; '
+                 . '<a href="'.BlogTextDocumentation::SYNTAX_CHEAT_SHEET.'" target="_blank">Syntax Cheat Sheet</a>'
+                 . '</div>';
     $editor_html = preg_replace('/<\/textarea>(.*)<\/div>/is', '</textarea>\1'.$syntax_link.'</div>', $editor_html, 1);
     return $editor_html;
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // Media Browser
+  //
 
   /**
    * Wordpress callback function. Called from "wp-admin/includes/media.php".
