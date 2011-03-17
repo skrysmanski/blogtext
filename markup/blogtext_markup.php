@@ -199,39 +199,41 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     return new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::THUMB_CACHE_PREFIX);
   }
 
-  public function convert_post_to_html($post, $markup_content, $is_rss, $is_excerpt) {
-    // We need to have two different cached: one for when a post is displayed alone and one when it's
-    // displayed together with other posts (in the loop). HTML IDs may vary and if there's a more link the
-    // contents differ dramatically. (The same applies for RSS feed item which can be dramatically trimmed
-    // down.)
-    if ($is_rss) {
-      $content_cache = self::get_post_content_cache(self::RSS_ITEM_PREFIX, $post->ID);
-      $cache_name = 'rss-item';
-    } else if ($this->is_single()) {
-      $content_cache = self::get_post_content_cache(self::SINGLE_PAGE_PREFIX, $post->ID);
-      $cache_name = 'single-page';
-    } else {
-      $content_cache = self::get_post_content_cache(self::LOOP_PAGE_PREFIX, $post->ID);
-      $cache_name = 'loop-view';
+  public function convert_post_to_html($post, $markup_content, $render_type, $is_excerpt) {
+    if ($render_type != self::RENDER_KIND_PREVIEW) {
+      // We need to have two different cached: one for when a post is displayed alone and one when it's
+      // displayed together with other posts (in the loop). HTML IDs may vary and if there's a more link the
+      // contents differ dramatically. (The same applies for RSS feed item which can be dramatically trimmed
+      // down.)
+      if ($render_type == self::RENDER_KIND_RSS) {
+        $content_cache = self::get_post_content_cache(self::RSS_ITEM_PREFIX, $post->ID);
+        $cache_name = 'rss-item';
+      } else if ($this->is_single()) {
+        $content_cache = self::get_post_content_cache(self::SINGLE_PAGE_PREFIX, $post->ID);
+        $cache_name = 'single-page';
+      } else {
+        $content_cache = self::get_post_content_cache(self::LOOP_PAGE_PREFIX, $post->ID);
+        $cache_name = 'loop-view';
+      }
+
+      // reuse cached content; significantly speeds up the whole process
+      $cached_content = $content_cache->get_value(self::CONTENT_CACHE_KEY);
+      $cached_content_date = $content_cache->get_value(self::CONTENT_CACHE_DATE_KEY);
+      if (   !empty($cached_content)
+          && $cached_content_date >= $post->post_modified_gmt
+          && $cached_content_date >= self::$MARKUP_MODIFICATION_DATE
+          && $this->check_thumbnails($post)) {
+        $cache_comment = '<!-- Cached "'.$cache_name.'" item from '.$cached_content_date." -->\n";
+        return $cache_comment.$cached_content;
+      }
+
+      if (!$is_excerpt && !$this->is_single()) {
+        // For the regular expression, see "get_the_content()" in "post-template.php".
+        $is_excerpt = (preg_match('/<!--more(.*?)?-->/', $post->post_content) == 1);
+      }
     }
 
-    // reuse cached content; significantly speeds up the whole process
-    $cached_content = $content_cache->get_value(self::CONTENT_CACHE_KEY);
-    $cached_content_date = $content_cache->get_value(self::CONTENT_CACHE_DATE_KEY);
-    if (   !empty($cached_content)
-        && $cached_content_date >= $post->post_modified_gmt
-        && $cached_content_date >= self::$MARKUP_MODIFICATION_DATE
-        && $this->check_thumbnails($post)) {
-      $cache_comment = '<!-- Cached "'.$cache_name.'" item from '.$cached_content_date." -->\n";
-      return $cache_comment.$cached_content;
-    }
-
-    if (!$is_excerpt && !$this->is_single()) {
-      // For the regular expression, see "get_the_content()" in "post-template.php".
-      $is_excerpt = (preg_match('/<!--more(.*?)?-->/', $post->post_content) == 1);
-    }
-
-    $this->reset_data($is_rss, $is_excerpt);
+    $this->reset_data($render_type == self::RENDER_KIND_RSS, $is_excerpt);
 
     // add blank lines for rules that expect a \n at the beginning of a line (even on the first)
     $markup_content = "\n$markup_content\n";
@@ -247,17 +249,21 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     $ret = $this->decode_placeholders($ret);
 
-    // update cache
-    $mod_date = MarkupUtil::create_mysql_date();
-    $content_cache->set_value(self::CONTENT_CACHE_DATE_KEY, $mod_date);
-    $content_cache->set_value(self::CONTENT_CACHE_KEY, $ret);
+    if ($render_type != self::RENDER_KIND_PREVIEW) {
+      // update cache
+      $mod_date = MarkupUtil::create_mysql_date();
+      $content_cache->set_value(self::CONTENT_CACHE_DATE_KEY, $mod_date);
+      $content_cache->set_value(self::CONTENT_CACHE_KEY, $ret);
 
-    // NOTE: We need to do the check here as well as it may not have been executed in the condition above.
-    $this->check_thumbnails($post);
+      // NOTE: We need to do the check here as well as it may not have been executed in the condition above.
+      $this->check_thumbnails($post);
 
-    log_info("Cache for post $post->ID ($cache_name) has been updated.");
+      log_info("Cache for post $post->ID ($cache_name) has been updated.");
 
-    $generate_comment = '<!-- Generated "'.$cache_name.'" item at '.$cached_content_date." -->\n";
+      $generate_comment = '<!-- Generated "'.$cache_name.'" item at '.$cached_content_date." -->\n";
+    } else {
+      $generate_comment = '';
+    }
     return $generate_comment.$ret;
   }
   

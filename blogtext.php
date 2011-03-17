@@ -110,7 +110,15 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
     try {
       $markup = new BlogTextMarkup();
-      return $markup->convert_post_to_html($post, $content, is_feed(), $is_excerpt);
+      if (is_preview()) {
+        $is_excerpt = false;
+        $render_type = AbstractTextMarkup::RENDER_KIND_PREVIEW;
+      } else if (is_feed()) {
+        $render_type = AbstractTextMarkup::RENDER_KIND_RSS;
+      } else {
+        $render_type = AbstractTextMarkup::RENDER_KIND_REGULAR;
+      }
+      return $markup->convert_post_to_html($post, $content, $render_type, $is_excerpt);
     } catch (Exception $e) {
       print MSCL_ErrorHandling::format_exception($e);
       // exit here as the exception may come from some static constructor that is only executed once

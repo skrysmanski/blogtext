@@ -24,6 +24,20 @@ require_once(dirname(__FILE__).'/table_base.php');
 
 abstract class AbstractTextMarkup {
 
+  /**
+   * The post is rendered regular either in the loop (as full text or excerpt) or as single page.
+   */
+  const RENDER_KIND_REGULAR  = 'regular';
+  /**
+   * The post is rendered as an RSS item (as full text or excerpt).
+   */
+  const RENDER_KIND_RSS     = 'rss';
+  /**
+   * The post is rendered in preview mode (See "Preview Changes" button while editing a page.)
+   */
+  const RENDER_KIND_PREVIEW = 'preview';
+
+  
   public static function generate_error_html($message, $additional_css='') {
     if (!empty($additional_css)) {
       return '<span class="error '.$additional_css.'">'.$message.'</span>';
