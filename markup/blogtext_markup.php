@@ -223,7 +223,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
           && $cached_content_date >= $post->post_modified_gmt
           && $cached_content_date >= self::$MARKUP_MODIFICATION_DATE
           && $this->check_thumbnails($post)) {
-        $cache_comment = '<!-- Cached "'.$cache_name.'" item from '.$cached_content_date." -->\n";
+        // NOTE: Don't add a "\n" at the end of the comment line to prevent Wordpress from adding
+        //   unnecessary paragraphs and line breaks.
+        $cache_comment = '<!-- Cached "'.$cache_name.'" item from '.$cached_content_date.' -->';
         return $cache_comment.$cached_content;
       }
 
@@ -249,6 +251,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     $ret = $this->decode_placeholders($ret);
 
+    // Remove line breaks from the start and end to prevent Wordpress from adding unnecessary paragraphs
+    // and line breaks.
+    $ret = trim($ret);
+
     if ($render_type != self::RENDER_KIND_PREVIEW) {
       // update cache
       $mod_date = MarkupUtil::create_mysql_date();
@@ -260,10 +266,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
       log_info("Cache for post $post->ID ($cache_name) has been updated.");
 
-      $generate_comment = '<!-- Generated "'.$cache_name.'" item at '.$cached_content_date." -->\n";
+      // NOTE: Don't add a "\n" at the end of the comment line to prevent Wordpress from adding
+      //   unnecessary paragraphs and line breaks.
+      $generate_comment = '<!-- Generated "'.$cache_name.'" item at '.$cached_content_date.' -->';
     } else {
       $generate_comment = '';
     }
+
     return $generate_comment.$ret;
   }
   
