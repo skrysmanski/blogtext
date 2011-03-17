@@ -94,14 +94,16 @@ class BlogTextSettings {
     return $get_option ? $option : $option->get_value();
   }
 
-  public static function display_caption_for_thumbs($get_option=false) {
+  public static function display_caption_if_provided($get_option=false) {
     static $option = null;
     if ($option == null) {
-      $option = new MSCL_BoolOption('blogtext_display_caption_for_thumbs', 'Display captions for thumbnails',
-              false,
-              'Specifies whether the caption of images specified as <code>[[image:myimage.jpg|thumb]]</code> '
-              .'are displayed by default. If this is enabled, a caption can be disabled by adding '
-              .'<code>nocaption</code> as parameter.');
+      $option = new MSCL_BoolOption('blogtext_display_caption_if_provided', 'Display image captions when provided',
+              true,
+              'Specifies whether image captions that are specified directly in the Interlink (ie. as '
+              .'<code>[[image:myimage.jpg|My caption]]</code>) are displayed by default. If this is enabled, '
+              .'a caption can be disabled by adding <code>nocaption</code> as parameter. If this is disabled '
+              .'the caption will only be shown when the user moves the mouse cursor over the image - unless'
+              .'the parameter <code>caption</code> is added to the Interlink.');
     }
     return $get_option ? $option : $option->get_value();
   }

@@ -87,7 +87,7 @@ class MediaMacro implements IInterlinkMacro {
         && MSCL_AbstractFileInfo::is_remote_file($ref)
         && !MSCL_AbstractFileInfo::is_protocol_supported($ref)) {
       // Remote image whose protocol isn't supported. Create a good looking error message here.
-      return self::generate_error_html("Protocol for remote file '".$ref."' isn't supported.");
+      return self::generate_error_html("The protocol for remote file '".$ref."' isn't supported.");
     }
 
     // Identify parameters
@@ -129,10 +129,8 @@ class MediaMacro implements IInterlinkMacro {
       }
     }
 
-    //
-    // add frame to thumb
-    //
-    if ($is_thumb && BlogTextSettings::display_caption_for_thumbs() && !$no_caption) {
+    // display caption if the user specified one
+    if (!empty($title) && BlogTextSettings::display_caption_if_provided() && !$no_caption) {
       $has_frame = true;
     }
 
