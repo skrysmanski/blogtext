@@ -255,4 +255,32 @@ class BlogTextSettings {
     return $interlinks;
   }
 }
+
+class BlogTextPostSettings {
+  public static function get_use_blogtext($post) {
+    if (is_object($post)) {
+      $post_id = $post->ID;
+    } else {
+      $post_id = (int)$post;
+    }
+    $use_blogtext = get_post_meta($post_id, 'use_blogtext', true);
+    if (empty($use_blogtext)) {
+      // not set - figure out default
+      if (!is_object($post)) {
+        $post = get_post($post_id);
+      }
+      
+      // Already published posts/pages were written before BlogText was installed (as otherwise
+      // the "use_blogtext" settings would have been set to either "true" or "false"). Only return true
+      // for pages with "auto-draft" (new pages) and "draft" status.
+      // See: http://codex.wordpress.org/Post_Status_Transitions
+      return ($post->post_status == 'auto-draft' || $post->post_status == 'draft');
+    }
+    return MSCL_BoolOption::is_true($use_blogtext);
+  }
+
+  public static function set_use_blogtext($post_id, $use) {
+    update_post_meta($post_id, 'use_blogtext', $use ? 'true' : 'false');
+  }
+}
 ?>

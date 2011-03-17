@@ -102,6 +102,12 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
   public function convert_blogtext($content, $is_excerpt) {
     global $post;
+
+    if (!BlogTextPostSettings::get_use_blogtext($post)) {
+      // Don't use BlogText for this post.
+      return $content;
+    }
+
     try {
       $markup = new BlogTextMarkup();
       return $markup->convert_post_to_html($post, $content, is_feed(), $is_excerpt);

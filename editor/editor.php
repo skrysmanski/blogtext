@@ -34,6 +34,10 @@ class BlogTextEditor {
     // NOTE 2: We can't use "is_editor_present()" here as the media uploader is an extra page (not directly
     //  containing an editor).
     add_filter('media_send_to_editor', array($this, 'fix_media_browser_code'), 30, 3);
+
+    // Add meta box
+    add_action('add_meta_boxes', array($this, 'add_metaboxes'));
+    add_action('save_post', array($this, 'handle_metabox_data'));
   }
 
   private static function is_editor_present() {
@@ -141,6 +145,62 @@ class BlogTextEditor {
     
     return $code;
   }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // Meta Boxes
+  //
+
+  public function add_metaboxes() {
+    add_meta_box('blogtext_metabox', 'BlogText', array($this, 'render_metabox_content'), 'post', 'side');
+    add_meta_box('blogtext_metabox', 'BlogText', array($this, 'render_metabox_content'), 'page', 'side');
+  }
+
+  public function render_metabox_content($post, $metabox) {
+    // Use nonce for verification
+    wp_nonce_field(plugin_basename(__FILE__), 'blogtext_metabox_nonce');
+
+    $checked_text = BlogTextPostSettings::get_use_blogtext($post) ? ' checked="checked"' : '';
+
+    echo '<label><input type="checkbox" id="use_blogtext" name="use_blogtext"'.$checked_text.'/>';
+    echo ' Use BlogText for this post/page</label>';
+    echo '<p class="howto">If you just want to disable for certain text sections, use the no-parse syntax '
+        .'<code style="white-space:pre;">{{! ... !}}</code> instead.</p>';
+  }
+
+  public function handle_metabox_data($post_id) {
+    // verify this came from the our screen and with proper authorization,
+    // because save_post can be triggered at other times
+    if (   !isset($_POST['blogtext_metabox_nonce'])
+        || !wp_verify_nonce($_POST['blogtext_metabox_nonce'], plugin_basename(__FILE__))) {
+      return $post_id;
+    }
+
+    // verify if this is an auto save routine. If it is our form has not been submitted, so we dont want
+    // to do anything
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+      return $post_id;
+    }
+
+    // Check permissions
+    if ('page' == $_POST['post_type']) {
+      if (!current_user_can('edit_page', $post_id )) {
+        return $post_id;
+      }
+    } else {
+      if ( !current_user_can('edit_post', $post_id )) {
+        return $post_id;
+      }
+    }
+
+    // OK, we're authenticated: we need to find and save the data
+
+    $use_blogtext = MSCL_BoolOption::is_true($_POST['use_blogtext']);
+    BlogTextPostSettings::set_use_blogtext($post_id, $use_blogtext);
+
+    return $use_blogtext;
+  }
+
 }
 BlogTextEditor::init();
 ?>
