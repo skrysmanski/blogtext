@@ -6,14 +6,17 @@ Requires at least: 3.0.0
 Tested up to: 3.1.0
 Stable tag: 0.9
 
-BlogText is a plugin for WordPress that adds a wiki-like syntax to WordPress.
+BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
+good Wordpress editor integration.
 
 == Description ==
-BlogText allows the user to write his or her posts and pages in wiki-like syntax. It's goal is to provide an
-easy-to-learn and fast-to-type syntax. This syntax is mostly based on Creole but also takes some things from
-the MediaWiki syntax. The following list lists some of the markups supported by BlogText. For a more complete
-list, see BlogText's syntax description page at http://blogtext.mayastudios.com/syntax/ (which is written in
-BlogText syntax and demonstrates BlogText's capabilities).
+BlogText is a plugin for WordPress that allows you to use a simple wiki-like syntax to write your posts and
+pages. This syntax is easy-to-learn and fast-to-type. The goal behind BlogText is that you don’t need to write
+HTML anymore to achieve the desired text layout.
+
+The following list lists some of the markups supported by BlogText. For a more complete list, see BlogText's
+syntax description page at http://blogtext.mayastudios.com/syntax/ (which is written entierly in BlogText
+syntax and demonstrates BlogText's capabilities).
 
 Supported markup:
 * Basic text formatting such as bold, italics, underlining, and strike-through
@@ -24,12 +27,22 @@ Supported markup:
 * Table of contents
 * Preformatted text and code blocks with syntax highlighting
 
-== Installation ==
+BlogText also integrates into Wordpress' HTML editor by providing its own buttons (to create BlogText syntax),
+media browser integration, and help links. This make writing posts with BlogText even easier.
 
-1. Please make sure you have PHP 5 installed.
-1. Upload the `blogtext` folder (containing among others `blogtext.php`) to the `/wp-content/plugins/` directory.
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Write ahead.
+For more information, see BlogText's feature list at: http://blogtext.mayastudios.com/features/
+
+== Installation ==
+Installing BlogText is pretty much straight forward.
+
+You need '''Wordpress 3.0 or higher''' to install BlogText. You also need '''PHP 5.0 or higher''' installed on
+your webserver.
+
+1. Simply download the BlogText .zip file.
+1. Extract it.
+1. Upload the folder "blogtext" (containing the file ##blogtext.php## among others) into your blog's plugin directory (usually ##wp-content/plugins##).
+1. Activate it from the "Plugins" panel in your blog's admin interface
+1. Start writing your posts
 
 == Frequently Asked Questions ==
 
