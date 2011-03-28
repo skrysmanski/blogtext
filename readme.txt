@@ -3,15 +3,16 @@ Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
 Tested up to: 3.1.0
-Stable tag: 0.9.0c
+Stable tag: 0.9.0e
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
 good Wordpress editor integration.
 
 == Description ==
 BlogText (http://blogtext.mayastudios.com) is a plugin for WordPress that allows you to use a simple wiki-like
-syntax to write your posts and pages. This syntax is easy-to-learn and fast-to-type. The goal behind BlogText
-is that you don’t need to write HTML anymore to achieve the desired text layout.
+syntax (based on the Creole wiki syntax) to write your posts and pages. This syntax is easy-to-learn and
+fast-to-type. The goal behind BlogText is that you don’t need to write HTML anymore to achieve the desired
+text layout.
 
 The following list lists some of the markups supported by BlogText. For a more complete list, see BlogText's
 syntax description page at http://blogtext.mayastudios.com/syntax/ (which is written entirely in BlogText
@@ -45,6 +46,13 @@ your webserver.
 1. Start writing your posts
 
 == Changelog ==
+
+= 0.9.0e =
+* Absolute links (like `[[/feed|my feed]]`) can now be used.
+
+= 0.9.0d =
+* This version was just released to fix the buggy readme parser in the Wordpress Plugin Directory. It's
+  identical to 0.9.0c.
 
 = 0.9.0c =
 * First official release.

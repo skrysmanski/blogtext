@@ -157,6 +157,15 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
     $is_external = false;
     $type = null;
 
+    // Absolute link
+    if ($params[0][0] == '/') {
+      $link = $params[0];
+      if (count($params) == 1) {
+        $title = $link;
+      }
+      return array($link, $title, false, null);
+    }
+
     $ref_parts = explode('#', $params[0], 2);
     if (count($ref_parts) == 2) {
       $page_id = trim($ref_parts[0]);
