@@ -23,9 +23,9 @@ require_once(dirname(__FILE__).'/../api/commons.php');
 MSCL_Api::load(MSCL_Api::GESHI);
 MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 MSCL_Api::load(MSCL_Api::THUMBNAIL_CACHE);
-MSCL_Api::load(MSCL_Api::CACHE_API);
 
 MSCL_require_once('textmarkup_base.php', __FILE__);
+MSCL_require_once('markup_cache.php', __FILE__);
 MSCL_require_once('macros.php', __FILE__);
 MSCL_require_once('resolver.php', __FILE__);
 
@@ -36,20 +36,12 @@ class MarkupException extends Exception {
   }
 }
 
-class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
-  const SINGLE_PAGE_PREFIX = 'single_';
-  const LOOP_PAGE_PREFIX = 'loop_';
-  const RSS_ITEM_PREFIX = 'rss_';
-
-  const CONTENT_CACHE_PREFIX = 'content_';
-  const CONTENT_CACHE_KEY = 'cache_';
-  const CONTENT_CACHE_DATE_KEY = 'cache_date_';
-
-  const THUMB_CACHE_PREFIX = 'thumb_check_date';
-
+class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, IMarkupCacheHandler {
   const CACHE_PREFIX = 'blogtext_';
 
   private static $INITIALIZED = false;
+
+  private static $CACHE;
 
   // regular expression rules
   // Syntax:
@@ -110,8 +102,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
   // Rules to remove white space at the beginning of line that don't expect this (headings, lists, quotes)
   private static $TRIM_RULE = '/^[ \t]*(?=[=\*#:;>$])/m';
 
-  private static $MARKUP_MODIFICATION_DATE;
-
   private static $BLOCK_ENCODE_START_DELIM;
   private static $BLOCK_ENCODE_END_DELIM;
 
@@ -156,19 +146,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     if (self::$INITIALIZED) {
       return;
     }
+    self::$CACHE = new MarkupCache(self::CACHE_PREFIX);
+
     self::$BLOCK_ENCODE_START_DELIM = '('.md5('%%%');
     self::$BLOCK_ENCODE_END_DELIM = md5('%%%').')';
 
     // geshi
     $geshi = new GeSHi();
     self::$SUPPORTED_GESHI_LANGUAGES = array_flip($geshi->get_supported_languages());
-
-    // modification date
-    self::$MARKUP_MODIFICATION_DATE = max(
-        BlogTextPlugin::get_instance()->get_plugin_modification_date(array('markup/', 'util.php')),
-        MSCL_Api::get_mod_date()
-                                         );
-    self::$MARKUP_MODIFICATION_DATE = MarkupUtil::create_mysql_date(self::$MARKUP_MODIFICATION_DATE);
 
     //
     // interlinks
@@ -187,55 +172,49 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
     self::$INITIALIZED = true;
   }
 
-  private static function get_content_cache() {
-    return new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::CONTENT_CACHE_PREFIX);
-  }
-
-  private static function get_post_content_cache($type, $post_id) {
-    return new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::CONTENT_CACHE_PREFIX.$type.$post_id);
-  }
-
-  private static function get_thumbnail_last_checked_cache() {
-    return new MSCL_PersistentObjectCache(self::CACHE_PREFIX.self::THUMB_CACHE_PREFIX);
+  private function reset_data($is_rss, $is_excerpt) {
+    $this->is_rss = $is_rss;
+    $this->is_excerpt = $is_excerpt;
+    $this->placeholders = array();
+    $this->id_suffix = array();
+    $this->headings = array();
+    $this->headings_title_map = array();
+    $this->text_positions = array();
+    $this->anchor_id_counter = 0;
+    $this->thumbs_used = array();
   }
 
   public function convert_post_to_html($post, $markup_content, $render_type, $is_excerpt) {
-    if ($render_type != self::RENDER_KIND_PREVIEW) {
-      // We need to have two different cached: one for when a post is displayed alone and one when it's
-      // displayed together with other posts (in the loop). HTML IDs may vary and if there's a more link the
-      // contents differ dramatically. (The same applies for RSS feed item which can be dramatically trimmed
-      // down.)
-      if ($render_type == self::RENDER_KIND_RSS) {
-        $content_cache = self::get_post_content_cache(self::RSS_ITEM_PREFIX, $post->ID);
-        $cache_name = 'rss-item';
-      } else if ($this->is_single()) {
-        $content_cache = self::get_post_content_cache(self::SINGLE_PAGE_PREFIX, $post->ID);
-        $cache_name = 'single-page';
-      } else {
-        $content_cache = self::get_post_content_cache(self::LOOP_PAGE_PREFIX, $post->ID);
-        $cache_name = 'loop-view';
-      }
+    if ($render_type == self::RENDER_KIND_PREVIEW) {
+      return $this->convert_markup_to_html_uncached();
+    } else {
+      return self::$CACHE->get_html_code($this, $markup_content, $render_type == self::RENDER_KIND_PREVIEW);
+    }
+  }
 
-      // reuse cached content; significantly speeds up the whole process
-      $cached_content = $content_cache->get_value(self::CONTENT_CACHE_KEY);
-      $cached_content_date = $content_cache->get_value(self::CONTENT_CACHE_DATE_KEY);
-      if (   !empty($cached_content)
-          && $cached_content_date >= $post->post_modified_gmt
-          && $cached_content_date >= self::$MARKUP_MODIFICATION_DATE
-          && $this->check_thumbnails($post)) {
-        // NOTE: Don't add a "\n" at the end of the comment line to prevent Wordpress from adding
-        //   unnecessary paragraphs and line breaks.
-        $cache_comment = '<!-- Cached "'.$cache_name.'" item from '.$cached_content_date.' -->';
-        return $cache_comment.$cached_content;
-      }
-
-      if (!$is_excerpt && !$this->is_single()) {
-        // For the regular expression, see "get_the_content()" in "post-template.php".
-        $is_excerpt = (preg_match('/<!--more(.*?)?-->/', $post->post_content) == 1);
-      }
+  /**
+   * Converts the specified markup into HTML code. This method must explicitely convert the markup code
+   * without using cached HTML code for this markup.
+   *
+   * (Required by IMarkupCacheHandler)
+   *
+   * @param string $markup_content  the content to be converted. May not be identical to the content in the
+   *   $post parameter, in case this is an excerpt or post with more-link.
+   * @param object $post  the post to be converted
+   * @param bool $is_rss  indicates whether the content is to be displayed in an RSS feed (RSS reader). If
+   *   this is false, the content is to be displayed in the browser.
+   *
+   * @return string  the HTML code
+   */
+  public function convert_markup_to_html_uncached($markup_content, $post, $is_rss) {
+    if (!$this->is_single()) {
+      // For the regular expression, see "get_the_content()" in "post-template.php".
+      $is_excerpt = (preg_match('/<!--more(.*?)?-->/', $post->post_content) == 1);
+    } else {
+      $is_excerpt = false;
     }
 
-    $this->reset_data($render_type == self::RENDER_KIND_RSS, $is_excerpt);
+    $this->reset_data($is_rss, $is_excerpt);
 
     // add blank lines for rules that expect a \n at the beginning of a line (even on the first)
     $markup_content = "\n$markup_content\n";
@@ -253,90 +232,25 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     // Remove line breaks from the start and end to prevent Wordpress from adding unnecessary paragraphs
     // and line breaks.
-    $ret = trim($ret);
-
-    if ($render_type != self::RENDER_KIND_PREVIEW) {
-      // update cache
-      $mod_date = MarkupUtil::create_mysql_date();
-      $content_cache->set_value(self::CONTENT_CACHE_DATE_KEY, $mod_date);
-      $content_cache->set_value(self::CONTENT_CACHE_KEY, $ret);
-
-      // NOTE: We need to do the check here as well as it may not have been executed in the condition above.
-      $this->check_thumbnails($post);
-
-      log_info("Cache for post $post->ID ($cache_name) has been updated.");
-
-      // NOTE: Don't add a "\n" at the end of the comment line to prevent Wordpress from adding
-      //   unnecessary paragraphs and line breaks.
-      $generate_comment = '<!-- Generated "'.$cache_name.'" item at '.$cached_content_date.' -->';
-    } else {
-      $generate_comment = '';
-    }
-
-    return $generate_comment.$ret;
+    return trim($ret);
   }
   
   /**
-   * Clears the page cache completely or only for the specified post.
-   * @param int|null $what  if this is "null", the whole cache will be cleared. Otherwise only the cache for
-   *   the specified post/page id will be cleared.
-   */
-  public static function clear_page_cache($what=null) {
-    if ($what === null) {
-      self::get_content_cache()->clear_cache();
-      log_info("The complete page cache has been cleared.");
-    } else {
-      if (is_numeric($what)) {
-        $what = (int)$what;
-      } else {
-        // Check this so that not arbitrary thing are deleted here
-        throw new Exception("Post id must be an integer, but got: ".print_r($what, true));
-      }
-
-      self::get_post_content_cache(self::SINGLE_PAGE_PREFIX, $what)->clear_cache();
-      self::get_post_content_cache(self::LOOP_PAGE_PREFIX, $what)->clear_cache();
-      self::get_post_content_cache(self::RSS_ITEM_PREFIX, $what)->clear_cache();
-
-      log_info("The page cache for post $what has been cleared.");
-    }
-
-    // NOTE: Don't clear the thumbnail info so that we don't loose the information about which thumbs have
-    //   already created.
-  }
-
-  private function reset_data($is_rss, $is_excerpt) {
-    $this->is_rss = $is_rss;
-    $this->is_excerpt = $is_excerpt;
-    $this->placeholders = array();
-    $this->id_suffix = array();
-    $this->headings = array();
-    $this->headings_title_map = array();
-    $this->text_positions = array();
-    $this->anchor_id_counter = 0;
-    $this->thumbs_used = array();
-  }
-
-  /**
-   * This method is a trimmed down version of "convert_post_to_html()". It finds all interlinks and processes
-   * them to find all thumbnails. Note that this method works on the original post content rather than on the
-   * content Wordpress gives us. This is necessary since the content Wordpress gives us may be only an excerpt
-   * which in turn won't contain all image links.
+   * Determines the externals for the specified post. Externals are "links" to things that, if changed, will
+   * invalidate the post's cache. Externals are for example thumbnails or links to other posts. Changed means
+   * the "link" target has been deleted or created (if it didn't exist before), or for thumbnails that the
+   * thumbnail's size has changed.
    *
-   * @return Returns "true", if the thumbnails are up-to-date ("false" otherwise).
+   * (Required by IMarkupCacheHandler)
+   *
+   * @param object $post  the post the be checked
+   * @param array $thumbnail_ids  an array of the ids of the thumbnails used in the post
    */
-  private function check_thumbnails($post) {
-    $thumbs_last_checked_cache = self::get_thumbnail_last_checked_cache();
-    $thumbs_last_checked_date = $thumbs_last_checked_cache->get_value($post->ID);
-    if (   $thumbs_last_checked_date >= $post->post_modified_gmt
-        && $thumbs_last_checked_date >= self::$MARKUP_MODIFICATION_DATE) {
-      // Last thumbs check is up-to-date. Now check whether thumbs are up-to-date.
-      if (!MSCL_ThumbnailCache::are_post_thumbnails_uptodate($post->ID)) {
-        log_info("Thumbnails for post $post->ID need to be updated.");
-        return false;
-      } else {
-        return true;
-      }
-    }
+  public function determine_externals($post, &$thumbnail_ids) {
+    // This method is a trimmed down version of "convert_markup_to_html_uncached()". It finds all interlinks and processes
+    // them to find all thumbnails. Note that this method works on the original post content rather than on the
+    // content Wordpress gives us. This is necessary since the content Wordpress gives us may be only an excerpt
+    // which in turn won't contain all image links.
     $this->reset_data(false, false);
 
     // clean up line breaks - convert all to "\n"
@@ -345,14 +259,16 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer {
 
     $this->execute_regex('interlinks', $ret);
 
-    // registed used thumbnails
-    MSCL_ThumbnailCache::register_post($post->ID, array_keys($this->thumbs_used));
+    $thumbnail_ids = array_keys($this->thumbs_used);
+  }
 
-    // Store date of last thumbs check
-    $thumbs_last_checked_cache->set_value($post->ID, MarkupUtil::create_mysql_date());
-
-    log_info("Thumbnails for post $post->ID have been checked.");
-    return false;
+  /**
+   * Clears the page cache completely or only for the specified post.
+   * @param int|null $post  if this is "null", the whole cache will be cleared. Otherwise only the cache for
+   *   the specified post/page id will be cleared.
+   */
+  public static function clear_page_cache($post=null) {
+    self::$CACHE->clear_page_cache($post);
   }
 
   private function is_single() {
