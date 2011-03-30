@@ -30,6 +30,12 @@ interface IMarkupCacheHandler {
   function determine_externals($post, &$thumbnail_ids);
 }
 
+
+
+/**
+ * Caches the content for markup plugins. Automatically detects when the content must be recreated. You can
+ * store an instance of this class as static variable in your plugin class.
+ */
 class MarkupCache {
   const CONTENT_CACHE_PREFIX = 'content_';
   const CONTENT_CACHE_KEY = 'cache_';
@@ -45,6 +51,11 @@ class MarkupCache {
 
   private $cache_prefix;
 
+  /**
+   * Constructor.
+   *
+   * @param string $cache_prefix  the prefix to be used for the cached contents of this markup plugin.
+   */
   public function __construct($cache_prefix) {
     $this->cache_prefix = $cache_prefix;
 
@@ -56,6 +67,19 @@ class MarkupCache {
     $this->markup_modification_date = MarkupUtil::create_mysql_date($this->markup_modification_date);
   }
 
+  /**
+   * Returns the HTML code for the specified markup. If the code is available in the cache and the post's code
+   * hasn't been changed, the cached HTML code is returned.
+   *
+   * @param IMarkupCacheHandler $cache_handler  the cache handler to be used
+   * @param string $markup_content  the content to be converted. May not be identical to the content in the
+   *   $post parameter, in case this is an excerpt or post with more-link.
+   * @param object $post  the post to be converted
+   * @param bool $is_rss  indicates whether the content is to be displayed in an RSS feed (RSS reader). If
+   *   this is false, the content is to be displayed in the browser.
+   *
+   * @return string  the HTML code
+   */
   public function get_html_code($cache_handler, $markup_content, $post, $is_rss) {
     // NOTE: Always check this (even if the cached content can't be used), so that externals can be
     //   registered.
