@@ -28,6 +28,7 @@ class MSCL_WordpressLogging {
   const DEBUG_LEVEL = 'DEBUG';
   
   private $table_name;
+  private $first_wp_logger_message = true;
 
   private function __construct() {
     global $wpdb;
@@ -80,7 +81,7 @@ class MSCL_WordpressLogging {
     }
   }
 
-  public function log($level, $source, $message) {
+  public function log($level, $source, $message, $log_to_db=true, $log_to_firebug=true) {
     switch ($level) {
       case self::SYS_LEVEL:
       case self::ERROR_LEVEL:
@@ -134,7 +135,7 @@ class MSCL_WordpressLogging {
     // Fix message (in case of array, object, ...)
     $message = print_r($message, true);
 
-    if ($level != self::DEBUG_LEVEL) {
+    if ($log_to_db && $level != self::DEBUG_LEVEL) {
       // Don't log debug level messages to the data base
       global $wpdb;
       $wpdb->insert($this->table_name, array('date' => current_time('mysql'),
@@ -149,7 +150,11 @@ class MSCL_WordpressLogging {
     //   http://www.turingtarpit.com/2009/05/wordpress-logger-a-plugin-to-display-php-log-messages-in-safari-and-firefox/
     //
     global $wplogger;
-    if (isset($wplogger) && MSCL_UserApi::can_manage_options(false)) {
+    if ($log_to_firebug && isset($wplogger) && MSCL_UserApi::can_manage_options(false)) {
+      if ($this->first_wp_logger_message) {
+        $wplogger->log('Logging initialized.', WPLOG_DEBUG);
+        $this->first_wp_logger_message = false;
+      }
       switch ($level) {
         case self::ERROR_LEVEL:
           $wp_log_level = WPLOG_ERR;

@@ -59,7 +59,7 @@ class MarkupCache {
   public function get_html_code($cache_handler, $markup_content, $post, $is_rss) {
     // NOTE: Always check this (even if the cached content can't be used), so that externals can be
     //   registered.
-    $are_externals_uptodate = $this->check_and_register_externals($post);
+    $are_externals_uptodate = $this->check_and_register_externals($cache_handler, $post);
 
     // We need to have two different cached: one for when a post is displayed alone and one when it's
     // displayed together with other posts (in the loop). HTML IDs may vary and if there's a more link the
@@ -68,7 +68,7 @@ class MarkupCache {
     if ($is_rss) {
       $content_cache = $this->get_post_content_cache(self::TYPE_RSS_VIEW, $post->ID);
       $cache_name = 'rss-item';
-    } else if ($this->is_single()) {
+    } else if (is_single($post) || is_page($post)) {
       $content_cache = $this->get_post_content_cache(self::TYPE_SINGLE_POST_VIEW, $post->ID);
       $cache_name = 'single-page';
     } else {
@@ -188,7 +188,7 @@ class MarkupCache {
     if (empty($view_type)) {
       $view_type = '';
     }
-    return new MSCL_PersistentObjectCache($this->cache_prefix.self::CONTENT_CACHE_PREFIX.$post_id.$type);
+    return new MSCL_PersistentObjectCache($this->cache_prefix.self::CONTENT_CACHE_PREFIX.$post_id.$view_type);
   }
 
   /**
