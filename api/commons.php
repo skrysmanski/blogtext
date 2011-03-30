@@ -91,4 +91,15 @@ function MSCL_check_wordpress_is_loaded() {
     throw new MSCL_ExceptionEx("Wordpress is not loaded.", 'wordpress_not_loaded');
   }
 }
+
+function MSCL_require_once($relative_required_file, $base_file) {
+  static $base_files = array();
+  static $loaded_files = array();
+  $base_dir = @$base_files[$base_file];
+  if (!$base_dir) {
+    $base_dir = dirname($base_file).'/';
+    $base_files[$base_file] = $base_dir;
+  }
+  require_once($base_dir.$relative_required_file);
+}
 ?>

@@ -18,8 +18,8 @@
 #
 #########################################################################################
 
-require_once(dirname(__FILE__).'/list_base.php');
-require_once(dirname(__FILE__).'/table_base.php');
+MSCL_require_once('list_base.php', __FILE__);
+MSCL_require_once('table_base.php', __FILE__);
 
 
 abstract class AbstractTextMarkup {
@@ -31,7 +31,7 @@ abstract class AbstractTextMarkup {
   /**
    * The post is rendered as an RSS item (as full text or excerpt).
    */
-  const RENDER_KIND_RSS     = 'rss';
+  const RENDER_KIND_RSS      = 'rss';
   /**
    * The post is rendered in preview mode (See "Preview Changes" button while editing a page.)
    */

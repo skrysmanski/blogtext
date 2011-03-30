@@ -25,9 +25,9 @@ MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 MSCL_Api::load(MSCL_Api::THUMBNAIL_CACHE);
 MSCL_Api::load(MSCL_Api::CACHE_API);
 
-require_once(dirname(__FILE__).'/textmarkup_base.php');
-require_once(dirname(__FILE__).'/macros.php');
-require_once(dirname(__FILE__).'/resolver.php');
+MSCL_require_once('textmarkup_base.php', __FILE__);
+MSCL_require_once('macros.php', __FILE__);
+MSCL_require_once('resolver.php', __FILE__);
 
 
 class MarkupException extends Exception {
