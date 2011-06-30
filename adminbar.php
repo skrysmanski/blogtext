@@ -20,7 +20,7 @@ class BlogTextAdminBarMenu {
     $admin_bar->add_menu(array('id' => self::MENU_ID, 'title' => 'BlogText'));
 
     // Sub menus
-    $admin_bar->add_menu(array('parent' => self::MENU_ID, 'title' => __('Clear complete BlogText page cache'),
+    $admin_bar->add_menu(array('parent' => self::MENU_ID, 'title' => __('Clear page cache for all posts'),
                                'href' => add_query_arg(self::CLEAR_CACHE_REQUEST, 'true')));
     if (is_single() || is_page()) {
       global $post;
