@@ -124,7 +124,7 @@ class MarkupCache {
 
     // NOTE: Don't add a "\n" at the end of the comment line to prevent Wordpress from adding
     //   unnecessary paragraphs and line breaks.
-    $generate_comment = '<!-- Generated "'.$cache_name.'" item at '.$cached_content_date.' -->';
+    $generate_comment = '<!-- Generated "'.$cache_name.'" item at '.$mod_date.' -->';
 
     return $generate_comment.$html_code;
   }
