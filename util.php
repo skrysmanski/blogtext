@@ -207,6 +207,11 @@ class MarkupUtil {
     if (!empty($attachment->post_excerpt)) {
       return array($attachment->post_excerpt, $img_alt);
     }
+    
+    // If no caption has been specified, use the alt text as title instead.
+    if (!empty($img_alt)) {
+      return array($img_alt, $img_alt);
+    }
 
     // last resort is the title, which is usually the file name without file extension. But in this case use
     // the full file name (including extension).

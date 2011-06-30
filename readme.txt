@@ -41,7 +41,8 @@ your webserver.
 
 1. Simply download the BlogText .zip file.
 1. Extract it.
-1. Upload the folder "blogtext" (containing the file `blogtext.php` among others) into your blog's plugin directory (usually `wp-content/plugins`).
+1. Upload the folder "blogtext" (containing the file `blogtext.php` among others) into your blog's plugin 
+   directory (usually `wp-content/plugins`).
 1. Activate it from the "Plugins" panel in your blog's admin interface
 1. Start writing your posts
 
@@ -52,6 +53,8 @@ your webserver.
 * Fixed image captions for external images; they no longer have a width of 0px.
 * Added "big" for image size which is just an alias for "large".
 * Certain JPEG images (encoded with Progressive DCT) can now be used
+* If an alt text is specified for an image, it's now used as title as well (if no title has been specified 
+  separately). Previously the file name was chosen instead.
 * Rewrote output cache
 
 = 0.9.0d =
