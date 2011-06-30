@@ -60,6 +60,8 @@ your webserver.
 * Plain text URLs can now have a trailing fullstop, comma, semicolon, or colon without this being
   interpreted as part of the URL. Brackets still need to be "escaped" by a space.
 * Added backticks for inline code snippets (as alternative to the `##` syntax).
+* Slightly changed heading syntax. Now, an anchor id must be separated by a least one equal sign (`=`) from
+  the heading text. This allows for hash signs in the headings text, eg. in "C# overview".
 * Rewrote output cache
 
 = 0.9.0d =
