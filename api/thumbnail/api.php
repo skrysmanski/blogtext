@@ -176,7 +176,8 @@ class MSCL_ThumbnailApi {
     $token = MSCL_Thumbnail::create_token($img_src, $requested_width, $requested_height, $mode);
     $thumb = self::get_thumbnail_from_token($token, false);
     if ($thumb === null) {
-      $thumb = new MSCL_Thumbnail($img_src, $requested_width, $requested_height, self::check_mode($size, $mode));
+      $thumb = new MSCL_Thumbnail($img_src, $requested_width, $requested_height, 
+                                  self::check_mode($size, $mode), true);
       $instance = self::get_instance();
       $instance->thumbnails[$token] = $thumb;
     }
@@ -296,7 +297,8 @@ class MSCL_Thumbnail {
   private $cache_date = null;
   private $is_uptodate = null;
 
-  public function  __construct($img_src, $requested_thumb_width, $requested_thumb_height, $mode, $do_remote_check=false) {
+  public function  __construct($img_src, $requested_thumb_width, $requested_thumb_height, 
+                               $mode, $do_remote_check=false) {
     $img_src = trim($img_src);
     if (is_null($requested_thumb_width)) {
       $this->img_token = $img_src;
@@ -563,20 +565,24 @@ class MSCL_Thumbnail {
   }
 
   /**
-   * Returns the width of the thumbnail. Only available after calling "check_for_modifications()" or
-   * "is_uptodate()".
+   * Returns the width of the thumbnail.
    * @return int
    */
   public function get_thumb_width() {
+    if ($this->thumb_width == 0) {
+      $this->check_for_modifications();
+    }
     return $this->thumb_width;
   }
 
   /**
-   * Returns the height of the thumbnail. Only available after calling "check_for_modifications()" or
-   * "is_uptodate()".
+   * Returns the height of the thumbnail.
    * @return int
    */
   public function get_thumb_height() {
+    if ($this->thumb_height == 0) {
+      $this->check_for_modifications();
+    }
     return $this->thumb_height;
   }
 
