@@ -299,7 +299,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     //   alternative in this regexp! So don't change the order!
     $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' // <pre> and <code>
              . '|\{\{\{(.*?)\}\}\}'  // {{{ ... }}} - multi-line or single line code
-             . '|((?<!\n)[ \t]+|(?<=[^\*;:#\n \t]))##([^\n]*?)##(?!#)'  // ## ... ## single line code - a little bit more complicated
+             . '|((?<!\n)[ \t]+|(?<![\*;:#\n \t]))##([^\n]*?)##(?!#)'  // ## ... ## single line code - a little bit more complicated
              . '|\{\{!(!)?(.*?)!\}\}/si';  // {{! ... !}} and {{!! ... !}} - no markup
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_no_markup_blocks_callback'), $markup_code);
 
