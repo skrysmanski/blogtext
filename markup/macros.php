@@ -261,6 +261,7 @@ class MediaMacro implements IInterlinkMacro {
     if (!empty($link)) {
       $html = '<a href="'.$link.'"'
             . ($is_attachment ? ' rel="attachment"' : '')
+            . (!empty($title) ? " title=\"$title\"" : '')
             . '>'.$html.'</a>';
     }
 

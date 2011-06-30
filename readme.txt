@@ -55,6 +55,7 @@ your webserver.
 * Certain JPEG images (encoded with Progressive DCT) can now be used
 * If an alt text is specified for an image, it's now used as title as well (if no title has been specified 
   separately). Previously the file name was chosen instead.
+* Image titles will now be added as title attribute to the surround link, if there is any.
 * Rewrote output cache
 
 = 0.9.0d =
