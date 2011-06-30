@@ -59,6 +59,7 @@ your webserver.
 * Plain text URLs in lists are now correctly recognized
 * Plain text URLs can now have a trailing fullstop, comma, semicolon, or colon without this being
   interpreted as part of the URL. Brackets still need to be "escaped" by a space.
+* Added backticks for inline code snippets (as alternative to the `##` syntax).
 * Rewrote output cache
 
 = 0.9.0d =
