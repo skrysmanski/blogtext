@@ -164,7 +164,8 @@ class MSCL_ErrorHandling {
       }
       $admin_code = "\n$admin_code\n";
     }
-    return self::format_error('<b>Fatal error:</b> '.$excpt->getMessage(), $admin_code);
+    return self::format_error('<b>Fatal error:</b> '.str_replace("\n", "<br/>\n", $excpt->getMessage()), 
+                              $admin_code);
   }
 }
 
