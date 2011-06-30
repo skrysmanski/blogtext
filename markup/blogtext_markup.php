@@ -73,7 +73,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     //   tags and then white space could no longer be used as sole delimter for URLs. On the
     //   other hand we can't use < and > as delimeter as this would interfere with URL interlinks.
     //   So plaintext urls need to be parsed before tables and lists.
-    'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/([^ \t\n]+))( [[:punct:]])?/',
+    'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[[:punct:]])?/',
       
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
@@ -624,14 +624,16 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   // Links
   //
   private function plain_text_urls_callback($matches) {
-    log_debug("URL: ".$matches[0]);
+    #log_debug("URL: ".print_r($matches, true));
     $protocol = $matches[2];
     $url = $matches[1];
     if (count($matches) == 5) {
-      // if punctuation is found, there has been a blank added between the url and the punctionation;
+      // if punctuation is found, there may be a space added between the url and the punctionation;
       // eg.: (my link: http://en.wikipedia.org/wiki/Portal_(Game) )
-      // so we remove the blank so that the result looks like expected
-      $punctuation = substr($matches[4], 1);
+      // so we remove the blank so that the result looks like expected. Note that this isn't true
+      // for dot, comma, semicolon, and colon.
+      // eg.: my link: http://en.wikipedia.org/wiki/Portal_(Game).
+      $punctuation = ltrim($matches[4]);
     } else {
       $punctuation = '';
     }

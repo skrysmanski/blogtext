@@ -57,6 +57,8 @@ your webserver.
   separately). Previously the file name was chosen instead.
 * Image titles will now be added as title attribute to the surround link, if there is any.
 * Plain text URLs in lists are now correctly recognized
+* Plain text URLs can now have a trailing fullstop, comma, semicolon, or colon without this being
+  interpreted as part of the URL. Brackets still need to be "escaped" by a space.
 * Rewrote output cache
 
 = 0.9.0d =
