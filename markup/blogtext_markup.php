@@ -186,7 +186,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   public function convert_post_to_html($post, $markup_content, $render_type, $is_excerpt) {
     if ($render_type == self::RENDER_KIND_PREVIEW) {
-      return $this->convert_markup_to_html_uncached();
+      return $this->convert_markup_to_html_uncached($markup_content, $post, false);
     } else {
       return self::$CACHE->get_html_code($this, $markup_content, $post,
                                          $render_type == self::RENDER_KIND_PREVIEW);
