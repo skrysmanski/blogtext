@@ -275,6 +275,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    *   the specified post/page id will be cleared.
    */
   public static function clear_page_cache($post=null) {
+    self::static_constructor();
     self::$CACHE->clear_page_cache($post);
   }
 
