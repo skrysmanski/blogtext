@@ -2,8 +2,8 @@
 Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
-Tested up to: 3.1.0
-Stable tag: 0.9.0e
+Tested up to: 3.1.4
+Stable tag: 0.9.1
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
 good Wordpress editor integration.
@@ -47,8 +47,9 @@ your webserver.
 
 == Changelog ==
 
-= 0.9.0e =
+= 0.9.1 =
 * Absolute links (like `[[/feed|my feed]]`) can now be used.
+* Rewrote output cache
 
 = 0.9.0d =
 * This version was just released to fix the buggy readme parser in the Wordpress Plugin Directory. It's

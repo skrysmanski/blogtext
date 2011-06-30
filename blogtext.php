@@ -2,8 +2,8 @@
 /*
 Plugin Name: BlogText for WordPress
 Plugin URI: http://wordpress.org/extend/plugins/blogtext/
-Description: Allows the user to choose an alternative markup for posts and pages
-Version: 0.9.0c
+Description: Allows you to write your posts and pages with an alternative, easy-to-learn, and fast-to-type syntax
+Version: 0.9.1
 Author: Sebastian Krysmanski
 Author URI: http://mayastudios.com
 */
