@@ -50,6 +50,7 @@ your webserver.
 = 0.9.1 =
 * Absolute links (like `[[/feed|my feed]]`) can now be used.
 * Fixed image captions for external images; they no longer have a width of 0px.
+* Added "big" for image size which is just an alias for "large".
 * Rewrote output cache
 
 = 0.9.0d =

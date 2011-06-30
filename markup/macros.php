@@ -117,6 +117,9 @@ class MediaMacro implements IInterlinkMacro {
         $alignment = $param;
       } else if ($param == 'small' || $param == 'medium' || $param == 'large' || substr($param, -2) == 'px') {
         $img_size = $param;
+      } else if ($param == 'big') {
+        # "big" is just an alias for "large"
+        $img_size = 'large';
       } else {
         if ($key == count($params) - 1) {
           // if this is the last parameter and not one of the types above, assume it's the title
