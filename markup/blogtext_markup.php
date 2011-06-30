@@ -195,7 +195,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       return $this->convert_markup_to_html_uncached($markup_content, $post, false);
     } else {
       return self::$CACHE->get_html_code($this, $markup_content, $post,
-                                         $render_type == self::RENDER_KIND_PREVIEW);
+                                         $render_type == self::RENDER_KIND_RSS);
     }
   }
 

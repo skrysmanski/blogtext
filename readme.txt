@@ -48,6 +48,9 @@ your webserver.
 
 == Changelog ==
 
+= 0.9.1.2 =
+* Fixed RSS rendering
+
 = 0.9.1.1 =
 * The cache can now be cleared again from the admin bar
 * Custom heading ids now work again (they were broken in 0.9.1)
