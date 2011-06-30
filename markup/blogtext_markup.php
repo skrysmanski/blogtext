@@ -305,6 +305,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' // <pre> and <code>
              . '|\{\{\{(.*?)\}\}\}'  // {{{ ... }}} - multi-line or single line code
              . '|((?<!\n)[ \t]+|(?<![\*;:#\n \t]))##([^\n]*?)##(?!#)'  // ## ... ## single line code - a little bit more complicated
+             . '|(?<!\`)\`([^\n\`]*?)\`(?!\`)'  // ` ... ` single line code
              . '|\{\{!(!)?(.*?)!\}\}/si';  // {{! ... !}} and {{!! ... !}} - no markup
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_no_markup_blocks_callback'), $markup_code);
 
@@ -324,11 +325,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // Depending on the last array key we can find out which type of block was escaped.
     $prefix = '';
     switch (count($matches)) {
-      case 4:
+      case 4: // capture groups: 3
         // HTML tag
         $value = $this->format_no_markup_block($matches[1], $matches[3], $matches[2]);
         break;
-      case 5:
+      case 5: // capture groups: 1
         // {{{ ... }}}
         $parts = explode("\n", $matches[4], 2);
         if (count($parts) == 2) {
@@ -337,24 +338,29 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
           $value = $this->format_no_markup_block('{{{', $parts[0], '');
         }
         break;
-      case 7:
-        // `...`
+      case 7: // capture groups: 2
+        // ##...##
         $prefix = $matches[5];
         $value = $this->format_no_markup_block('##', $matches[6], '');
         break;
-      case 9:
+      case 8: // capture groups: 1
+        // `...`
+        $value = $this->format_no_markup_block('##', $matches[7], '');
+        break;
+      case 10: // capture groups: 2
         // {{! ... !}}} and {{!! ... !}} - ignore syntax
-        if ($matches[7] != '!') {
+        if ($matches[8] != '!') {
           // Simply return contents - also escape tag brackets (< and >); this way the user can use this
           // syntax to prevent a < to open an HTML tag.
-          $value = htmlspecialchars($matches[8]);
+          $value = htmlspecialchars($matches[9]);
         } else {
           // Allow HTML
-          $value = $matches[8];
+          $value = $matches[9];
         }
         break;
       default:
-        throw new Exception('Plugin error: unexpected match count in "encode_callback()": '.count($matches));
+        throw new Exception('Plugin error: unexpected match count in "encode_callback()": '.count($matches)
+                ."\n".print_r($matches, true));
 
     }
     return $prefix.$this->encode_placeholder($matches[0], $value);
