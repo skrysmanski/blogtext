@@ -83,7 +83,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     'indention' => '/\n[ \t]{2,}(.*?\n)(?![ \t]{2})/s',
 
     // External links (plain text urls)
-    'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/(\S+))( [[:punct:]])?/',
+    // NOTE: Plain text urls must also work between tags (eg. in list); so not only
+    //   white space is used as delimiter but also tag brackets (< >).
+    'plain_text_urls' => '/(?<=[> \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/([^< \t\n]+))( [[:punct:]])?/',
     // Horizontal lines
     'horizontal' => '/^----[\-]*[ \t]*$/m',
 
