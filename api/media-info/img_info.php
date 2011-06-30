@@ -181,19 +181,15 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
   }
 
   private function check_jpg_data($data) {
+    //
+    // See: http://www.videotechnology.com/jpeg/j1.html
+    //
     if (!self::starts_with($data, "JFIF\0", 6)) {
-      throw new MSCL_MediaFileFormatException("Malformed jpeg image.", $this->get_file_path(), $this->is_remote_file());
+      throw new MSCL_MediaFileFormatException("Malformed jpeg image [1].", $this->get_file_path(), $this->is_remote_file());
     }
 
-    // NOTE: (int)$data parses the character while ord($data) converts it.
-    $density = ord($data[11]);
-    if ($density == 0) {
-      // Special case where the image's dimension are directly at the beginning of the file.
-      // TODO: Does this special case work?
-      $width  = self::unpack_short($data, 12);
-      $height = self::unpack_short($data, 14);
-      return array($width, $height);
-    }
+    // NOTE: We can't use the density (bytes 14-17) as even for units "0" the Xdensity and Ydensity 
+    //   may not be correct (eg. may be 100x100 while the image is actually 128x128).
 
     //
     // Dig a little deeper to find the image's size. Note that we need to skip almost all header data which
@@ -203,20 +199,32 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
     $pos = 4;
     $len = strlen($data);
     while ($pos + 2 < $len) {
-      $block_size = self::unpack_short($data, $pos);;
+      $block_size = self::unpack_short($data, $pos);
       $pos += $block_size;
       if ($pos + 2 >= $len) {
+        // reached end of currently available data
         break;
       }
+      // NOTE: (int)$data parses the character while ord($data) converts it.
       if (ord($data[$pos]) != 0xFF) {
-        throw new MSCL_MediaFileFormatException("Malformed jpeg image.", $this->get_file_path(), $this->is_remote_file());
+        throw new MSCL_MediaFileFormatException("Malformed jpeg image [2].", $this->get_file_path(), $this->is_remote_file());
       }
-      if (ord($data[$pos+1]) == 0xC0 && $pos + 9 < $len) {
-        // 0xFFC0 is the "Start of frame" marker which contains the image size
+      $header_byte = ord($data[$pos+1]);
+      if ($header_byte >= 0xC0 && $header_byte <= 0xC3 && $pos + 9 < $len) {
+        // 0xFFC0 to 0xFFC3 is the "Start of frame" marker which contains the image size.
+        // The header byte defines the JPEG encoding type:
+        //  * C0 : Baseline DCT (common)
+        //  * C1 : Extended Sequential DCT 
+        //  * C2 : Progressive DCT (common)
+        //  * C3 : Lossless
         // Note that height and width are "exchanged" (ie. they don't come as "width", "height")
         $height = self::unpack_short($data, $pos + 5);
         $width  = self::unpack_short($data, $pos + 7);
         return array($width, $height);
+      } else if ($header_byte == 0xFA) {
+        // We've reached the image data. No more headers will follow; so, also no
+        // image dimension information can't be found anymore.
+        throw new MSCL_MediaFileFormatException("Malformed jpeg image [3].", $this->get_file_path(), $this->is_remote_file());
       }
       $pos += 2;
     }
