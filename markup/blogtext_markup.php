@@ -68,6 +68,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     //   by this rule.
     'simple_interlinks' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
 
+    // External links (plain text urls)
+    // NOTE: Plain text urls must also work in list. Lists may surround the links with <li>
+    //   tags and then white space could no longer be used as sole delimter for URLs. On the
+    //   other hand we can't use < and > as delimeter as this would interfere with URL interlinks.
+    //   So plaintext urls need to be parsed before tables and lists.
+    'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/([^ \t\n]+))( [[:punct:]])?/',
+      
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
     // simple tables - Creole syntax
@@ -82,10 +89,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // Indention (must be done AFTER lists)
     'indention' => '/\n[ \t]{2,}(.*?\n)(?![ \t]{2})/s',
 
-    // External links (plain text urls)
-    // NOTE: Plain text urls must also work between tags (eg. in list); so not only
-    //   white space is used as delimiter but also tag brackets (< >).
-    'plain_text_urls' => '/(?<=[> \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/([^< \t\n]+))( [[:punct:]])?/',
     // Horizontal lines
     'horizontal' => '/^----[\-]*[ \t]*$/m',
 
@@ -621,6 +624,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   // Links
   //
   private function plain_text_urls_callback($matches) {
+    log_debug("URL: ".$matches[0]);
     $protocol = $matches[2];
     $url = $matches[1];
     if (count($matches) == 5) {
