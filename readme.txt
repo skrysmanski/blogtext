@@ -50,6 +50,7 @@ your webserver.
 
 = 0.9.1.1 =
 * The cache can now be cleared again from the admin bar
+* Custom heading ids now work again (they were broken in 0.9.1)
 
 = 0.9.1 =
 * Absolute links (like `[[/feed|my feed]]`) can now be used.

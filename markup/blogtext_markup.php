@@ -57,7 +57,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // heading with optional anchor names
     // NOTE: This syntax must also allow for # in the heading (like in "C# overview")
     //   and '=' (like in "a != b"). So we make this syntax more restrictive.
-    'headings' =>'/^[ \t]*(={1,6})(.*?)(?:[=]+[ \t]*#[^ \t](.*)[ \t]*)?$/m',
+    'headings' =>'/^[ \t]*(={1,6})(.*?)(?:[=]+[ \t]*#([^ \t].*)[ \t]*)?$/m',
 
     // InterLinks using the [[ ]] syntax
     // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
