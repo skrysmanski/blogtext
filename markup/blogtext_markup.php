@@ -446,6 +446,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         if (!empty($language) || ($start_line && $is_multiline)) {
           // Use GeSHi for syntax highlighting and/or line numbering
           if (!empty($language)) {
+            // Check whether the user specified an extension instead of a language name.
+            if ($language[0] == '.') {
+              $real_lang = GeSHi::get_language_name_from_extension(substr($language, 1));
+              if (!empty($real_lang)) {
+                $language = $real_lang;
+              }
+            }
+            
             $geshi = new GeSHi($code, $language);
           } else {
             // NOTE: We need to specify a non-existing language here, as GeSHi can't handle an empty language

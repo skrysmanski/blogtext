@@ -64,6 +64,8 @@ your webserver.
   the heading text. This allows for hash signs in the headings text, eg. in "C# overview".
 * The quote characters (`"`) around attributes for `{{{ ... }}}` code blocks are now optional.
 * Added button to the editor (called "lang lookup") to lookup languages supported for syntax highlighting.
+* The programming language can now also be specified by using the language's file extension. You can do this
+  with ".c" for example.
 * Rewrote output cache
 
 = 0.9.0d =
