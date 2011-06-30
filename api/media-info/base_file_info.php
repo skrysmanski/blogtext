@@ -161,7 +161,7 @@ abstract class MSCL_AbstractFileInfo {
    * Returns the path to the image (either an url or a file path).
    */
   public function get_file_path() {
-    return $this->file;
+    return $this->file_path;
   }
 
   /**
