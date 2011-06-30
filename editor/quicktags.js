@@ -78,6 +78,11 @@ function get_blogtext_editor_buttons() {
   newEdButton.tooltip = "Disable BlogText syntax for text section";
   newEdButtons[newEdButtons.length] = newEdButton;
 
+  newEdButton = new edButton('geshi_lookup', 'lang lookup', '', '');
+  newEdButton.open = -1;
+  newEdButton.tooltip = "Opens a window to look up languages available for syntax highlighting.";
+  newEdButtons[newEdButtons.length] = newEdButton;
+
   return newEdButtons;
 }
 
@@ -123,6 +128,10 @@ function blogtext_edInsertMultilineCode(myField) {
   edInsertContent(myField, code);
 }
 
+function blogtext_edLangLookup() {
+  window.open(blogTextPluginDir + '/editor/codeblock-lang/query.php', '_blank', 'width=320,toolbar=no,menubar=no,status=no');
+}
+
 function blogtext_edShowButton(button, i) {
   var func = '';
 
@@ -135,6 +144,9 @@ function blogtext_edShowButton(button, i) {
       break;
     case 'ed_code':
       func = 'blogtext_edInsertMultilineCode(edCanvas);';
+      break;
+    case 'geshi_lookup':
+      func = 'blogtext_edLangLookup();';
       break;
     default:
       func = 'edInsertTag(edCanvas, ' + i + ');';

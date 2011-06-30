@@ -63,6 +63,7 @@ your webserver.
 * Slightly changed heading syntax. Now, an anchor id must be separated by a least one equal sign (`=`) from
   the heading text. This allows for hash signs in the headings text, eg. in "C# overview".
 * The quote characters (`"`) around attributes for `{{{ ... }}}` code blocks are now optional.
+* Added button to the editor (called "lang lookup") to lookup languages supported for syntax highlighting.
 * Rewrote output cache
 
 = 0.9.0d =
