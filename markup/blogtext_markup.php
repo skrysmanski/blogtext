@@ -392,26 +392,32 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         $additional_html_attribs = '';
 
         if ($block_type == '{{{' && !$is_multiline) {
-          // special case: {{{ lang="php" my code goes here }}}   (single line)
-          preg_match('/^[ \t]*(?:lang[ \t]*=[ \t]*"(.+)"[ \t]+)(.*)$/U', $code, $matches);
-          if (count($matches) == 3) {
+          // special case: {{{ lang=php my code goes here }}}   (single line)
+          if (preg_match('/^[ \t]*(?:lang=(?:"([^"]+)"|([^ \t]+))[ \t]+)(.*)$/U', $code, $matches)) {
             // found lang attribute
-            $language = $matches[1];
-            $code = $matches[2];
+            if (!empty($matches[1])) {
+              // with quotes
+              $language = $matches[1];
+            } else {
+              // without quotes
+              $language = $matches[2];
+            }
+            $code = $matches[3];
           }
         } else {
           // default case
-          preg_match_all('/(?:^|[ \t]+)(\w+)[ \t]*=[ \t]*"(.*)"/U', $attributes, $matches, PREG_SET_ORDER);
+          preg_match_all('/(?:^|[ \t]+)(\w+)[ \t]*=[ \t]*(?:"([^"]*)"|(?<!")([^ \t]*)(?=[ \t]|$))/U', $attributes, $matches, PREG_SET_ORDER);
           foreach ($matches as $match) {
+            $value = count($match) == 3 ? $match[2] : $match[3];
             switch ($match[1]) {
               case 'lang':
-                $language = strtolower(trim($match[2]));
+                $language = strtolower(trim($value));
                 break;
               case 'line':
-                $start_line = (int)$match[2];
+                $start_line = (int)$value;
                 break;
               default:
-                $additional_html_attribs .= ' '.$match[1].'="'.$match[2].'"';
+                $additional_html_attribs .= ' '.$match[1].'="'.$value.'"';
             }
           }
         }
