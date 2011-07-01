@@ -3,7 +3,7 @@ Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
 Tested up to: 3.1.4
-Stable tag: 0.9.1.1
+Stable tag: 0.9.1.2
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
 good Wordpress editor integration.
