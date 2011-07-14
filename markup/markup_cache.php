@@ -92,7 +92,7 @@ class MarkupCache {
     if ($is_rss) {
       $content_cache = $this->get_post_content_cache(self::TYPE_RSS_VIEW, $post->ID);
       $cache_name = 'rss-item';
-    } else if (is_single($post) || is_page($post)) {
+    } else if (is_singular()) {
       $content_cache = $this->get_post_content_cache(self::TYPE_SINGLE_POST_VIEW, $post->ID);
       $cache_name = 'single-page';
     } else {
