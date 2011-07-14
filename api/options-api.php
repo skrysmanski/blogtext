@@ -589,6 +589,18 @@ class MSCL_OptionsPage {
 
   const DEFAULT_CAPABILITY = 'manage_options';
   
+  const PARENT_CAT_SETTINGS = 'options-general.php';
+  const PARENT_CAT_TOOLS = 'tools.php';
+  const PARENT_CAT_USERS = 'users.php';
+  const PARENT_CAT_PLUGINS = 'plugins.php';
+  const PARENT_CAT_APPEARENCE = 'themes.php';
+  
+  const PARENT_CAT_DASHBOARD = 'index.php';
+  const PARENT_CAT_POSTS = 'edit.php';
+  const PARENT_CAT_MEDIA = 'upload.php';
+  const PARENT_CAT_LINKS = 'link-manager.php';
+  const PARENT_CAT_COMMENTS = 'edit-comments.php';
+  
   private $page_id;
   private $menu_title;
   private $page_title;
@@ -598,14 +610,16 @@ class MSCL_OptionsPage {
 
   /**
    * Constructor
-   * @param <type> $page_id
-   * @param <type> $menu_title
-   * @param <type> $page_title
+   * @param string $page_id  the page's slug, ie. an id used as URL for the page
+   * @param string $menu_title  the name of the menu item
+   * @param string $page_title  the page's title (placed in the title-tag)
    * @param string $capability user capability required to change settings on this page; see
    *   http://codex.wordpress.org/Roles_and_Capabilities
+   * @param string $parent_menu  the name of the parent menu's php file (eg. "options-general.php") for
+   *   the "Settings" menu. You can use the "PARENT_CAT_..." constants for this.
    */
   public function __construct($page_id, $menu_title, $page_title, $capability=self::DEFAULT_CAPABILITY,
-                              $parent_menu = 'options-general.php') {
+                              $parent_menu = self::PARENT_CAT_SETTINGS) {
     $this->page_id = $page_id;
     $this->menu_title = $menu_title;
     $this->page_title = $page_title;
