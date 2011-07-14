@@ -128,13 +128,13 @@ class BlogTextTests {
           $markup = new BlogTextMarkup();
           $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_REGULAR, 
                                                   false);
-          $output = self::clean_output($output);
+          $output = self::clean_output($post_id, $output);
           
           file_put_contents($base_dir.'/output.html', $output);
 
           $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_RSS, 
                                                   false);
-          $output = self::clean_output($output);
+          $output = self::clean_output($post_id, $output);
           
           file_put_contents($base_dir.'/output-rss.xml', $output);
 
@@ -164,7 +164,7 @@ class BlogTextTests {
     }
   }
   
-  private static function clean_output($output) {
+  private static function clean_output($post_id, $output) {
     # Make test result independent from the Wordpress URL
     $output = str_replace(site_url(), 'http://mydomain.com', $output);
    
@@ -175,6 +175,15 @@ class BlogTextTests {
     # Mask ids to other posts, attachments, ...
     $output = preg_replace('#http://mydomain.com/\?(p|attachment_id)\=[0-9]+#',
                            'http://mydomain.com/?\1=XXX', $output);
+    
+    # Mask creation date
+    $output = preg_replace('#^\s*<\!-- Generated "(.+)" item at .+ -->#iU',
+                           '<!-- Generated "\1" item -->', $output);
+    
+    # Mask TOC
+    $output = str_replace('_toctoggle_'.$post_id, '_toctoggle_XXX', $output);
+    $output = str_replace('_toclist_'.$post_id, '_toclist_XXX', $output);
+    $output = str_replace("javascript:toggle_toc($post_id);", 'javascript:toggle_toc(XXX);', $output);
     
     return $output;
   }
