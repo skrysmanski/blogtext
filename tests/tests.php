@@ -37,7 +37,7 @@ class BlogTextTests {
     
     $uploads = wp_upload_dir();
     $uploads_dir = $uploads['basedir'].'/blogtexttests';
-    mkdir($uploads_dir);
+    @mkdir($uploads_dir);
     
     foreach ($page_names as $name) {
       $base_dir = dirname(__FILE__).'/test-pages/'.$name;
@@ -81,7 +81,8 @@ class BlogTextTests {
           $attachment = array(
             'post_mime_type' => $wp_filetype['type'],
             'post_title' => preg_replace('/\.[^.]+$/', '', $media_name),
-            'post_content' => $desc,
+            'post_content' => '',
+            'post_excerpt' => $desc,
             'post_status' => 'inherit'
           );
           
@@ -92,6 +93,16 @@ class BlogTextTests {
           $attach_data = wp_generate_attachment_metadata($attach_id, $dest_filename);
           wp_update_attachment_metadata($attach_id, $attach_data); 
           
+          // Add guid - otherwise the image won't have a file name. Also note that this
+          // is probably a bug (in WP 3.1.4) that the GUID isn't set automatically.
+          $my_post = array(
+              'ID' => $attach_id,
+              'guid' => wp_get_attachment_url($attach_id)
+              );
+          // Update the post into the database
+          wp_update_post( $my_post );
+
+          // Add ALT text for images
           $alt_text = @file_get_contents($src_filename.'.alt.txt');
           if (!empty($alt_text)) {
             update_post_meta($attach_id, '_wp_attachment_image_alt', $alt_text);
