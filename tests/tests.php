@@ -172,6 +172,10 @@ class BlogTextTests {
     $output = preg_replace('#blogtext/api/thumbnail/do\.php\?id\=[0-9a-f]{40}_#i', 
                            'blogtext/api/thumbnail/do.php?id=XXX_', $output);
     
+    # Mask ids to other posts, attachments, ...
+    $output = preg_replace('#http://mydomain.com/\?(p|attachment_id)\=[0-9]+#',
+                           'http://mydomain.com/?\1=XXX', $output);
+    
     return $output;
   }
 }
