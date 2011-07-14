@@ -25,12 +25,19 @@ class BlogTextTests {
   public static function run_tests($only_and_keep = '') {
     require_once(dirname(__FILE__).'/../markup/blogtext_markup.php');
     require_once(dirname(__FILE__).'/../settings.php');
+    // you must first include the image.php file
+    // for the function wp_generate_attachment_metadata() to work
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
     
     if (empty($only_and_keep)) {
       $page_names = self::get_test_pages();
     } else {
       $page_names = array($only_and_keep);
     }
+    
+    $uploads = wp_upload_dir();
+    $uploads_dir = $uploads['basedir'].'/blogtexttests';
+    mkdir($uploads_dir);
     
     foreach ($page_names as $name) {
       $base_dir = dirname(__FILE__).'/test-pages/'.$name;
@@ -53,6 +60,47 @@ class BlogTextTests {
       if ($post_id === 0) {
         die("Could not create post for page: ".$name);
       }
+      
+      
+      //
+      // Insert media (images, attachments)
+      //
+      $media_dir = $base_dir.'/uploads';
+      $added_attachment_ids = array();
+      if (is_dir($media_dir)) {
+        foreach (scandir($media_dir) as $media_name) {
+          if ($media_name == '.' || $media_name == '..' 
+              || substr($media_name, strlen($media_name) - 4) == '.txt') {
+            continue;
+          }
+          
+          $src_filename = $media_dir.'/'.$media_name;
+          $desc = @file_get_contents($src_filename.'.txt');
+          
+          $wp_filetype = wp_check_filetype(basename($media_name), null);
+          $attachment = array(
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title' => preg_replace('/\.[^.]+$/', '', $media_name),
+            'post_content' => $desc,
+            'post_status' => 'inherit'
+          );
+          
+          $dest_filename = $uploads_dir.'/'.$media_name;
+          # Copy the file so that it isn't deleted when we delete the attachment.
+          copy($src_filename, $dest_filename);
+          $attach_id = wp_insert_attachment($attachment, $dest_filename, $post_id);
+          $attach_data = wp_generate_attachment_metadata($attach_id, $dest_filename);
+          wp_update_attachment_metadata($attach_id, $attach_data); 
+          
+          $alt_text = @file_get_contents($src_filename.'.alt.txt');
+          if (!empty($alt_text)) {
+            update_post_meta($attach_id, '_wp_attachment_image_alt', $alt_text);
+          }
+          
+          $added_attachment_ids[] = $attach_id;
+        }
+      }
+      
       
       //
       // Run "loop" through the post we've just created
@@ -94,6 +142,9 @@ class BlogTextTests {
       if (empty($only_and_keep)) {
         # Don't delete the post when it has been requested.
         wp_delete_post($post_id, true);
+        foreach ($added_attachment_ids as $attach_id) {
+          wp_delete_attachment($attach_id, true);
+        }
       } else {
         BlogTextPostSettings::set_use_blogtext($post_id, true);
       }
