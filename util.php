@@ -167,7 +167,8 @@ class MarkupUtil {
         return (int)max($ids);
       case 1:
         // only one - use it
-        return (int)$attachment_ids[0];
+        // NOTE: Due to the intersecting the item's index may not be zero (but two, three, ...).
+        return (int)array_slice($attachment_ids, 0, 1);
       default:
         // multiple possibilities; use the latest attachment, which should have the highest post id
         return (int)max($attachment_ids);
