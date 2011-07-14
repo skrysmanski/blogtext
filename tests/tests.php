@@ -35,10 +35,12 @@ class BlogTextTests {
       //
       // Run "loop" through the post we've just created
       //
-      $my_query = new WP_Query('p='.$post_id);
+      // IMPORTANT: We can't create a "WP_Query" object here (but need to use "query_posts()") as the
+      //   global function "is_singular()" (used by BlogText) only works on the global query object.
+      query_posts('p='.$post_id);
 
-      while ($my_query->have_posts()) {
-        $my_query->the_post();
+      while (have_posts()) {
+        the_post();
         global $post;
         
         try {
@@ -55,8 +57,6 @@ class BlogTextTests {
         unset($output);
         break;
       }
-      
-      unset($my_query);
       
       wp_delete_post($post_id, true);
     }
