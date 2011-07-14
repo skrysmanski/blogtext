@@ -49,7 +49,8 @@ your webserver.
 == Changelog ==
 
 = 0.9.2 =
-* Fixed problem where the id of an attachment could not be determined in some cases
+* Fixed problem where the id of an attachment could not be determined in some cases. In these cases the 
+  attachment would not display correctly.
 
 = 0.9.1.2 =
 * Fixed RSS rendering
