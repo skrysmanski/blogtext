@@ -1,0 +1,787 @@
+[[[TOC]]]
+This page describes the complete BlogText syntax (which is mostly based on the [[http://www.wikicreole.org/|Creole 1.0 syntax]]). Of course, this page is entierly written in BlogText syntax.
+
+//Note:// How a certain code is rendered depends on the Wordpress Theme you're using. Results may look different on your Wordpress Theme than they look here.
+
+= Paragraphs and Line Breaks =
+Paragraphs are created simply by separating them by a blank line, like so:
+
+  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+Simple line breaks are respected. For example this code:
+
+  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
+  sed diam nonumy eirmod tempor invidunt ut labore et dolore
+
+will look like this (which is exactly like the original code):
+
+  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
+  sed diam nonumy eirmod tempor invidunt ut labore et dolore
+
+= Basic Inline Formatting = #basic-inline-format
+|= Type                      |= Syntax                     |= Result |
+| **Bold**                   | {{!this is **bold** text!}} | this is **bold** text |
+| **Italics**                | {{!this is //italics// text!}} | this is //italics// text |
+| **Mixed Bold and Italics** | {{!this is //italics text containg some **bold** text//!}} | this is //italics text containing some **bold** text// |
+| **Underlined**             | {{!this is __underlined__ text!}} | this is __underlined__ text |
+| **Strike through**         | {{!this is ~~striked-through~~ text!}} | this is ~~striked-through~~ text |
+| **Super- and Sub Script**  | {{!this is ,,sub,, and this is ^^super^^ scripted text!}} | this is ,,sub,, and this is ^^super^^ scripted text |
+| **Inline Code**            | {{!this is a ##code_variable##, `this too`, and this is {{{another snippet}}}!}} | this is a ##code_variable##, `this too`, and this is {{{another snippet}}} |
+
+For more information on inserting code snippets, see [[#code_snippets_syntax]] below.
+
+//Limitations://
+* You can't start an [[#indenting_text|indention]] with a bold word using the ##**...**## syntax. Use ##<b>...</b>## instead.
+* You can't start a new line with a bold word using the ##**...**## syntax directly after an [[#lists|unordered list]].
+* You can't start a line with a `##` code snippet. Simply use one of the other syntaxes (ie. ##`...`## or ##{{{...}}}##).
+
+= Links =
+BlogText provides some constructs for creating links.
+
+== Plain-Text Links ==
+External links are links to other website. The easiest way is to simply write an URL in your text, like so:
+
+  {{!This is a text containing an URL to http://www.mayastudios.com.
+(I like this: http://en.wikipedia.org/wiki/Portal_(Game) )!}}
+
+This results in:
+
+  This is a text containing an URL to http://www.mayastudios.com.
+  (I like this: http://en.wikipedia.org/wiki/Portal_(Game) )
+
+Note that there is a space between the right round bracket and ".com". This prevents the bracket from being included in the URL. Without this space the URL would be http://www.mayastudios.com). Note, however, that a trailing fullstop, comma, semicolon, or colon won't be part of the URL.
+
+Note also that the URLs are shortend, though this can be disabled in the BlogText settings.
+
+
+== External Links with a Custom Name ==
+Often you want to create a link with a custom name. To do this use a code like this:
+
+  {{!This is a [[http://www.mayastudios.com|link with name]].!}}
+
+This will look like this:
+
+  This is a [[http://www.mayastudios.com|link with name]].
+
+
+== Internal Links == #internal-links
+Internal links are links within the blog. In most cases this will be links to other posts or page. You can do this like this (where "about" is the post's or page's name and "About Page" is the link name):
+
+  {{!Link to the [[about|About Page]]!}}
+
+This will render as:
+
+  Link to the [[about|About Page]]
+
+[[image:pagename2|right|caption|The name ("Slug") in "Quick Edit"]]
+[[image:pagename|right|caption|The name while editing a page or post]]
+//Note:// The post's or page's name usually resemble somehow the post's or page's title. The name is displayed in the Posts or Pages overview when clicking on "Quick Edit" (called "Slug"). It is also displayed with a light yellow highlight while editing the post or page at the top of the edit page - as can be seen on the screenshots.
+
+You can also link to specific section in a page or post by providing a so called "anchor name". The anchor name is simply append to the page's name separated by a hash sign ({{{#}}}). If you want to specify a link to a section on the same page, simply just specify the hash sign and the anchor name. For example this code:
+
+  {{!This is a link to [[hello-world#example-section|another post's section]] and this to the section [[#internal_links]] on the same page.!}}
+
+would render as:
+
+  This is a link to [[hello-world#example-section|another post's section]] and this to the section [[#internal-links]] on the same page.
+
+Note that when you don't specify a name for a link to a section on the same page, the section's title is automatically chosen.
+
+For more information about how to find out a section's anchor name and how to specify it, see [[#anchor-names]].
+
+Besides linking to other posts or pages you can also link to some special pages. The following table gives an overview over all possibilities:
+
+|= Type      |= Syntax                        |= Result                    |
+|Categories  | ##[[category:Announcements]]## | [[category:Announcements]] |
+|Tags        | ##[[tag:example]]##            | [[tag:example]]            |
+
+We're planning to also implement links to archives (year archive, month archive) as well as links (aka blogroll or bookmarks).
+
+
+== Links to Media/Attachments == #inserting-attachments
+Wordpress makes it quite easy to [[wpcodex:Using_Image_and_File_Attachments|upload images and other files]] (like PDF files) to your blog. To upload new files, use the quick links located just above the toolbar while editing a post or page.
+
+[[image:quicklinks.png|center|link=source|caption|Quicklinks for images and file upload]]
+
+//Note:// The images in the section are based on Wordpress 3.1. By the time you read this, the interface may have changed but should basically work the same way.
+
+After clicking on one of the four buttons (it doesn't matter which one), you can select the file to upload. In our example we've uploaded the file ##gpl.pdf##. In the upload form
+
+ # add the information you want (eg. a caption is recommended), 
+ # then click the button called "File URL" (only sometimes necessary), 
+ # and then click the "Insert Into Post" button.
+
+[[image:insert-file.jpg|center|medium|thumb|Uploading a file with the media browser]]
+
+The will insert the following code into your editor:
+
+  ##[[file:gpl-3.0.pdf]]##
+
+This link will be rendered as:
+
+  [[file:gpl-3.0.pdf]]
+
+The name for the link will be the caption you provided in the upload form, or the file name if you didn't specify a caption. Of course, you can also specify the name manually like this: ##[[file:gpl-3.0.pdf|My custom caption]]##.
+
+//Note:// The button "Post URL" will change link from a link directly to the file to a link to description page for the attachment. If we had clicked this button (before clicking "Insert Into Post"), the code would have look like ##[[gpl-3-0]]## and would have rendered as [[gpl-3-0]] instead. It's also recommended to install a plugin like [[http://wordpress.org/extend/plugins/attachment-page-comment-control/|Attachment Page Comment Control]] to disable comments and trackbacks for those attachment pages, if you use them.
+
+== Interlinks (Generalization of the above) == #interlinks-in-general
+The almost all links you've seen so far were created by enclosing them into //square brackets// (##[[...]]##), like this:
+
+  ##[[hello-world]]## or ##[[file:gpl-3.0.pdf]]##
+
+These kind of links are called "Interlinks". This section briefly explains the general concept behind Interlinks.
+
+One of the first things you may have notices is that Interlinks come with and without a //prefix//. A prefix is the word that is written before the color (##:##), like ##file## or ##category##. Examples:
+
+ * Without prefix: ##[[hello-world]]## or ##[[about]]##
+ * With prefix: ##[[category:Announcements]]## or ##[[file:gpl-3.0.pdf]]##
+
+This prefix obviously defines which kind of link you want to specify. The text after the colon (##:##) specifies the thing you want to link to.
+
+The next thing you may have noticed is that you can specify a link's name by adding a //pipe// (##|##) followed by the link name to the Interlink.
+
+  For example, ##[[file:gpl-3.0.pdf|a link to the GPLv3]]## will be rendered as [[file:gpl-3.0.pdf|a link to the GPLv3]].
+
+If you don't specify a name after the pipe (##|##), the link target will be used as name.
+
+  For example, ##[[file:gpl-3.0.pdf|]]## will render as [[file:gpl-3.0.pdf|]] (whereas ##[[file:gpl-3.0.pdf]]## - without trailing pipe - will render as [[file:gpl-3.0.pdf]]).
+
+The text after a pipe is called a //parameter//. An Interlink can have multiple parameters. Parameters are separated by a pipe.
+
+  For example, ##[[wiki:en|Portal (video game)|Portal]]## - which is a [[#custom-interlinks|custom interlink]] - will be rendered as [[wiki:en|Portal (video game)|Portal]]. This interlink has three parameters: ##en##, ##Portal (video game)##, and ##Portal##.
+
+So, to be more precise, the link name is always determined by the //last parameter//. 
+
+  For example, ##[[wiki:en|Portal (video game)]]## will be rendered as [[wiki:en|Portal (video game)]] while ##[[wiki:en|Portal (video game)|]]## will be rendered as [[wiki:en|Portal (video game)|]].
+
+There are, however, a few exceptions to this rule where the last parameter is not used as name - most prominently in conjunction with [[#images|images]].
+
+One last thing: If you specify a link within a word, the part of the word that comes after the link will be part of the link, whereas the part before the link won't be. For example:
+
+  ##Link to [[syntax]]s and Test[[syntax]] (with "[[syntax]]").##
+
+will render as:
+
+  Link to [[syntax]]s and Test[[syntax]] (with "[[syntax]]").
+
+= Images = #images
+Inserting an image into a post or page works very similar to the process described in [[#inserting-attachments]]. There are some small differences though.
+
+[[image:image-upload-properties.png|center|medium|link=source|Alignment and size when inserting an image]]
+
+The most important difference is that the form now allows you to specify the image's alignment and its size. Assume we've uploaded an image called ##reflections_for_the_day.jpg## (by [[http://www.flickr.com/photos/denemiles/3971887734/|Dene' (Seattle) Miles]]). By selecting "Center" as alignment, "Medium" as size, and clicking on the "File URL" button, inserting this image will create this code:
+
+  ##[[image:reflections_for_the_day.jpg|center|medium|link=source]]##
+
+This will be rendered as:
+
+[[image:reflections_for_the_day.jpg|center|medium|link=source]]
+
+As you can see, the words ##medium## (size) and ##center## (alignment) appear as [[#interlinks-in-general|parameters]] along with ##link=source##. The parameter ##link=## defines what happens when the user clicks on the image. ##link=source## means "link to the source image" - which is the full-size version of the smaller version displayed here.
+
+If you want to display a caption for an image, you can either specify the caption in media browser and add the ##caption## parameter or specify the caption directly in the interlink:
+
+  Either use ##[[image:myimage.jpg|caption]]## or ##[[image:myimage.jpg|My special caption]]##.
+
+//Note:// The latter case (ie. displaying a caption when one is specified directly in the interlink) can be disabled in the settings. If disabled, a caption will only be disabled when the parameter ##caption## is specified.
+
+A caption for the image above will display as:
+
+[[image:reflections_for_the_day.jpg|center|medium|Reflection for the day - by Dene' (Seattle) Miles]]
+
+Note that you can specify the image parameters in any order. For example ##[[image:reflections_for_the_day.jpg|link=source|medium|center]]## will have the same result as the code above. For a full list of all available parameters and their values, see [[#image-param-ref]].
+
+One more thing: Inserting a small image (possibly without alignment) with a link to its source image is a special case. In this case BlogText assumes you want to insert a so called "thumbnail" (which is basically a small image with a link to its source image). The code in this case (with alignment "None") would look like this:
+
+  ##[[image:eflections_for_the_day.jpg|thumb]]##
+
+[[image:eflections_for_the_day.jpg|thumb]]
+This code would be rendered as this.
+
+So, the parameter ##thumb## is equivalent to ##small|link=source##. Note that the image is cropped into a square and that it's right aligned. Both of these properties can be changed in the settings (the Media settings and the BlogText settings respectively).
+
+== Image Parameter Reference == #image-param-ref
+The section describes all parameters and their values for images (##[[image:...]]##).
+
+|= Type |= Parameter(s) |= Notes
+|Alignment | ##left##, ##center##, ##right##  |
+|Size as word   | ##small##, ##medium##, ##large## | when no size is specified, the image will be displayed in full size (unless ##thumb## is specified); the actual size of these names can be specified in the Media settings in Wordpress' admin interface.
+|Width in pixels | ##123px##  | specifies the width of the image in pixels; can't be used together with a "size word" (eg. ##small##).
+|Link to source image | ##link=source## 
+|Link to internal page | ##link=hello-world##
+|Link with prefix | ##link=category:Announcements## | You can used any available [[#interlinks-in-general|Interlink]]. It's no problem, if the interlink requires one than one parameter. All parameters not recognized by the image Interlink will automatically be passed as parameter to the link Interlink.
+|Link to external page | ##link=http://www.mayastudios.de##
+|Display caption | ##caption## | Displays the image's caption below the image. The caption can either be specified in the image's media browser form or by the last parameter of the image Interlink (which takes precendence).
+|Hide caption | ##nocaption## | Hides the image caption, if it would otherwise be displayed.
+|Thumbnail | ##thumb## | Equals ##link=source|small##
+
+//Notes:// 
+ * If the last parameter is not recognized by the image Interlink, it'll be used as caption for the image. This will also overwrite any caption that may have been specified in the image's media browser form.
+ * You can't overwrite the link for an image that has the ##thumb## parameter. It'll always link to the source image.
+
+= Custom Interlinks = #custom-interlinks
+If you use links to a certain website more often, you can create an Interlink prefix for this website yourself. In the BlogText settings you have a textfield to define Interlink prefixes together with their URL pattern.
+
+For example, say you often link to [[http://www.wikipedia.org/|Wikipedia]] articles. Of course, you could simply use the full link in your texts like this:
+
+  ##[[http://en.wikipedia.org/wiki/Portal_%28video_game%29|Portal]]##
+
+Quity lengthy. You can now define your own Interlink - with prefix ##wiki## - like this:
+
+  ##wiki = http://en.wikipedia.org/wiki/$1##
+
+Now with this new prefix you can specify the exactly same link like this:
+
+  ##[[wiki:Portal (video game)|Portal]]## which would render as [[wiki:en|Portal (video game)|Portal]]
+
+If you have a blog and write in multiple language - say English and German - you could define your wiki prefix like this instead:
+
+  ##wiki = http://$1.wikipedia.org/wiki/$2##
+
+With this Interlink you can define Wikipedia links for any available language. For example:
+
+  ##[[wiki:en|Portal (video game)|Portal in English]] and [[wiki:de|Portal (Computerspiel)|Portal auf Deutsch]]##
+
+which then would render as:
+
+  [[wiki:en|Portal (video game)|Portal in English]] and [[wiki:de|Portal (Computerspiel)|Portal auf Deutsch]]
+
+As you can see, each placeholder in the prefix definition (ie. ##$1##, ##$2##, ...) is substituted with the Interlink parameter with the same "position number" (ie. ##$1## is replaced by the first parameter, ##$2## by the second, and so forth). This means, however, that the order of the parameters is not arbitrary (unlike [[#images|images]] for which parameters can be specified in any order).
+
+Also custom interlinks have the advantage to let you specify a custom icon for this particular link type (via CSS) - like it is done for the Wikipedia links here.
+
+//Sidenote:// If this isn't sufficient for your needs, it's theoretically possible to write PHP class to implement more complex Interlink handlers. However, since BlogText is still in beta, the interface you need to implement may not yet be stable and may change in the future. The interface should be simple enough though so that you can adapt changes without any big difficulty.
+
+
+= Lists = #lists
+With BlogText you can specify two types of lists: ordered and unordered lists. Ordered lists use the number sign ({{{#}}}) and unordered lists use the multiply sign (##*##). For example:
+
+{{{
+ * item 1
+ * item 2
+ * item 3
+
+ # item 1
+ # item 2
+ # item 3
+}}}
+
+would render as:
+
+ * item 1
+ * item 2
+ * item 3
+
+ # item 1
+ # item 2
+ # item 3
+
+Nested sublists can be created by combining the characters of the desired list types.
+
+<table>
+<tr>
+<th>Example</th>
+<th>Rendered as</th>
+</tr>
+<tr>
+<td>
+{{{
+* item 1
+** item 1.1
+* item 2
+}}}
+</td>
+<td>
+* item 1
+** item 1.1
+* item 2
+</td>
+</tr>
+<tr>
+<td>
+{{{
+# item 1
+## item 1.1
+# item 2
+}}}
+</td>
+<td>
+# item 1
+## item 1.1
+# item 2
+</td>
+</tr>
+<tr>
+<td>
+{{{
+* item 1
+*# item 1.1
+* item 2
+}}}
+</td>
+<td>
+* item 1
+*# item 1.1
+* item 2
+</td>
+</tr>
+</table>
+
+It's also possible to create paragraphs in list items, like this:
+
+{{{
+* This is a line in the first paragraph.
+
+  This is a line in the second paragraph.
+* This is another item.
+}}}
+
+This would render as:
+
+* This is a line in the first paragraph.
+
+  This is a line in the second paragraph.
+* This is another item.
+
+Note that the second paragraph needs to be indented - like in the example. Otherwise it'll not associated with the list item.
+
+//Limitations:// You can't insert tables created with the BlogText syntax in list items. If you really need to have a table in a list item, you need to create a table with HTML tags (ie. ##<table>##, ##<tr>##, ##<th>##, and ##<td>##).
+
+You can also continue a list item after you've inserted a sub-list. Simply append a caret (##^##) to the list item definition, like this:
+
+{{{
+# this is item number 1
+#* it contains a sublist with
+#* two items
+#^ here goes more text for item number 1
+# and here comes item number 2
+}}}
+
+This would render as:
+
+# this is item number 1
+#* it contains a sublist with
+#* two items
+#^ here goes more text for item number 1
+# and here comes item number 2
+
+Finally you can restart an (ordered) list by appending an exclamation mark (##!##) to the first list item definition. For example:
+
+{{{
+# list 1, item 1
+# list 1, item 2
+
+#! list 2, item 1
+# list 2, item 2
+}}}
+
+which would render as:
+
+# list 1, item 1
+# list 1, item 2
+
+#! list 2, item 1
+# list 2, item 2
+
+//Note:// If you're looking for definition lists, see [[#definition-lists]].
+
+= Headings =
+If your post or page has gotten a little bit longer, it's a good advise to split the post or page into sections. Sections are created by inserting headings into the post or page. Headings are created like this:
+
+{{{
+= Level 1 (largest) =
+== Level 2 ==
+=== Level 3 ===
+==== Level 4 ====
+===== Level 5 =====
+====== Level 6 ======
+}}}
+
+The number of equal sign (=) at the beginning determine the heading level. The equal sign at the end are optional and also their number can be chosen arbitrarily. So also the following is possible:
+
+{{{
+== Level 2a
+== Level 2b ==========================
+}}}
+
+//Note:// You can always use level 1 heading (single = sign) for your top-level heading. The HTML heading level produced from the top-level heading can be set in the settings (eg. {{{= test =}}} can produce {{{<h2>test</h2>}}}). 
+
+== Table of Contents (TOC) ==
+If you have created a longer post or page with a lot of heading (like this page), you may want to add a table of contents (TOC) to the post or page. You can do this by simply adding the following line to your code (preferrably at the beginning):
+
+  ##[[[TOC]]]##
+
+This will generate a TOC for you at the specified location.
+
+== Anchor names for sections == #anchor-names
+Normally BlogText will generate anchor names for each heading automatically depending on the heading's text. This name is usually visible in the browser's status bar (at the bottom of the browser window) when hovering with mouse over the paragraph sign (##&para;##) that appears when you move the mouse over a heading.
+
+[[image:heading-paragraph-hover.jpg|center|Hovering over a section's permalink]]
+[[image:anchor-name-statusbar.jpg|center|A section's anchor name displayed in the browser's status bar while hovering over the section's permalink.]]
+
+However, if you want to link to a certain section, you should provide your own anchor name. This way the anchor name won't change if the heading's text changes. A custom anchor name for a heading is specified like this (with "my_custom_anchor" being the anchor's name):
+
+{{{
+== My Heading == #my_custom_anchor
+}}}
+
+Note that you should not use spaces, tabulators, or any other fancy characters in the anchor name. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (##_##), and dashes (##-##).
+
+Note also that the trailing equal sign (##=##) are still optional. So you can also specify the same heading like this:
+
+{{{
+== My Heading #my_custom_anchor
+}}}
+
+//Note:// If you need to write a number sign ({{{#}}}) in a heading, use ##&#35;## instead.
+
+
+= Insertings Code Snippets = #code_snippets_syntax
+BlogText provides a convenient method to add code snippets to your post or page.
+
+//Note:// If you're just looking for a way to prevent BlogText from interpreting some text, you should use a [[#no-parse|no-parse section]].
+
+Inline code fragments have already been mentioned in [[#basic-inline-format]] but are repeated here for completeness. There are two forms available: using {{{##}}} and ##{{{ ... }}}##. For example:
+
+  {{{An example ##code fragment## and}}}## {{{another one}}} here.##
+
+This would render as:
+
+  An example ##code fragment## and {{{another one}}} here.
+
+//Limitation:// You can't use {{{## ... ##}}} as first word on a line as this will be considered an [[#lists|ordered list]]. Use ##{{{ ... }}}## instead in this case.
+
+More often, however, you will want to use //code blocks//. You can specify a code block like this:
+
+<pre class="code">
+{{{
+#include <stdio.h>
+ 
+int main(void)
+{
+  printf("Hello world\n");
+  return 0;
+}
+}}}
+</pre>
+
+This would render like this:
+
+{{{
+#include <stdio.h>
+ 
+int main(void)
+{
+  printf("Hello world\n");
+  return 0;
+}
+}}}
+
+Since this is a [[wiki:en|C (programming language)|C]] source code, we'd like to have some syntax highlighting and line number. This can easily be achieved by providing the name of the programming language ("C" in this case) and specifying the number of first the code. The example would now look like this:
+
+<pre class="code">
+{{{ lang="c" line="1"
+#include <stdio.h>
+ 
+int main(void)
+{
+  printf("Hello world\n");
+  return 0;
+}
+}}}
+</pre>
+
+This would render like this:
+
+{{{ lang="C" line="1"
+#include <stdio.h>
+ 
+int main(void)
+{
+  printf("Hello world\n");
+  return 0;
+}
+}}}
+
+You can specify both "lang" and "line" or only one of them (resulting in either only line numbers or only syntax highlighting).
+
+BlogText uses [[http://qbnz.com/highlighter/|GeSHi]] for syntax highlighting. A full list of all supported programming languages supported can be found directly on the GeSHi homepage.
+
+//Note:// You can also use syntax highlighting in inline code fragments. You need to use the curly braces syntax (##{{{ ... }}}##) for this. It won't work with the number sign syntax ({{{##...##}}}). For example this ##{{{ lang="php" function do_something($my_var) }}}## will render like this: 
+{{{ lang="php" function do_something($my_var) }}}.
+
+
+= Tables =
+Since creating tables with HTML is quite lengthy and not that easy to read, BlogText provides easier syntax for specifying tables: a syntax for simple tables and one for more complex tables.
+
+//Limitations:// You can't specify BlogText lists in BlogText tables (since these tables don't allow line breaks). If you need a list within a table, you need either to create a HTML list (with ##<ul>##, ##<ol>##, and ##<li>## tags) or create an HTML table (with ##<table>##, ##<tr>##, ##<th>##, and ##<td>## tags). [[#code_snippets_syntax|Code block]] will work however.
+
+== Simple Tables (Creole Syntax) == #simple-table-syntax
+This syntax is only usable for very simple tables, although this might suffice in most cases. The simpliest form looks like this:
+
+{{{
+| Cell 1.1 | Cell 1.2 |
+| Cell 2.1 | Cell 2.2 |
+}}}
+
+This will render as:
+
+| Cell 1.1 | Cell 1.2 |
+| Cell 2.1 | Cell 2.2 |
+
+This table is just comprised of four table cells. It can be extended by adding column headings (using ##|=##) and a table caption (using ##|+##). With both syntax elements, the code now looks like this:
+
+{{{
+|=Heading Col 1 |=Heading Col 2 |
+|Cell 1.1       |Cell 1.2       |
+|Cell 2.1       |Cell 2.2       |
+|+ This is an example table.
+}}}
+
+and renders as:
+
+|=Heading Col 1 |=Heading Col 2 |
+|Cell 1.1       |Cell 1.2       |
+|Cell 2.1       |Cell 2.2       |
+|+ This is an example table.
+
+That's what you can do with this table syntax. If you want custom CSS styles for certain table cell, column-spanning, or row-spanning you need to use the [[#complex-table-syntax|syntax for complex tables]].
+
+//Note:// The trailing pipe characters (##|##) is optional. So is the alignment of the pipe characters. The last table example could also be written like this (yielding the same result):
+
+{{{
+|=Heading Col 1|=Heading Col 2
+|Cell 1.1|Cell 1.2
+|Cell 2.1|Cell 2.2
+|+ This is an example table.
+}}}
+
+== Complex Tables (Mediawiki Syntax) == #complex-table-syntax
+This syntax allows for more complex tables that require for example custom CSS styles for certain table cell, column-spanning, or row-spanning. It's based on the [[http://www.mediawiki.org/wiki/Help:Tables|Mediawiki table syntax]] and is explained in greater detail there. Here we will only focus on the basics (which are partially copied from the Mediawiki help page).
+
+A table written in the Mediawiki syntax can consist of the following elements:
+
+|##{|## | **table start**
+|##|+## | **table caption**, //optional//; only between **table start** and first **table row**
+|##|-## | **table row**, //optional on first row// -- wiki engine assumes the first row
+|##!##  | **table header** cell, //optional//. Consecutive **table header** cells may be added on same line separated by double marks (##!!##) or start on new lines, each with its own single mark (##!##).
+|##|##  | **table data** cell, //required!// Consecutive **table data** cells may be added on same line separated by double marks (##||##) or start on new lines, each with its own single mark (##|##).
+|##|}## | **table end**
+
+For example the following code:
+
+{{{
+{|
+! Item  !! Amount !! Cost
+|-
+|Orange || 10     || 7.00
+|-
+|Bread  || 4      || 3.00
+|-
+|Butter || 1      || 5.00
+|-
+!Total  ||        || 15.00
+|}
+}}}
+
+will render as:
+
+{|
+! Item  !! Amount !! Cost
+|-
+|Orange || 10     || 7.00
+|-
+|Bread  || 4      || 3.00
+|-
+|Butter || 1      || 5.00
+|-
+!Total  ||        || 15.00
+|}
+
+The code for the same table with one cell per line will look like this:
+
+{{{
+{|
+! Item
+! Amount
+! Cost
+|-
+|Orange
+|10
+|7.00
+|-
+|Bread
+|4
+|3.00
+|-
+|Butter
+|1
+|5.00
+|-
+!Total
+|
+|15.00
+|}
+}}}
+
+You can specify arbitrary HTML tag attributes (such as ##rowspan## or ##colspan## for row- and column-spanning) for each cell and for the complete table.
+
+{{{
+{| style="width: 400px; margin-left: auto; margin-right: auto;"
+!colspan="6"|Shopping List
+|-
+|rowspan="2"|Bread & Butter
+|Pie
+|Buns
+|Danish
+|colspan="2"|Croissant
+|-
+|Cheese
+|colspan="2"|Ice cream
+|Butter
+|Yoghurt
+|}
+}}}
+
+This will render as:
+
+{| style="width: 400px; margin-left: auto; margin-right: auto;"
+!colspan="6"|Shopping List
+|-
+|rowspan="2"|Bread & Butter
+|Pie
+|Buns
+|Danish
+|colspan="2"|Croissant
+|-
+|Cheese
+|colspan="2"|Ice cream
+|Butter
+|Yoghurt
+|}
+
+= Using HTML in BlogText =
+You can use HTML freely within your BlogText code. For example you can enclose a certain section of your text in a ##<div>## or ##<span>## section to provide special CSS styles for this section:
+
+  ##This is **some <span style="background: red">special content</span> formatting**.##
+
+This will render as:
+
+  This is **some <span style="background: red">special content</span> formatting**.
+
+
+= Miscellaneous Things =
+This section contains miscellaneous syntax constructs that don't fit in any of the other sections and are less commonly used.
+
+== Block Quotation ==
+>A **block quotation** (also known as a **long quotation** or **extract**) is a quotation in a written document, that set off from the main text as a paragraph, or **block** of text, and typically distinguished visually using indentation and a different typeface or smaller size quotation. (This is in contrast to a setting it off with quotation marks in a //run-in quote//.) **Block quotations** are used for the long quotation. The Chicago Manual of Style recommends using a block quotation when extracted text is 100 words or more, or at least eight lines.
+>Source: [[wiki:en|Block quotation|Wikipedia]]
+
+This was a block quation. Lines for a block quotation start with a ##>##. The code for the quotation above is:
+
+{{{
+>A **block quotation** (also known as a **long quotation** or **extract**) is a quotation in a written document, that set off from the main text as a paragraph, or **block** of text, and typically distinguished visually using indentation and a different typeface or smaller size quotation. (This is in contrast to a setting it off with quotation marks in a //run-in quote//.) **Block quotations** are used for the long quotation. The Chicago Manual of Style recommends using a block quotation when extracted text is 100 words or more, or at least eight lines.
+>Source: [[wiki:en|Block quotation|Wikipedia]]
+}}}
+
+== Indenting Text ==
+To indent a piece of text, simple indent it by at least two spaces, like so:
+
+{{{
+This is some text.
+
+  This is some indented text.
+
+This text is no longer indented.
+}}}
+
+This will render as (horizontal lines were inserted to border the result):
+
+----
+
+This is some text.
+
+  This is some indented text.
+
+This text is no longer indented.
+
+----
+
+== Definitions (Definition Lists) == #definition-lists
+BlogText provides a simple syntax to define one or more terms. The simpliest version specifies the term and the definition on the same line - separated by a colon (##:##). For example:
+
+{{{
+; XML : eXtensible Markup Language
+; HTML : Hypertext Markup Language
+}}}
+
+will render as:
+
+; XML : eXtensible Markup Language
+; HTML : Hypertext Markup Language
+
+If you need to specify the term and the definition on separate lines -- for example because the term is long or contains a colon (##:##) -- you can use an alternative syntax. For example:
+
+{{{
+;!XML
+;:eXtensible Markup Language
+}}}
+
+will render as:
+
+;!XML
+;:eXtensible Markup Language
+
+You can also mix both syntaxes.
+
+== Horizontal Lines ==
+Though it's usually not recommended to use horizontal lines, you can insert them non the less. To specify a horizontal lines, write at least four dashes (##-##) in a separate line like so:
+
+  ##----##
+
+This will be rendered as:
+
+----
+
+== Special Characters ==
+You can use certain special characters in BlogText text. This section lists the most important ones:
+
+|= Code     |= Rendered as |
+|##--##     | --           |
+|##&larr;## | &larr;       |
+|##&rarr;## | &rarr;       |
+
+//Note:// Of couse all of [[wiki:List_of_XML_and_HTML_character_entity_references|HTML's named entities]] are supported.
+
+== No-Parse Text == #no-parse
+If you don't want a certain portion of text to be interpreted as BlogText syntax, you define it as a no-parse text. A no-parse text starts with ##{{!## and ends with ##!}}##. For example:
+
+  ##{{! This text **won't be bold** printed. !}}##
+
+This will render as:
+
+  {{! This text **won't be bold** printed. !}}
+
+The difference to a [[#code_snippets_syntax|code block]] is that this isn't rendered with a [[wiki:en|Monospaced_font|monospaced font]] but with the blog's regular font.
+
+//Note:// A no-parse section won't allow you by default to used HTML inside of it. If you really need to use HTML within a no-parse section, add a second exclamation mark to the opening marker (ie. ##{{!!## instead of ##{{!##). For example:
+
+  ##{{!!<code>&#37;&#37;</code>!}} vs. {{!<code>&#37;&#37;</code>!}}##
+
+will render as:
+
+  {{!!<code>&#37;&#37;</code>!}} vs. {{!<code>&#37;&#37;</code>!}}
+
+== Comments ==
+BlogText supports end-of-line comments in your text. Comments are just for the person editing a post or page. They won't be visible in any way in the rendered page (not even in the HTML code). You can, for example, use comments to add todos to certain section.
+
+To create a comment, simply write {{!!<code>&#37;&#37;</code>!}}. Everything that comes after the {{!!<code>&#37;&#37;</code>!}} on the same line will be completely ignored by BlogText. For example:
+
+{{!!
+<pre class="code">
+This is like very much. &#37;&#37; TODO: Not any more. Adjust this setence.
+</pre>
+!}}

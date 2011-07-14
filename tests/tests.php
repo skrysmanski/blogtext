@@ -9,14 +9,57 @@ class BlogTextTests {
   public static function run_tests() {
     require_once(dirname(__FILE__).'/../markup/blogtext_markup.php');
     
-    $my_post = array(
-       'post_title' => 'My post',
-       'post_content' => 'This is my post.',
-       'post_status' => 'private'
-    );
+    $page_names = array('syntax-description');
+    
+    foreach ($page_names as $name) {
+      $filename = dirname(__FILE__).'/'.$name.'.txt';
+      $contents = file_get_contents($filename);
+      if ($contents === false) {
+        die("Couldn't load file: ".$filename);
+      }
+      
+      //
+      // Insert the post into the database
+      //
+      $my_post = array(
+         'post_title' => 'My BlogText test post ('.date('H:i:s.u').')',
+         'post_content' => $contents,
+         'post_status' => 'private'
+      );
 
-    // Insert the post into the database
-    wp_insert_post($my_post);
+      $post_id = wp_insert_post($my_post);
+      if ($post_id === 0) {
+        die("Could not create post for page: ".$name);
+      }
+      
+      //
+      // Run "loop" through the post we've just created
+      //
+      $my_query = new WP_Query('p='.$post_id);
+
+      while ($my_query->have_posts()) {
+        $my_query->the_post();
+        global $post;
+        
+        try {
+          $markup = new BlogTextMarkup();
+          $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_REGULAR, 
+                                                  false);
+        } catch (Exception $e) {
+          print MSCL_ErrorHandling::format_exception($e);
+          // exit here as the exception may come from some static constructor that is only executed once
+          exit;
+        }
+        
+        file_put_contents(dirname(__FILE__).'/'.$name.'-output.html', $output);
+        unset($output);
+        break;
+      }
+      
+      unset($my_query);
+      
+      wp_delete_post($post_id, true);
+    }
   }
 }
 ?>
