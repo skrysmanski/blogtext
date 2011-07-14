@@ -35,10 +35,10 @@ class BlogTextTests {
       //
       // Run "loop" through the post we've just created
       //
+      
       // IMPORTANT: We can't create a "WP_Query" object here (but need to use "query_posts()") as the
       //   global function "is_singular()" (used by BlogText) only works on the global query object.
       query_posts('p='.$post_id);
-
       while (have_posts()) {
         the_post();
         global $post;
@@ -47,16 +47,27 @@ class BlogTextTests {
           $markup = new BlogTextMarkup();
           $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_REGULAR, 
                                                   false);
+          
+          file_put_contents(dirname(__FILE__).'/'.$name.'-output.html', $output);
+
+          $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_RSS, 
+                                                  false);
+          
+          file_put_contents(dirname(__FILE__).'/'.$name.'-rss.xml', $output);
+
         } catch (Exception $e) {
           print MSCL_ErrorHandling::format_exception($e);
           // exit here as the exception may come from some static constructor that is only executed once
           exit;
         }
         
-        file_put_contents(dirname(__FILE__).'/'.$name.'-output.html', $output);
         unset($output);
         break;
       }
+      
+      //
+      // Get RSS
+      //
       
       wp_delete_post($post_id, true);
     }
