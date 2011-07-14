@@ -74,6 +74,12 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
     if (is_admin()) {
       // We're in the backend. Create option page. It registers itself.
       $this->main_options_page = new BlogTextSettingsPage();
+      
+      if (is_dir(dirname(__FILE__).'/tests')) {
+        // Tests are available
+        MSCL_require_once('tests/admin-page.php', __FILE__);
+        new BlogTextTestExecutionPage();
+      }
     }
 
     // Set content width
