@@ -39,8 +39,6 @@ class BlogTextTests {
     $uploads_dir = $uploads['basedir'].'/blogtexttests';
     @mkdir($uploads_dir);
     
-    $base_url = site_url();
-    
     foreach ($page_names as $name) {
       $base_dir = dirname(__FILE__).'/test-pages/'.$name;
       $filename = $base_dir.'/blogtext.txt';
@@ -130,17 +128,13 @@ class BlogTextTests {
           $markup = new BlogTextMarkup();
           $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_REGULAR, 
                                                   false);
-          
-          # Make test result independent from the Wordpress URL
-          $output = str_replace($base_url, 'http://mydomain.com', $output);
+          $output = self::clean_output($output);
           
           file_put_contents($base_dir.'/output.html', $output);
 
           $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_RSS, 
                                                   false);
-          
-          # Make test result independent from the Wordpress URL
-          $output = str_replace($base_url, 'http://mydomain.com', $output);
+          $output = self::clean_output($output);
           
           file_put_contents($base_dir.'/output-rss.xml', $output);
 
@@ -168,6 +162,17 @@ class BlogTextTests {
         BlogTextPostSettings::set_use_blogtext($post_id, true);
       }
     }
+  }
+  
+  private static function clean_output($output) {
+    # Make test result independent from the Wordpress URL
+    $output = str_replace(site_url(), 'http://mydomain.com', $output);
+   
+    # Image tokens are domain dependent, too. So mask them.
+    $output = preg_replace('#blogtext/api/thumbnail/do\.php\?id\=[0-9a-f]{40}_#i', 
+                           'blogtext/api/thumbnail/do.php?id=XXX_', $output);
+    
+    return $output;
   }
 }
 ?>

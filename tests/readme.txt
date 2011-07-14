@@ -5,9 +5,14 @@ Prepare Wordpress Testinstallation
 ----------------------------------
 
 1. Download and installed the desired Wordpress version
-2. Install and activate BlogText plugin from the BitBucket repository
-3. Run the tests (under Tools/BlogTextTests).
-4. Check whether the output files have changed.
+2. Set "define('WP_DEBUG', true);" in "wp-config.php".
+3. Install and activate BlogText plugin from the BitBucket repository
+   $ cd InstallDir/wp-content/plugins
+   $ hg clone https://bitbucket.org/mayastudios/blogtext
+4. Make sure that you use the default permalink structure (.../?p=123)
+5. Run the tests (under Tools/BlogTextTests).
+6. Check whether the output files have changed.
+   $ hg diff ...
 
 
 Manual WP-integration tests
