@@ -36,10 +36,25 @@ class BlogTextTestActionButtonsForm extends MSCL_ButtonsForm {
   protected function on_button_clicked($button_id) {
     if ($button_id == self::CLEAR_CACHE_BUTTON_NAME) {
       MSCL_require_once('tests.php', __FILE__);
-      BlogTextTests::run_tests();
+      if (array_key_exists('test_type', $_REQUEST)) {
+        BlogTextTests::run_tests($_REQUEST['test_type'] == 'all' ? '' : $_REQUEST['test_type']);
+      } else {
+        BlogTextTests::run_tests();
+      }
+      
       $this->add_settings_error('tests_executed', __("All tests have been run."), 'updated');
       return;
     }
+  }
+
+  public function print_form_items() {
+    MSCL_require_once('tests.php', __FILE__);
+?>
+  <input type="radio" name="test_type" value="all" checked="checked"> Run <b>all tests</b> but also remove the pages from the database again<br>
+  <?php foreach (BlogTextTests::get_test_pages() as $page_name): ?>
+  <input type="radio" name="test_type" value="<?php echo $page_name; ?>"> Run only test for <b>"<?php echo $page_name; ?>"</b> but keep the page<br>
+  <?php endforeach; ?>    
+<?php
   }
 }
 

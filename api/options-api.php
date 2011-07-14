@@ -556,6 +556,8 @@ abstract class MSCL_ButtonsForm extends MSCL_AbstractOptionsForm {
 <form action="options.php" method="post">
   <?php settings_fields($this->get_form_id()); ?>
 
+  <?php $this->print_form_items(); ?>
+  
   <?php foreach ($this->buttons as $button): ?>
   <p class="submit">
     <input type="submit" class="button" name="<?php echo $button[0]; ?>" value="<?php echo $button[1]; ?>" />
@@ -565,6 +567,8 @@ abstract class MSCL_ButtonsForm extends MSCL_AbstractOptionsForm {
 </form>
 <?php
   }
+  
+  protected function print_form_items() { }
 
   protected function on_options_updated($updated_options) {
     foreach ($this->buttons as $button) {

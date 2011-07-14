@@ -6,13 +6,35 @@
 #
 
 class BlogTextTests {
-  public static function run_tests() {
+  public static function get_test_pages() {
+    $base_dir = dirname(__FILE__).'/test-pages';
+    $test_names = array();
+    foreach (scandir($base_dir) as $name) {
+      if ($name == '.' || $name == '..') {
+        continue;
+      }
+      if (!file_exists($base_dir.'/'.$name.'/blogtext.txt')) {
+        continue;
+      }
+      
+      $test_names[] = $name;
+    }
+    return $test_names;
+  }
+  
+  public static function run_tests($only_and_keep = '') {
     require_once(dirname(__FILE__).'/../markup/blogtext_markup.php');
+    require_once(dirname(__FILE__).'/../settings.php');
     
-    $page_names = array('syntax-description');
+    if (empty($only_and_keep)) {
+      $page_names = self::get_test_pages();
+    } else {
+      $page_names = array($only_and_keep);
+    }
     
     foreach ($page_names as $name) {
-      $filename = dirname(__FILE__).'/'.$name.'.txt';
+      $base_dir = dirname(__FILE__).'/test-pages/'.$name;
+      $filename = $base_dir.'/blogtext.txt';
       $contents = file_get_contents($filename);
       if ($contents === false) {
         die("Couldn't load file: ".$filename);
@@ -22,7 +44,7 @@ class BlogTextTests {
       // Insert the post into the database
       //
       $my_post = array(
-         'post_title' => 'My BlogText test post ('.date('H:i:s.u').')',
+         'post_title' => 'BlogText test post: '.$name,
          'post_content' => $contents,
          'post_status' => 'private'
       );
@@ -48,12 +70,12 @@ class BlogTextTests {
           $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_REGULAR, 
                                                   false);
           
-          file_put_contents(dirname(__FILE__).'/'.$name.'-output.html', $output);
+          file_put_contents($base_dir.'/output.html', $output);
 
           $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_RSS, 
                                                   false);
           
-          file_put_contents(dirname(__FILE__).'/'.$name.'-rss.xml', $output);
+          file_put_contents($base_dir.'/output-rss.xml', $output);
 
         } catch (Exception $e) {
           print MSCL_ErrorHandling::format_exception($e);
@@ -69,7 +91,12 @@ class BlogTextTests {
       // Get RSS
       //
       
-      wp_delete_post($post_id, true);
+      if (empty($only_and_keep)) {
+        # Don't delete the post when it has been requested.
+        wp_delete_post($post_id, true);
+      } else {
+        BlogTextPostSettings::set_use_blogtext($post_id, true);
+      }
     }
   }
 }
