@@ -35,7 +35,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
 
   private static $SUPPORTED_FORMAT_COUNT = 3;
 
-  private static $JPEG_HEADER = "\xFF\xD8\xFF\xE0";
+  private static $JPEG_HEADER = "\xFF\xD8";
   private static $JPEG_HEADER_LEN = 18; // FFD8 + see http://en.wikipedia.org/wiki/JPEG_File_Interchange_Format
 
   private static $PNG_HEADER = "\x89PNG\r\n\x1A\n";
@@ -182,10 +182,17 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
 
   private function check_jpg_data($data) {
     //
-    // See: http://www.videotechnology.com/jpeg/j1.html
+    // See: 
+    // * Regular JPEG: http://www.videotechnology.com/jpeg/j1.html
+    // * EXIF: http://www.media.mit.edu/pia/Research/deepview/exif.html
     //
-    if (!self::starts_with($data, "JFIF\0", 6)) {
-      throw new MSCL_MediaFileFormatException("Malformed jpeg image [1].", $this->get_file_path(), $this->is_remote_file());
+    if (self::starts_with($data, "\xFF\xE0", 2) && self::starts_with($data, "JFIF\0", 6)) {
+      // Regular JPEG
+    } else if (self::starts_with($data, "\xFF\xE1", 2) && self::starts_with($data, "Exif\0", 6)) {
+      // Exif JPEG
+    } else {
+      throw new MSCL_MediaFileFormatException(sprintf("Unsupported jpeg image (with marker: %X%X).", ord($data[2]), ord($data[3])),
+        $this->get_file_path(), $this->is_remote_file());
     }
 
     // NOTE: We can't use the density (bytes 14-17) as even for units "0" the Xdensity and Ydensity 
