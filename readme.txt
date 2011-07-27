@@ -51,6 +51,9 @@ your webserver.
 = 0.9.2 =
 * Fixed problem where the id of an attachment could not be determined in some cases. In these cases the 
   attachment would not display correctly.
+* Fix image info: Now also recognizes Exif JPEG images
+* Added some regression tests to avoid/reduce conversion errors when modifying BlogText's sources. (only in
+  developer version obtained from BitBucket)
 
 = 0.9.1.2 =
 * Fixed RSS rendering
