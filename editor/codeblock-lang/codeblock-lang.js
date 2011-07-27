@@ -34,8 +34,9 @@
 			this.cache = [];
 			this.rows = [];
 			this.list.children('li').each(function() {
-				self.cache.push(this.innerHTML.toLowerCase());
-				self.rows.push($(this));
+        element = $(this);
+				self.cache.push(element.text().toLowerCase());
+				self.rows.push(element);
 			});
 			this.cache_length = this.cache.length;
 		},
