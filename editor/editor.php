@@ -66,7 +66,12 @@ class BlogTextEditor {
   public function insert_editor_javascript() {
     // Replace buttons (quick tags) in Wordpress' HTML editor
     echo '<script type="text/javascript" src="'.BlogTextPlugin::get_instance()->get_plugin_url().'/editor/quicktags.js"></script>';
-    echo '<script type="text/javascript">var blogTextPluginDir = "'.BlogTextPlugin::get_instance()->get_plugin_url().'";</script>';
+?>
+<script type="text/javascript">
+  var blogTextPluginDir = "<?php echo BlogTextPlugin::get_instance()->get_plugin_url(); ?>";
+  var wordpressVersion = "<?php bloginfo('version'); ?>";
+</script>
+<?php
   }
 
   public function add_blogtext_syntax_link($editor_html) {

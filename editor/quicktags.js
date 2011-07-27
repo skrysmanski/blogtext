@@ -169,6 +169,9 @@ function blogtext_edToolbar() {
 		code += blogtext_edShowButton(edButtons[i], i);
 	}
 	code += '<input type="button" id="ed_close" class="ed_button" onclick="edCloseAllTags();" title="' + quicktagsL10n.closeAllOpenTags + '" value="' + quicktagsL10n.closeTags + '" />';
+  if (wordpressVersion >= "3.2") {
+    code += '<input type="button" id="ed_fullscreen" class="ed_button" onclick="fullscreen.on();" title="' + quicktagsL10n.toggleFullscreen + '" value="' + quicktagsL10n.fullscreen + '" />';
+  }
   return code;
 }
 
