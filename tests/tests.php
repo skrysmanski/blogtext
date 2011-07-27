@@ -44,49 +44,17 @@ class BlogTextTests {
     $uploads_dir = $uploads['basedir'].'/blogtexttests';
     @mkdir($uploads_dir);
     
-    foreach ($page_names as $name) {
-      $base_dir = dirname(__FILE__).'/test-pages/'.$name;
-      $filename = $base_dir.'/blogtext.txt';
-      $contents = file_get_contents($filename);
-      if ($contents === false) {
-        die("Couldn't load file: ".$filename);
-      }
-      
-      //
-      // Insert the post into the database
-      //
-      $my_post = array(
-         'post_title' => 'BlogText test post: '.$name,
-         'post_content' => $contents,
-         'post_status' => 'private'
-      );
-
-      $post_id = wp_insert_post($my_post);
-      if ($post_id === 0) {
-        die("Could not create post for page: ".$name);
-      }
-      
-      
-      //
-      // Insert media (images, attachments)
-      //
-      $media_dir = $base_dir.'/uploads';
-      $added_attachment_ids = array();
-      if (is_dir($media_dir)) {
-        foreach (scandir($media_dir) as $media_name) {
-          if ($media_name == '.' || $media_name == '..' 
-              || substr($media_name, strlen($media_name) - 4) == '.txt') {
-            continue;
-          }
-          
-          $added_attachment_ids[] = self::add_attachment($post_id, $media_dir, $media_name, $uploads_dir);
-        }
-      }
-      
+    $added_attachment_ids = array();
+    
+    foreach ($page_names as $page_name) {
+      list($post_id, $post_attach_ids) = self::create_test_post($page_name, $uploads_dir);
+      $added_attachment_ids = array_merge($added_attachment_ids, $post_attach_ids);
       
       //
       // Run "loop" through the post we've just created
       //
+      
+      $base_dir = self::get_base_dir_for_page($page_name);
       
       // IMPORTANT: We can't create a "WP_Query" object here (but need to use "query_posts()") as the
       //   global function "is_singular()" (used by BlogText) only works on the global query object.
@@ -97,13 +65,15 @@ class BlogTextTests {
         
         try {
           $markup = new BlogTextMarkup();
-          $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_REGULAR, 
+          $output = $markup->convert_post_to_html($post, $post->post_content,
+                                                  AbstractTextMarkup::RENDER_KIND_REGULAR, 
                                                   false);
           $output = self::clean_output($post_id, $output);
           
           file_put_contents($base_dir.'/output.html', $output);
 
-          $output = $markup->convert_post_to_html($post, $contents, AbstractTextMarkup::RENDER_KIND_RSS, 
+          $output = $markup->convert_post_to_html($post, $post->post_content,
+                                                  AbstractTextMarkup::RENDER_KIND_RSS, 
                                                   false);
           $output = self::clean_output($post_id, $output);
           
@@ -137,20 +107,68 @@ class BlogTextTests {
     }
   }
   
-  private static function add_attachment($post_id, $media_dir, $media_name, $uploads_dir) {
-    $src_filename = $media_dir.'/'.$media_name;
+  private static function get_base_dir_for_page($page_name) {
+    return dirname(__FILE__).'/test-pages/'.$page_name;
+  }
+  
+  private static function create_test_post($page_name, $uploads_dir) {
+    $base_dir = self::get_base_dir_for_page($page_name);
+    $filename = $base_dir.'/blogtext.txt';
+    $contents = file_get_contents($filename);
+    if ($contents === false) {
+      die("Couldn't load file: ".$filename);
+    }
+
+    //
+    // Insert the post into the database
+    //
+    // NOTE: We need to escape backslashes (\) when inserting the content. Otherwise they will be removed by
+    //   "wp_insert_post()".
+    $my_post = array(
+       'post_title' => 'BlogText test post: '.$page_name,
+       'post_content' => str_replace('\\', '\\\\', $contents),
+       'post_status' => 'private'
+    );
+
+    $post_id = wp_insert_post($my_post);
+    if ($post_id === 0) {
+      die("Could not create post for page: ".$page_name);
+    }
+
+
+    //
+    // Insert media (images, attachments)
+    //
+    $media_dir = $base_dir.'/uploads';
+    $added_attachment_ids = array();
+    if (is_dir($media_dir)) {
+      foreach (scandir($media_dir) as $media_name) {
+        if ($media_name == '.' || $media_name == '..' 
+            || substr($media_name, strlen($media_name) - 4) == '.txt') {
+          continue;
+        }
+
+        $added_attachment_ids[] = self::add_attachment($post_id, $media_dir, $media_name, $uploads_dir);
+      }
+    }
+    
+    return array($post_id, $added_attachment_ids);
+  }
+  
+  private static function add_attachment($post_id, $media_dir, $media_filename, $uploads_dir) {
+    $src_filename = $media_dir.'/'.$media_filename;
     $desc = @file_get_contents($src_filename.'.txt');
 
-    $wp_filetype = wp_check_filetype(basename($media_name), null);
+    $wp_filetype = wp_check_filetype(basename($media_filename), null);
     $attachment = array(
       'post_mime_type' => $wp_filetype['type'],
-      'post_title' => preg_replace('/\.[^.]+$/', '', $media_name),
+      'post_title' => preg_replace('/\.[^.]+$/', '', $media_filename),
       'post_content' => '',
       'post_excerpt' => $desc,
       'post_status' => 'inherit'
     );
 
-    $dest_filename = $uploads_dir.'/'.$media_name;
+    $dest_filename = $uploads_dir.'/'.$media_filename;
     # Copy the file so that it isn't deleted when we delete the attachment.
     copy($src_filename, $dest_filename);
     $attach_id = wp_insert_attachment($attachment, $dest_filename, $post_id);
