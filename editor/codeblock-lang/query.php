@@ -48,35 +48,45 @@ $supported_languages = $geshi->get_supported_languages();
 # C++/CLI - maps to C++ for now
 $supported_languages[] = 'c++/cli';
 
-foreach ($supported_languages as $idx => $lang_name) {
-  // TODO by sk: $geshi-get_language_fullname() may crash the server. So we don't use it
-  //   until the problem is analyzed and/or fixed. See: https://bugs.php.net/bug.php?id=55090
-  //echo '<li>'.$geshi->get_language_fullname($lang_name).'</li>'."\n";
+sort($supported_languages);
+
+foreach ($supported_languages as $lang_name) {
+  if ($lang_name == 'java') {
+    # Don't list java (which is Java < 5) - java is now an alias for java5.    
+    continue;
+  }
   
   // Handle special cases - needs to be in sync with "AbstractTextMarkup::create_code_block()"
   switch (strtolower($lang_name)) {
     case 'cpp':
-      $lang_name = 'c++, cpp';
+      $short_name = 'c++, cpp';
       break;
     case 'cpp-qt':
-      $lang_name = 'c++/qt, cpp-qt';
+      $short_name = 'c++/qt, cpp-qt';
       break;
     case 'csharp':
-      $lang_name = 'c#, csharp';
+      $short_name = 'c#, csharp';
       break;
     case 'java5':
-      # Don't list java5 - java is now an alias for java5 and java4 support is dropped
-      continue;
+      $short_name = 'java';
+      break;
+    default:
+      $short_name = $lang_name;
   }
   
-  echo '<li>'.$lang_name.'</li>';
+  switch ($lang_name) {
+    case 'c++/cli':
+      $long_name = 'C++/CLI';
+      break;
+    default:
+      $long_name = $geshi->get_language_fullname($lang_name);
+  }
+  
+  echo "<li>$short_name <span class=\"fullname\">($long_name)</span></li>\n";
 }
 ?>
 	</ul>
 
 </div>
-  
- <script type="text/javascript" src="ZeroClipboard.js"></script>
-
 </body>
 </html>
