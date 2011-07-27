@@ -50,48 +50,7 @@ class BlogTextTests {
       list($post_id, $post_attach_ids) = self::create_test_post($page_name, $uploads_dir);
       $added_attachment_ids = array_merge($added_attachment_ids, $post_attach_ids);
       
-      //
-      // Run "loop" through the post we've just created
-      //
-      
-      $base_dir = self::get_base_dir_for_page($page_name);
-      
-      // IMPORTANT: We can't create a "WP_Query" object here (but need to use "query_posts()") as the
-      //   global function "is_singular()" (used by BlogText) only works on the global query object.
-      query_posts('p='.$post_id);
-      while (have_posts()) {
-        the_post();
-        global $post;
-        
-        try {
-          $markup = new BlogTextMarkup();
-          $output = $markup->convert_post_to_html($post, $post->post_content,
-                                                  AbstractTextMarkup::RENDER_KIND_REGULAR, 
-                                                  false);
-          $output = self::clean_output($post_id, $output);
-          
-          file_put_contents($base_dir.'/output.html', $output);
-
-          $output = $markup->convert_post_to_html($post, $post->post_content,
-                                                  AbstractTextMarkup::RENDER_KIND_RSS, 
-                                                  false);
-          $output = self::clean_output($post_id, $output);
-          
-          file_put_contents($base_dir.'/output-rss.xml', $output);
-
-        } catch (Exception $e) {
-          print MSCL_ErrorHandling::format_exception($e);
-          // exit here as the exception may come from some static constructor that is only executed once
-          exit;
-        }
-        
-        unset($output);
-        break;
-      }
-      
-      //
-      // Get RSS
-      //
+      self::clean_output($post_id, $page_name);
       
       if (empty($only_and_keep)) {
         # Don't delete the post when it has been requested.
@@ -191,6 +150,47 @@ class BlogTextTests {
     }
    
     return $attach_id;
+  }
+  
+  private static function write_output($post_id, $page_name) {
+    //
+    // Run "loop" through the post we've just created
+    //
+
+    $base_dir = self::get_base_dir_for_page($page_name);
+
+    // IMPORTANT: We can't create a "WP_Query" object here (but need to use "query_posts()") as the
+    //   global function "is_singular()" (used by BlogText) only works on the global query object.
+    query_posts('p='.$post_id);
+    while (have_posts()) {
+      the_post();
+      global $post;
+
+      try {
+        $markup = new BlogTextMarkup();
+        $output = $markup->convert_post_to_html($post, $post->post_content,
+                                                AbstractTextMarkup::RENDER_KIND_REGULAR, 
+                                                false);
+        $output = self::clean_output($post_id, $output);
+
+        file_put_contents($base_dir.'/output.html', $output);
+
+        $output = $markup->convert_post_to_html($post, $post->post_content,
+                                                AbstractTextMarkup::RENDER_KIND_RSS, 
+                                                false);
+        $output = self::clean_output($post_id, $output);
+
+        file_put_contents($base_dir.'/output-rss.xml', $output);
+
+      } catch (Exception $e) {
+        print MSCL_ErrorHandling::format_exception($e);
+        // exit here as the exception may come from some static constructor that is only executed once
+        exit;
+      }
+
+      unset($output);
+      break;
+    }    
   }
   
   private static function clean_output($post_id, $output) {
