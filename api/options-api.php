@@ -400,6 +400,8 @@ abstract class MSCL_AbstractOptionsForm {
   }
 
   /**
+   * Adds the specified update or error message.
+   * 
    * @param string $code Slug-name to identify the error. Used as part of 'id' attribute in HTML output.
    * @param string $message The formatted message text to display to the user (will be shown inside styled <div> and <p>)
    * @param string $type The type of message it is, controls HTML class. Use 'error' or 'updated'.
@@ -700,6 +702,15 @@ class MSCL_OptionsPage {
 ?>
 <div class="wrap">
 <h2><?php echo $this->get_page_title(); ?></h2>
+<?php 
+global $parent_file;
+if ($parent_file != 'options-general.php') {
+  // NOTE: Settings errors will only be displayed automatically on pages within the "Settings" section. For 
+  //   all other sections, we need to display it manually.
+  //   See: wp-admin/admin-header.php (at the end)
+  settings_errors(); 
+}
+?>
 <?php
     $this->print_forms();
 ?>
