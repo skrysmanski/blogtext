@@ -170,12 +170,13 @@ class BlogTextSettings {
     static $option = null;
     if ($option == null) {
       $option = new MSCL_ChoiceOption('blogtext_geshi_theme', 'Theme for code colorizing (aka. syntax highlighting)',
-                                 array('dawn' => "Dawn (bright)",
+                                 array('default-bright' => "Default: Bright",
+                                       'dawn' => "Dawn (bright)",
                                        'mac-classic' => "Mac Classic (bright)",
                                        'twilight' => "Twilight (dark)",
                                        'vibrant-ink' => "Vibrant Ink (dark)",
                                        self::OWN_GESHI_STYLE => "Don't use built-in style"),
-                                 1,
+                                 0,
               'The BlogText plugin comes with some default styles that are used to style the syntax '
               .'highlighting of code blocks. You can select the style to be used with this option. If you '
               .'want to specify your own style, choose "Don\'t use built-in style" here.');
