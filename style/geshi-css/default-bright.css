@@ -85,7 +85,7 @@
 
 /* member methods */
 .me0, .me1, .me2 {
-	color:#800000;
+	color:#444;
 }
 
 /* strings */
@@ -109,4 +109,8 @@
 .ln-xtra {
 	background: #ceff84;
   display: block;
+}
+
+.ln-xtra, .ln-xtra * {
+  color: #000 !important;
 }
