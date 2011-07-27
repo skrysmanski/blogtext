@@ -52,9 +52,9 @@
  *        Project:  SyntaxFiles
  *
  * File: systemverilog.php
- * $LastChangedBy: benbe $
- * $LastChangedDate: 2011-02-11 20:31:50 +0100 (Fr, 11. Feb 2011) $
- * $LastChangedRevision: 2430 $
+ * $LastChangedBy$
+ * $LastChangedDate$
+ * $LastChangedRevision$
  *
  ************************************************************************/
 

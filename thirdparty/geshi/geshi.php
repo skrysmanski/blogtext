@@ -605,6 +605,17 @@ class GeSHi {
     }
 
     /**
+     * Returns the version of GeSHi
+     *
+     * @return string
+     * @since 1 0.8.11
+     */
+    function get_version()
+    {
+        return GESHI_VERSION;
+    }
+
+    /**
      * Returns an error message associated with the last GeSHi operation,
      * or false if no error has occured
      *
@@ -808,7 +819,7 @@ class GeSHi {
         }
 
         // match the langname
-        if (!preg_match('/\'LANG_NAME\'\s*=>\s*\'((?:[^\']|\\\')+)\'/', $data, $matches)) {
+        if (!preg_match('/\'LANG_NAME\'\s*=>\s*\'((?:[^\']|\\\')+?)\'/', $data, $matches)) {
             $this->error = sprintf('Geshi::get_lang_fullname(%s): Regex can not detect language', $language);
             return false;
         }
@@ -3367,7 +3378,7 @@ class GeSHi {
 
         foreach (array_keys($this->language_data['KEYWORDS']) as $k) {
             if (!isset($this->lexic_permissions['KEYWORDS'][$k]) ||
-            $this->lexic_permissions['KEYWORDS'][$k]) {
+                $this->lexic_permissions['KEYWORDS'][$k]) {
 
                 $case_sensitive = $this->language_data['CASE_SENSITIVE'][$k];
                 $modifiers = $case_sensitive ? '' : 'i';
