@@ -59,9 +59,18 @@
   color: #000080;
 }
 
-/* C++/C#/Java: new */
+/* Java: public, protected */
+.kw2 {
+  color: #000080;
+}
+
+/* C++/C#/Java: new; C++: standard functions like printf() */
 .kw3 {
   color: #000080;
+}
+
+.hl-c .kw3, .hl-cpp .kw3 {
+  color: #444;
 }
 
 /* C++/C#/Java: class, int, double, ... */
@@ -99,4 +108,5 @@
 /* Line highlights */
 .ln-xtra {
 	background: #ceff84;
+  display: block;
 }
