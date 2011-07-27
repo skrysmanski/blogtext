@@ -210,7 +210,7 @@ class BlogTextEditor {
 
     // OK, we're authenticated: we need to find and save the data
 
-    $use_blogtext = MSCL_BoolOption::is_true($_POST['use_blogtext']);
+    $use_blogtext = MSCL_BoolOption::is_true(@$_POST['use_blogtext']);
     BlogTextPostSettings::set_use_blogtext($post_id, $use_blogtext);
 
     return $use_blogtext;
