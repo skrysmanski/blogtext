@@ -153,11 +153,17 @@ class BlogTextTests {
   }
   
   private static function write_output($post_id, $page_name) {
+    $base_dir = self::get_base_dir_for_page($page_name);
+
+    // Obtain HTML template
+    $template_code = '';
+    if (file_exists($base_dir.'/template.html')) {
+      $template_code = file_get_contents($base_dir.'/template.html');
+    }
+    
     //
     // Run "loop" through the post we've just created
     //
-
-    $base_dir = self::get_base_dir_for_page($page_name);
 
     // IMPORTANT: We can't create a "WP_Query" object here (but need to use "query_posts()") as the
     //   global function "is_singular()" (used by BlogText) only works on the global query object.
@@ -171,14 +177,20 @@ class BlogTextTests {
         $output = $markup->convert_post_to_html($post, $post->post_content,
                                                 AbstractTextMarkup::RENDER_KIND_REGULAR, 
                                                 false);
-        $output = self::clean_output($post_id, $output);
+        $output = self::mask_output($post_id, $output);
 
-        file_put_contents($base_dir.'/output.html', $output);
+        if (!empty($template_code)) {
+          $template_output = str_replace('###page_name###', $post->post_title, $template_code);
+          $template_output = str_replace('###page_content###', $output, $template_output);
+          file_put_contents($base_dir.'/output.html', $template_output);
+        } else {
+          file_put_contents($base_dir.'/output.html', $output);
+        }
 
         $output = $markup->convert_post_to_html($post, $post->post_content,
                                                 AbstractTextMarkup::RENDER_KIND_RSS, 
                                                 false);
-        $output = self::clean_output($post_id, $output);
+        $output = self::mask_output($post_id, $output);
 
         file_put_contents($base_dir.'/output-rss.xml', $output);
 
@@ -188,12 +200,11 @@ class BlogTextTests {
         exit;
       }
 
-      unset($output);
       break;
     }    
   }
   
-  private static function clean_output($post_id, $output) {
+  private static function mask_output($post_id, $output) {
     # Make test result independent from the Wordpress URL
     $output = str_replace(site_url(), 'http://mydomain.com', $output);
    
