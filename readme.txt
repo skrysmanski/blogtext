@@ -57,7 +57,8 @@ your webserver.
 * Added special (more natural) code block languages: C++, C++/Qt, C++/CLI, C#, Java (maps to java5)
 * Added two new GeSHi themes with more complete coloring; the bright one is now the default one
 * Added ability to highlight certain lines in code blocks
-* The language lookup window can now be closed by pressing Escape or Return.
+* The language lookup window has been improved: it can now be closed by pressing Escape or Return, has 
+  scrollbars, displays the language's full name, and displays the most popular languages at the top.
 * Updated GeSHI to the most recent SVN revision
 * Added some regression tests to avoid/reduce conversion errors when modifying BlogText's sources. (only in
   developer version obtained from BitBucket)

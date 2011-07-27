@@ -53,3 +53,6 @@ ul#languages li span.fullname {
   color: #666; 
   display: block;
 }
+ul#languages li.popular {
+  background: #ffffe0;
+}
