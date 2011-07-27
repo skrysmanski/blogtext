@@ -77,7 +77,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
       
       if (is_dir(dirname(__FILE__).'/tests')) {
         // Tests are available
-        MSCL_require_once('tests/admin-page.php', __FILE__);
+        MSCL_require_once('tests/tests-admin-page.php', __FILE__);
         new BlogTextTestExecutionPage();
       }
     }
