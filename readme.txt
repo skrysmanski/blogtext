@@ -2,7 +2,7 @@
 Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
-Tested up to: 3.1.4
+Tested up to: 3.2.1
 Stable tag: 0.9.2
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
@@ -49,6 +49,7 @@ your webserver.
 == Changelog ==
 
 = 0.9.2 =
+* Checked compatibility against Wordpress 3.2
 * Fixed problem where the id of an attachment could not be determined in some cases. In these cases the 
   attachment would not display correctly.
 * Fix image info: Now also recognizes Exif JPEG images
