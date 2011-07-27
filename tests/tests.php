@@ -50,7 +50,7 @@ class BlogTextTests {
       list($post_id, $post_attach_ids) = self::create_test_post($page_name, $uploads_dir);
       $added_attachment_ids = array_merge($added_attachment_ids, $post_attach_ids);
       
-      self::clean_output($post_id, $page_name);
+      self::write_output($post_id, $page_name);
       
       if (empty($only_and_keep)) {
         # Don't delete the post when it has been requested.
