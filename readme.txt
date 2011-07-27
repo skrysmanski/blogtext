@@ -58,6 +58,7 @@ your webserver.
 * Added two new GeSHi themes with more complete coloring; the bright one is now the default one
 * Added ability to highlight certain lines in code blocks
 * The language lookup window can now be closed by pressing Escape or Return.
+* Updated GeSHI to the most recent SVN revision
 * Added some regression tests to avoid/reduce conversion errors when modifying BlogText's sources. (only in
   developer version obtained from BitBucket)
 
