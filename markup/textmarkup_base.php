@@ -154,6 +154,25 @@ abstract class AbstractTextMarkup {
           if (!empty($real_lang)) {
             $language = $real_lang;
           }
+        } else {
+          // Check for special languages
+          switch (strtolower($language)) {
+            case 'c++':
+              $language = 'cpp';
+              break;
+            case 'c++/qt':
+              $language = 'cpp-qt';
+              break;
+            case 'c++/cli':
+              $language = 'cpp'; # for now
+              break;
+            case 'c#':
+              $language = 'csharp';
+              break;
+            case 'java':
+              $language = 'java5';
+              break;
+          }
         }
 
         $geshi = new GeSHi($code, $language);

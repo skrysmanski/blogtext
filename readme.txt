@@ -54,6 +54,7 @@ your webserver.
   attachment would not display correctly.
 * Fix image info: Now also recognizes Exif JPEG images
 * Fixed error when updating a page that doesn't use BlogText
+* Added special (more natural) code block languages: C++, C++/Qt, C++/CLI, C#, Java (maps to java5)
 * Added some regression tests to avoid/reduce conversion errors when modifying BlogText's sources. (only in
   developer version obtained from BitBucket)
 
