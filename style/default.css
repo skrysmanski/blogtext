@@ -190,9 +190,14 @@ h6:hover a.heading-link {
  */
 pre, .code {
   white-space: pre;
-	padding: 5px;
+  padding: 5px;
   margin-bottom: 24px;
   overflow-x: auto;
+
+  /* See: http://www.codestyle.org/css/font-family/sampler-Monospace.shtml */
+  font-family: Monaco, Consolas, "Lucidia Console", "Lucidia Sans Typewriter", "Courier New", Courier, monospace;
+  font-size: 9pt;
+  line-height: 1.2em;
 }
 
   .code table pre {
