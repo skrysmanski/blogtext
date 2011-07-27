@@ -18,6 +18,9 @@
 #
 #########################################################################################
 
+require_once(dirname(__FILE__).'/../api/commons.php');
+MSCL_Api::load(MSCL_Api::GESHI);
+
 MSCL_require_once('list_base.php', __FILE__);
 MSCL_require_once('table_base.php', __FILE__);
 
@@ -37,7 +40,26 @@ abstract class AbstractTextMarkup {
    */
   const RENDER_KIND_PREVIEW = 'preview';
 
+  private static $IS_STATIC_INITIALIZED = false;
   
+  private static $SUPPORTED_GESHI_LANGUAGES;
+
+  protected function __construct() {
+    self::static_constructor();
+  }
+
+  private static function static_constructor() {
+    if (self::$IS_STATIC_INITIALIZED) {
+      return;
+    }
+
+    // geshi
+    $geshi = new GeSHi();
+    self::$SUPPORTED_GESHI_LANGUAGES = array_flip($geshi->get_supported_languages());
+
+    self::$IS_STATIC_INITIALIZED = true;
+  }
+
   public static function generate_error_html($message, $additional_css='') {
     if (!empty($additional_css)) {
       return '<span class="error '.$additional_css.'">'.$message.'</span>';
@@ -100,6 +122,105 @@ abstract class AbstractTextMarkup {
   //
   public abstract function convert_post_to_html($post, $markup_content, $is_rss, $is_excerpt);
 
+  protected function create_code_block($code, $is_multiline, $language, $start_line, $is_rss, 
+                                       $additional_html_attribs) {
+    // shorten this generation process when we're in an RSS feed; don't use syntax highlighting (will
+    // most likely not work since the RSS rules aren't available). Also don't use line numbers as tables
+    // (used to format line numbers) may have borders (which would be ugly and not what the user wants).
+    if ($is_rss) {
+      // Escape '<', '>', '"', '&'.
+      $code = htmlspecialchars($code);
+
+      if ($is_multiline) {
+        // Multiline code
+        // NOTE: We can't use <code> inside <pre> as <code> is an inline element and can't contain a table
+        //   we use for line numbering.
+        return '<pre class="code">'.$code.'</pre>';
+      } else {
+        return '<code>'.$code.'</code>';
+      }
+    }
+
+    //
+    // Options see: http://qbnz.com/highlighter/geshi-doc.html
+    //
+    $is_highlighted = false;
+    if (!empty($language) || ($start_line && $is_multiline)) {
+      // Use GeSHi for syntax highlighting and/or line numbering
+      if (!empty($language)) {
+        // Check whether the user specified an extension instead of a language name.
+        if ($language[0] == '.') {
+          $real_lang = GeSHi::get_language_name_from_extension(substr($language, 1));
+          if (!empty($real_lang)) {
+            $language = $real_lang;
+          }
+        }
+
+        $geshi = new GeSHi($code, $language);
+      } else {
+        // NOTE: We need to specify a non-existing language here, as GeSHi can't handle an empty language
+        //   name.
+        $geshi = new GeSHi($code, 'probably-non-existing-lang');
+      }
+
+      if (empty($language) || !array_key_exists($language, self::$SUPPORTED_GESHI_LANGUAGES)) {
+        // disable highlighting for unknown language and when no language has been selected
+        $geshi->enable_highlighting(false);
+      } else {
+        $is_highlighted = true;
+      }
+
+      $geshi->enable_classes();
+      $geshi->enable_keyword_links(false);
+
+      if ($start_line && $is_multiline) {
+        // Use table for line numbers. This allows for starting at a line > 1 (which would otherwise
+        // break XHTML compliance); furthermore this allows to copy the code without getting the line
+        // numbers in the copied text.
+        $geshi->set_header_type(GESHI_HEADER_PRE_TABLE);
+        $geshi->enable_line_numbers(GESHI_NORMAL_LINE_NUMBERS);
+        $geshi->start_line_numbers_at($start_line);
+      } else {
+        $geshi->set_header_type(GESHI_HEADER_NONE);
+      }
+
+      $code = $geshi->parse_code();
+    } else {
+      // Escape '<', '>', '"', '&'.
+      $code = htmlspecialchars($code);
+    }
+
+    if ($is_highlighted) {
+      $css_classes = 'hl hl-'.$language;
+    } else {
+      $css_classes = 'not-hl';
+    }
+
+    if ($start_line && $is_multiline) {
+      $css_classes .= ' code-linenum';
+    }
+
+    if ($is_multiline) {
+      // Multiline code
+      // NOTE: We can't use <code> inside <pre> as <code> is an inline element and can't contain a table
+      //   we use for line numbering. Furthermore a <pre> element should not contain a <table> element
+      //   (used for line numbering) as this would be invalid HTML5 syntax. So we wrap the table in a
+      //   <div> instead.
+      if ($start_line) {
+        return '<div class="code '.$css_classes.'"'.$additional_html_attribs.'>'.$code.'</div>';
+      } else {
+        return '<pre class="code '.$css_classes.'"'.$additional_html_attribs.'>'.$code.'</pre>';
+      }
+    } else {
+      // Single line code
+      if ($css_classes != '') {
+        return '<code class="'.$css_classes.'"'.$additional_html_attribs.'>'.$code.'</code>';
+      } else {
+        return '<code'.$additional_html_attribs.'>'.$code.'</code>';
+      }
+    }
+    
+  }
 
   ////////////////////////////////////////////////////////////////////
   //
