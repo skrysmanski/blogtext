@@ -29,6 +29,11 @@ class BlogTextTests {
     // for the function wp_generate_attachment_metadata() to work
     require_once(ABSPATH . 'wp-admin/includes/image.php');
     
+    // Unset the theme's content width as this may change from theme to theme. Will be reset at the end.
+    global $content_width;
+    $old_content_width = $content_width;
+    $content_width = 0;
+    
     if (empty($only_and_keep)) {
       $page_names = self::get_test_pages();
     } else {
@@ -127,6 +132,8 @@ class BlogTextTests {
       } else {
         BlogTextPostSettings::set_use_blogtext($post_id, true);
       }
+      
+      $content_width = $old_content_width;
     }
   }
   
