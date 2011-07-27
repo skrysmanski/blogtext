@@ -74,41 +74,7 @@ class BlogTextTests {
             continue;
           }
           
-          $src_filename = $media_dir.'/'.$media_name;
-          $desc = @file_get_contents($src_filename.'.txt');
-          
-          $wp_filetype = wp_check_filetype(basename($media_name), null);
-          $attachment = array(
-            'post_mime_type' => $wp_filetype['type'],
-            'post_title' => preg_replace('/\.[^.]+$/', '', $media_name),
-            'post_content' => '',
-            'post_excerpt' => $desc,
-            'post_status' => 'inherit'
-          );
-          
-          $dest_filename = $uploads_dir.'/'.$media_name;
-          # Copy the file so that it isn't deleted when we delete the attachment.
-          copy($src_filename, $dest_filename);
-          $attach_id = wp_insert_attachment($attachment, $dest_filename, $post_id);
-          $attach_data = wp_generate_attachment_metadata($attach_id, $dest_filename);
-          wp_update_attachment_metadata($attach_id, $attach_data); 
-          
-          // Add guid - otherwise the image won't have a file name. Also note that this
-          // is probably a bug (in WP 3.1.4) that the GUID isn't set automatically.
-          $my_post = array(
-              'ID' => $attach_id,
-              'guid' => wp_get_attachment_url($attach_id)
-              );
-          // Update the post into the database
-          wp_update_post( $my_post );
-
-          // Add ALT text for images
-          $alt_text = @file_get_contents($src_filename.'.alt.txt');
-          if (!empty($alt_text)) {
-            update_post_meta($attach_id, '_wp_attachment_image_alt', $alt_text);
-          }
-          
-          $added_attachment_ids[] = $attach_id;
+          $added_attachment_ids[] = self::add_attachment($post_id, $media_dir, $media_name, $uploads_dir);
         }
       }
       
@@ -162,6 +128,44 @@ class BlogTextTests {
         BlogTextPostSettings::set_use_blogtext($post_id, true);
       }
     }
+  }
+  
+  private static function add_attachment($post_id, $media_dir, $media_name, $uploads_dir) {
+    $src_filename = $media_dir.'/'.$media_name;
+    $desc = @file_get_contents($src_filename.'.txt');
+
+    $wp_filetype = wp_check_filetype(basename($media_name), null);
+    $attachment = array(
+      'post_mime_type' => $wp_filetype['type'],
+      'post_title' => preg_replace('/\.[^.]+$/', '', $media_name),
+      'post_content' => '',
+      'post_excerpt' => $desc,
+      'post_status' => 'inherit'
+    );
+
+    $dest_filename = $uploads_dir.'/'.$media_name;
+    # Copy the file so that it isn't deleted when we delete the attachment.
+    copy($src_filename, $dest_filename);
+    $attach_id = wp_insert_attachment($attachment, $dest_filename, $post_id);
+    $attach_data = wp_generate_attachment_metadata($attach_id, $dest_filename);
+    wp_update_attachment_metadata($attach_id, $attach_data); 
+
+    // Add guid - otherwise the image won't have a file name. Also note that this
+    // is probably a bug (in WP 3.1.4) that the GUID isn't set automatically.
+    $my_post = array(
+        'ID' => $attach_id,
+        'guid' => wp_get_attachment_url($attach_id)
+        );
+    // Update the post into the database
+    wp_update_post( $my_post );
+
+    // Add ALT text for images
+    $alt_text = @file_get_contents($src_filename.'.alt.txt');
+    if (!empty($alt_text)) {
+      update_post_meta($attach_id, '_wp_attachment_image_alt', $alt_text);
+    }
+   
+    return $attach_id;
   }
   
   private static function clean_output($post_id, $output) {
