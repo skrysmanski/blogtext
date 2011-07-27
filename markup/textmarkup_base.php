@@ -122,8 +122,8 @@ abstract class AbstractTextMarkup {
   //
   public abstract function convert_post_to_html($post, $markup_content, $is_rss, $is_excerpt);
 
-  protected function create_code_block($code, $is_multiline, $language, $start_line, $is_rss, 
-                                       $additional_html_attribs) {
+  protected function create_code_block($code, $is_multiline, $language, $start_line, $highlighted_lines,
+                                       $is_rss, $additional_html_attribs) {
     // shorten this generation process when we're in an RSS feed; don't use syntax highlighting (will
     // most likely not work since the RSS rules aren't available). Also don't use line numbers as tables
     // (used to format line numbers) may have borders (which would be ugly and not what the user wants).
@@ -201,6 +201,10 @@ abstract class AbstractTextMarkup {
         $geshi->start_line_numbers_at($start_line);
       } else {
         $geshi->set_header_type(GESHI_HEADER_NONE);
+      }
+      
+      if (!empty($highlighted_lines)) {
+        $geshi->highlight_lines_extra($highlighted_lines);
       }
 
       $code = $geshi->parse_code();

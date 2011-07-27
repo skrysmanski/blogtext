@@ -385,6 +385,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         //   }}}
         $is_multiline = (strpos($contents, "\n") !== false);
         $additional_html_attribs = '';
+        $highlighted_lines = array();
 
         if ($block_type == '{{{' && !$is_multiline) {
           // special case: {{{ lang=php my code goes here }}}   (single line)
@@ -411,14 +412,19 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
               case 'line':
                 $start_line = (int)$value;
                 break;
+              case 'highlight':
+                foreach (explode(',', $value) as $line) {
+                  $highlighted_lines[] = (int)$line;
+                }
+                break;
               default:
                 $additional_html_attribs .= ' '.$match[1].'="'.$value.'"';
             }
           }
         }
 
-        return $this->create_code_block($code, $is_multiline, $language, $start_line, $this->is_rss, 
-                                        $additional_html_attribs);
+        return $this->create_code_block($code, $is_multiline, $language, $start_line, $highlighted_lines,
+                                        $this->is_rss, $additional_html_attribs);
         break;
     }
 
