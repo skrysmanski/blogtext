@@ -13,6 +13,17 @@
 
 	<script type="text/javascript" charset="utf-8">
 		$(document).ready(function() {
+      $("#q").keyup(function(event) {
+        if (event.keyCode == 27) {
+          // Escape
+          window.close();
+        } else if (event.keyCode == 13) {
+          // Return
+          event.preventDefault();
+          // NOTE: JavaScript has no support for clipboard. So no luck here.
+          window.close();
+        }
+      });
 			$('#q').liveUpdate('languages').focus();
 		});
 	</script>
@@ -64,6 +75,8 @@ foreach ($supported_languages as $idx => $lang_name) {
 	</ul>
 
 </div>
+  
+ <script type="text/javascript" src="ZeroClipboard.js"></script>
 
 </body>
 </html>
