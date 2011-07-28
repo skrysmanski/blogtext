@@ -63,7 +63,7 @@ function create_list_item($lang_name, $html_attribs) {
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<title>Live Search with Quicksilver Style</title>
+	<title>Programming Language Lookup</title>
 	<link rel="stylesheet" href="codeblock-lang.css" type="text/css" media="screen" />
 	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript" src="quicksilver.js"></script>
