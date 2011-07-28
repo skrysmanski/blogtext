@@ -28,6 +28,13 @@ class BlogTextAdminBarMenu {
                                  'title' => 'Clear page cache for this '.(is_page() ? 'page' : 'post')." (ID: $post->ID)",
                                  'href' => add_query_arg(self::CLEAR_CACHE_REQUEST, $post->ID)));
     }
+    
+    $admin_bar->add_menu(array('parent' => self::MENU_ID, 'title' => __('BlogText settings'),
+                               'href' => admin_url('options-general.php?page=blogtext_settings')));
+    if (BlogTextPlugin::are_tests_available()) {
+      $admin_bar->add_menu(array('parent' => self::MENU_ID, 'title' => __('BlogText Tests'),
+                                 'href' => admin_url('tools.php?page=blogtext_test_exec')));
+    }
   }
 
   public function handle_request() {

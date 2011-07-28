@@ -50,6 +50,7 @@ your webserver.
 
 = 0.9.2.1 =
 * Fixed line highlighting, if the code snippet doesn't start off line one.
+* Added BlogText settings to the admin bar
 
 = 0.9.2 =
 * Checked compatibility against Wordpress 3.2

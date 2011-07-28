@@ -67,6 +67,10 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
     add_action('wp_head', array($this, 'insert_custom_css'));
   }
+  
+  public static function are_tests_available() {
+    return (is_dir(dirname(__FILE__).'/tests'));
+  }
 
   public function wordpress_initialize() {
     // NOTE: Create option page here (after "init") so that the theme has already loaded and "content_width"
@@ -75,7 +79,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
       // We're in the backend. Create option page. It registers itself.
       $this->main_options_page = new BlogTextSettingsPage();
       
-      if (is_dir(dirname(__FILE__).'/tests')) {
+      if (self::are_tests_available()) {
         // Tests are available
         MSCL_require_once('tests/tests-admin-page.php', __FILE__);
         new BlogTextTestExecutionPage();
