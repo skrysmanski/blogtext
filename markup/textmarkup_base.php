@@ -204,7 +204,20 @@ abstract class AbstractTextMarkup {
       }
       
       if (!empty($highlighted_lines)) {
-        $geshi->highlight_lines_extra($highlighted_lines);
+        if ($start_line > 1) {
+          echo "Drin: ".$start_line;
+          $adapted_highlighted_lines = array();
+          foreach ($highlighted_lines as $line) {
+            $line = $line - ($start_line - 1);
+            if ($line < 1) {
+              continue;
+            }
+            $adapted_highlighted_lines[] = $line;
+          }
+          $geshi->highlight_lines_extra($adapted_highlighted_lines);
+        } else {
+          $geshi->highlight_lines_extra($highlighted_lines);
+        }
       }
 
       $code = $geshi->parse_code();
