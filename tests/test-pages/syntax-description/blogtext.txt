@@ -180,9 +180,9 @@ This will be rendered as:
 
 [[image:reflections_for_the_day.jpg|center|medium|link=source]]
 
-As you can see, the words ##medium## (size) and ##center## (alignment) appear as [[#interlinks-in-general|parameters]] along with ##link=source##. The parameter ##link=## defines what happens when the user clicks on the image. ##link=source## means "link to the source image" - which is the full-size version of the smaller version displayed here.
+As you can see, the words ##medium## (size) and ##center## (alignment) appear as [[#interlinks-in-general|Interlink parameters]] along with ##link=source##. The parameter ##link=## defines what happens when the user clicks on the image. ##link=source## means "link to the source image" - which is the full-size version of the smaller version displayed here.
 
-If you want to display a caption for an image, you can either specify the caption in media browser and add the ##caption## parameter or specify the caption directly in the interlink:
+If you want to display a caption for an image, you can either specify the caption in the media browser and add the ##caption## parameter or specify the caption directly in the interlink:
 
   Either use ##[[image:myimage.jpg|caption]]## or ##[[image:myimage.jpg|My special caption]]##.
 
@@ -203,12 +203,22 @@ This code would be rendered as this.
 
 So, the parameter ##thumb## is equivalent to ##small|link=source##. Note that the image is cropped into a square and that it's right aligned. Both of these properties can be changed in the settings (the Media settings and the BlogText settings respectively).
 
-== Image Parameter Reference == #image-param-ref
+== Image Size ===============
+As mentioned before, the size of an image is specified as parameter to the image Interlink. The size can be specified like so:
+
+ * //Symbolic size:// ##[[...|small|...]##, ##[[...|medium|...]##, ##[[...|large|...]## (or ##[[...|big|...]## which is an alias for ##large##).
+ * //Explicit size:// ##[[...|250px|...]##
+
+The "symbolic sizes" can be configured in the Media settings (under "Settings" --> "Media").
+
+Note, however, that Wordpress themes can specify their //content width// (by using the global variable ##$content_width##). This width is respected by BlogText. So, when you use a "symbolic size", it'll only be as wide as the theme's content width specifies. For example, if ##large## is defined as "1024 pixels wide" but the theme's content width is only 600 pixels wide, adding an image with ##[[...|large|...]]## will result in an image that is 600 pixels wide. (Note that setting ##$content_width## to zero indicates that the content widht is not specified.)
+
+== Image Parameter Reference =============== #image-param-ref
 The section describes all parameters and their values for images (##[[image:...]]##).
 
 |= Type |= Parameter(s) |= Notes
 |Alignment | ##left##, ##center##, ##right##  |
-|Size as word   | ##small##, ##medium##, ##large## | when no size is specified, the image will be displayed in full size (unless ##thumb## is specified); the actual size of these names can be specified in the Media settings in Wordpress' admin interface.
+|Size as word   | ##small##, ##medium##, ##large##, ##big## | when no size is specified, the image will be displayed in full size (unless ##thumb## is specified); the actual size of these names can be specified in the Media settings in Wordpress' admin interface.
 |Width in pixels | ##123px##  | specifies the width of the image in pixels; can't be used together with a "size word" (eg. ##small##).
 |Link to source image | ##link=source## 
 |Link to internal page | ##link=hello-world##
@@ -222,7 +232,7 @@ The section describes all parameters and their values for images (##[[image:...]
  * If the last parameter is not recognized by the image Interlink, it'll be used as caption for the image. This will also overwrite any caption that may have been specified in the image's media browser form.
  * You can't overwrite the link for an image that has the ##thumb## parameter. It'll always link to the source image.
 
-= Custom Interlinks = #custom-interlinks
+= Custom Interlinks ========= #custom-interlinks
 If you use links to a certain website more often, you can create an Interlink prefix for this website yourself. In the BlogText settings you have a textfield to define Interlink prefixes together with their URL pattern.
 
 For example, say you often link to [[http://www.wikipedia.org/|Wikipedia]] articles. Of course, you could simply use the full link in your texts like this:
@@ -428,91 +438,127 @@ However, if you want to link to a certain section, you should provide your own a
 == My Heading == #my_custom_anchor
 }}}
 
-Note that you should not use spaces, tabulators, or any other fancy characters in the anchor name. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (##_##), and dashes (##-##).
+Note that you need to separate the anchor name from the heading's text by at least one equal sign (as shown in the example).
 
-Note also that the trailing equal sign (##=##) are still optional. So you can also specify the same heading like this:
-
-{{{
-== My Heading #my_custom_anchor
-}}}
-
-//Note:// If you need to write a number sign ({{{#}}}) in a heading, use ##&#35;## instead.
-
+For your anchor name, you shouldn't use fancy characters like spaces, tabulators, or umlauts. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (##_##), and dashes (##-##).
 
 = Insertings Code Snippets = #code_snippets_syntax
 BlogText provides a convenient method to add code snippets to your post or page.
 
 //Note:// If you're just looking for a way to prevent BlogText from interpreting some text, you should use a [[#no-parse|no-parse section]].
 
-Inline code fragments have already been mentioned in [[#basic-inline-format]] but are repeated here for completeness. There are two forms available: using {{{##}}} and ##{{{ ... }}}##. For example:
+Inline code fragments have already been mentioned in [[#basic-inline-format]] but are repeated here for completeness. There are three forms available: using {{{##}}}, {{{`}}}, and ##{{{ ... }}}##. For example:
 
-  {{{An example ##code fragment## and}}}## {{{another one}}} here.##
+  {{{An example ##code fragment##, a `second one`, and}}}## {{{another one}}} here.##
 
 This would render as:
 
-  An example ##code fragment## and {{{another one}}} here.
+  An example ##code fragment##, `second one`, and {{{another one}}} here.
 
-//Limitation:// You can't use {{{## ... ##}}} as first word on a line as this will be considered an [[#lists|ordered list]]. Use ##{{{ ... }}}## instead in this case.
+//Limitation:// You can't use {{{## ... ##}}} as first thing on a line as this will be considered an [[#lists|ordered list]]. Use ##{{{ ... }}}## or ##` ... `## instead.
 
 More often, however, you will want to use //code blocks//. You can specify a code block like this:
 
 <pre class="code">
 {{{
-#include <stdio.h>
+#include <iostream>
  
-int main(void)
+int main()
 {
-  printf("Hello world\n");
-  return 0;
+    std::cout << "Hello, world!\n";
+    return 0;
 }
 }}}
 </pre>
 
-This would render like this:
+This will render like this:
 
 {{{
-#include <stdio.h>
+#include <iostream>
  
-int main(void)
+int main()
 {
-  printf("Hello world\n");
-  return 0;
+    std::cout << "Hello, world!\n";
+    return 0;
 }
 }}}
 
-Since this is a [[wiki:en|C (programming language)|C]] source code, we'd like to have some syntax highlighting and line number. This can easily be achieved by providing the name of the programming language ("C" in this case) and specifying the number of first the code. The example would now look like this:
+Since this is a [[wiki:en|C++|C++]] code snippet, we'd like to have some syntax highlighting and line numbering. This can easily be achieved by specifying the name of the programming language ("C" in this case) and the number of the first code line. With these changes, the example now looks like this:
 
 <pre class="code">
-{{{ lang="c" line="1"
-#include <stdio.h>
+{{{ lang=c++ line=4
+#include <iostream>
  
-int main(void)
+int main()
 {
-  printf("Hello world\n");
-  return 0;
+    std::cout << "Hello, world!\n";
+    return 0;
 }
 }}}
 </pre>
 
-This would render like this:
+And this will render like this:
 
-{{{ lang="C" line="1"
-#include <stdio.h>
+{{{ lang=c++ line=4
+#include <iostream>
  
-int main(void)
+int main()
 {
-  printf("Hello world\n");
-  return 0;
+    std::cout << "Hello, world!\n";
+    return 0;
 }
 }}}
 
-You can specify both "lang" and "line" or only one of them (resulting in either only line numbers or only syntax highlighting).
+[[image:lookup-window.png|right|thumb|caption]]
+BlogText uses [[http://qbnz.com/highlighter/|GeSHi]] for syntax highlighting. A full list of all supported programming languages is accessible through the button "lang lookup" in the Wordpress editor.
 
-BlogText uses [[http://qbnz.com/highlighter/|GeSHi]] for syntax highlighting. A full list of all supported programming languages supported can be found directly on the GeSHi homepage.
+You can also highlight some lines. To do this, use the ##highlight## attribute and specify the line numbers (as comma-separated list). For example:
 
-//Note:// You can also use syntax highlighting in inline code fragments. You need to use the curly braces syntax (##{{{ ... }}}##) for this. It won't work with the number sign syntax ({{{##...##}}}). For example this ##{{{ lang="php" function do_something($my_var) }}}## will render like this: 
-{{{ lang="php" function do_something($my_var) }}}.
+<pre class="code">
+{{{ lang=c# highlight=6,14 line=3
+#region codinghorror.com
+class Program : Object
+{
+    static int _I = 1;
 
+    /// <summary>
+    /// The quick brown fox jumps over the lazy dog
+    /// THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG
+    /// </summary>
+    static void Main(string[] args)
+    {
+        Uri Illegal1Uri = new Uri("http://packmyboxwith/jugs.html?q=five-dozen&t=liquor");
+        Regex OperatorRegex = new Regex(@"\S#$", RegexOptions.IgnorePatternWhitespace);
+    }
+}
+#endregion
+}}}
+</pre>
+
+will render as:
+
+{{{ lang=c# highlight=6,14 line=3
+#region codinghorror.com
+class Program : Object
+{
+    static int _I = 1;
+
+    /// <summary>
+    /// The quick brown fox jumps over the lazy dog
+    /// THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG
+    /// </summary>
+    static void Main(string[] args)
+    {
+        Uri Illegal1Uri = new Uri("http://packmyboxwith/jugs.html?q=five-dozen&t=liquor");
+        Regex OperatorRegex = new Regex(@"\S#$", RegexOptions.IgnorePatternWhitespace);
+    }
+}
+#endregion
+}}}
+
+//Notes:// 
+ * You can also enable syntax highlighting for inline code snippets. For this, you need to use the curly braces syntax (##{{{ ... }}}##). For example this ##{{{ lang=php function do_something($my_var) }}}## will render like this: {{{ lang=php function do_something($my_var) }}}.
+ * You can also specify the language by the file extension associated with the language. Simply use a dot followed by the file extension. For example, this will result in Ada highlighting: ##{{{ lang=.adb ... }}}##.
 
 = Tables =
 Since creating tables with HTML is quite lengthy and not that easy to read, BlogText provides easier syntax for specifying tables: a syntax for simple tables and one for more complex tables.

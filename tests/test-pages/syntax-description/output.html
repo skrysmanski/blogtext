@@ -19,7 +19,8 @@
 <li class="toclevel-2"><a href="#interlinks-in-general"><span class="tocnumber">3.5</span> <span class="toctext">Interlinks (Generalization of the above)</span></a></li>
 </ul></li>
 <li class="toclevel-1"><a href="#images"><span class="tocnumber">4</span> <span class="toctext">Images</span></a><ul>
-<li class="toclevel-2"><a href="#image-param-ref"><span class="tocnumber">4.1</span> <span class="toctext">Image Parameter Reference</span></a></li>
+<li class="toclevel-2"><a href="#image_size"><span class="tocnumber">4.1</span> <span class="toctext">Image Size</span></a></li>
+<li class="toclevel-2"><a href="#image-param-ref"><span class="tocnumber">4.2</span> <span class="toctext">Image Parameter Reference</span></a></li>
 </ul></li>
 <li class="toclevel-1"><a href="#custom-interlinks"><span class="tocnumber">5</span> <span class="toctext">Custom Interlinks</span></a></li>
 <li class="toclevel-1"><a href="#lists"><span class="tocnumber">6</span> <span class="toctext">Lists</span></a></li>
@@ -230,9 +231,9 @@ This will be rendered as:
 
 <div class="align-center image-align-center"><a href="http://mydomain.com/wp-content/uploads/blogtexttests/reflections_for_the_day.jpg" rel="attachment" title="&quot;reflections for the day&quot; by Dene' (Seattle) Miles on Flickr"><img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x300_resize_if_larger" title="&quot;reflections for the day&quot; by Dene' (Seattle) Miles on Flickr" alt="&quot;reflections for the day&quot; by Dene' (Seattle) Miles on Flickr" width="300" height="199"/></a></div>
 
-As you can see, the words <code class="not-hl">medium</code> (size) and <code class="not-hl">center</code> (alignment) appear as <a class="section-link-above" href="#interlinks-in-general">parameters</a> along with <code class="not-hl">link=source</code>. The parameter <code class="not-hl">link=</code> defines what happens when the user clicks on the image. <code class="not-hl">link=source</code> means "link to the source image" - which is the full-size version of the smaller version displayed here.
+As you can see, the words <code class="not-hl">medium</code> (size) and <code class="not-hl">center</code> (alignment) appear as <a class="section-link-above" href="#interlinks-in-general">Interlink parameters</a> along with <code class="not-hl">link=source</code>. The parameter <code class="not-hl">link=</code> defines what happens when the user clicks on the image. <code class="not-hl">link=source</code> means "link to the source image" - which is the full-size version of the smaller version displayed here.
 
-If you want to display a caption for an image, you can either specify the caption in media browser and add the <code class="not-hl">caption</code> parameter or specify the caption directly in the interlink:
+If you want to display a caption for an image, you can either specify the caption in the media browser and add the <code class="not-hl">caption</code> parameter or specify the caption directly in the interlink:
 <p class="indented">Either use <code class="not-hl">[[image:myimage.jpg|caption]]</code> or <code class="not-hl">[[image:myimage.jpg|My special caption]]</code>.</p>
 <em>Note:</em> The latter case (ie. displaying a caption when one is specified directly in the interlink) can be disabled in the settings. If disabled, a caption will only be disabled when the parameter <code class="not-hl">caption</code> is specified.
 
@@ -248,6 +249,13 @@ One more thing: Inserting a small image (possibly without alignment) with a link
 This code would be rendered as this.
 
 So, the parameter <code class="not-hl">thumb</code> is equivalent to <code class="not-hl">small|link=source</code>. Note that the image is cropped into a square and that it's right aligned. Both of these properties can be changed in the settings (the Media settings and the BlogText settings respectively).
+
+<h3 id="image_size">Image Size <a class="heading-link" href="#image_size" title="Link to this section">¶</a></h3>
+As mentioned before, the size of an image is specified as parameter to the image Interlink. The size can be specified like so:
+
+<ul><li class="first-item"><em>Symbolic size:</em> <code class="not-hl">[[...|small|...]</code>, <code class="not-hl">[[...|medium|...]</code>, <code class="not-hl">[[...|large|...]</code> (or <code class="not-hl">[[...|big|...]</code> which is an alias for <code class="not-hl">large</code>).</li><li class="last-item"><p><em>Explicit size:</em> <code class="not-hl">[[...|250px|...]</code></p></li></ul>The "symbolic sizes" can be configured in the Media settings (under "Settings" --> "Media").
+
+Note, however, that Wordpress themes can specify their <em>content width</em> (by using the global variable <code class="not-hl">$content_width</code>). This width is respected by BlogText. So, when you use a "symbolic size", it'll only be as wide as the theme's content width specifies. For example, if <code class="not-hl">large</code> is defined as "1024 pixels wide" but the theme's content width is only 600 pixels wide, adding an image with <code class="not-hl">[[...|large|...]]</code> will result in an image that is 600 pixels wide. (Note that setting <code class="not-hl">$content_width</code> to zero indicates that the content widht is not specified.)
 
 <h3 id="image-param-ref">Image Parameter Reference <a class="heading-link" href="#image-param-ref" title="Link to this section">¶</a></h3>
 The section describes all parameters and their values for images (<code class="not-hl">[[image:...]]</code>).
@@ -268,7 +276,7 @@ The section describes all parameters and their values for images (<code class="n
 </tr>
 <tr>
 <td>Size as word</td>
-<td><code class="not-hl">small</code>, <code class="not-hl">medium</code>, <code class="not-hl">large</code></td>
+<td><code class="not-hl">small</code>, <code class="not-hl">medium</code>, <code class="not-hl">large</code>, <code class="not-hl">big</code></td>
 <td>when no size is specified, the image will be displayed in full size (unless <code class="not-hl">thumb</code> is specified); the actual size of these names can be specified in the Media settings in Wordpress' admin interface.</td>
 </tr>
 <tr>
@@ -455,90 +463,135 @@ However, if you want to link to a certain section, you should provide your own a
 
 <pre class="code not-hl">== My Heading == #my_custom_anchor</pre>
 
-Note that you should not use spaces, tabulators, or any other fancy characters in the anchor name. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (<code class="not-hl">_</code>), and dashes (<code class="not-hl">-</code>).
+Note that you need to separate the anchor name from the heading's text by at least one equal sign (as shown in the example).
 
-Note also that the trailing equal sign (<code class="not-hl">=</code>) are still optional. So you can also specify the same heading like this:
-
-<pre class="code not-hl">== My Heading #my_custom_anchor</pre>
-
-<em>Note:</em> If you need to write a number sign (<code class="not-hl">#</code>) in a heading, use <code class="not-hl">&amp;#35;</code> instead.
-
+For your anchor name, you shouldn't use fancy characters like spaces, tabulators, or umlauts. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (<code class="not-hl">_</code>), and dashes (<code class="not-hl">-</code>).
 
 <h2 id="code_snippets_syntax">Insertings Code Snippets <a class="heading-link" href="#code_snippets_syntax" title="Link to this section">¶</a></h2>
 BlogText provides a convenient method to add code snippets to your post or page.
 
 <em>Note:</em> If you're just looking for a way to prevent BlogText from interpreting some text, you should use a <a class="section-link-below" href="#no-parse">no-parse section</a>.
 
-Inline code fragments have already been mentioned in <a class="section-link-above" href="#basic-inline-format">Basic Inline Formatting</a> but are repeated here for completeness. There are two forms available: using <code class="not-hl">##</code> and <code class="not-hl">{{{ ... }}}</code>. For example:
-<p class="indented"><code class="not-hl">An example ##code fragment## and</code><code class="not-hl"> {{{another one}}} here.</code></p>
+Inline code fragments have already been mentioned in <a class="section-link-above" href="#basic-inline-format">Basic Inline Formatting</a> but are repeated here for completeness. There are three forms available: using <code class="not-hl">##</code>, <code class="not-hl">`</code>, and <code class="not-hl">{{{ ... }}}</code>. For example:
+<p class="indented"><code class="not-hl">An example ##code fragment##, a `second one`, and</code><code class="not-hl"> {{{another one}}} here.</code></p>
 This would render as:
-<p class="indented">An example <code class="not-hl">code fragment</code> and <code class="not-hl">another one</code> here.</p>
-<em>Limitation:</em> You can't use <code class="not-hl">## ... ##</code> as first word on a line as this will be considered an <a class="section-link-above" href="#lists">ordered list</a>. Use <code class="not-hl">{{{ ... }}}</code> instead in this case.
+<p class="indented">An example <code class="not-hl">code fragment</code>, <code class="not-hl">second one</code>, and <code class="not-hl">another one</code> here.</p>
+<em>Limitation:</em> You can't use <code class="not-hl">## ... ##</code> as first thing on a line as this will be considered an <a class="section-link-above" href="#lists">ordered list</a>. Use <code class="not-hl">{{{ ... }}}</code> or <code class="not-hl">` ... `</code> instead.
 
 More often, however, you will want to use <em>code blocks</em>. You can specify a code block like this:
 
 <pre class="code">
 {{{
-#include &lt;stdio.h&gt;
+#include &lt;iostream&gt;
  
-int main(void)
+int main()
 {
-  printf(&quot;Hello world\n&quot;);
-  return 0;
+    std::cout &lt;&lt; &quot;Hello, world!\n&quot;;
+    return 0;
 }
 }}}
 </pre>
 
-This would render like this:
+This will render like this:
 
-<pre class="code not-hl">#include &lt;stdio.h&gt;
+<pre class="code not-hl">#include &lt;iostream&gt;
  
-int main(void)
+int main()
 {
-  printf(&quot;Hello world\n&quot;);
-  return 0;
+    std::cout &lt;&lt; &quot;Hello, world!\n&quot;;
+    return 0;
 }</pre>
 
-Since this is a <a class="external external-wiki" href="http://en.wikipedia.org/wiki/C (programming language)" target="_blank">C</a> source code, we'd like to have some syntax highlighting and line number. This can easily be achieved by providing the name of the programming language ("C" in this case) and specifying the number of first the code. The example would now look like this:
+Since this is a <a class="external external-wiki" href="http://en.wikipedia.org/wiki/C++" target="_blank">C++</a> code snippet, we'd like to have some syntax highlighting and line numbering. This can easily be achieved by specifying the name of the programming language ("C" in this case) and the number of the first code line. With these changes, the example now looks like this:
 
 <pre class="code">
-{{{ lang=&quot;c&quot; line=&quot;1&quot;
-#include &lt;stdio.h&gt;
+{{{ lang=c++ line=4
+#include &lt;iostream&gt;
  
-int main(void)
+int main()
 {
-  printf(&quot;Hello world\n&quot;);
-  return 0;
+    std::cout &lt;&lt; &quot;Hello, world!\n&quot;;
+    return 0;
 }
 }}}
 </pre>
 
-This would render like this:
+And this will render like this:
 
-<div class="code hl hl-c code-linenum"><table class="c"><tbody><tr class="li1"><td class="ln"><pre class="de1">1
-2
-3
-4
+<div class="code hl hl-cpp code-linenum"><table class="cpp"><tbody><tr class="li1"><td class="ln"><pre class="de1">4
 5
 6
 7
-</pre></td><td class="de1"><pre class="de1"><span class="co2">#include &lt;stdio.h&gt;</span>
+8
+9
+10
+</pre></td><td class="de1"><pre class="de1"><span class="co2">#include &lt;iostream&gt;</span>
 &nbsp;
-<span class="kw4">int</span> main<span class="br0">&#40;</span><span class="kw4">void</span><span class="br0">&#41;</span>
+<span class="kw4">int</span> main<span class="br0">&#40;</span><span class="br0">&#41;</span>
 <span class="br0">&#123;</span>
-&nbsp; <span class="kw3">printf</span><span class="br0">&#40;</span><span class="st0">&quot;Hello world<span class="es1">\n</span>&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span>
-&nbsp; <span class="kw1">return</span> <span class="nu0">0</span><span class="sy0">;</span>
+&nbsp; &nbsp; std<span class="sy4">::</span><span class="kw3">cout</span> <span class="sy1">&lt;&lt;</span> <span class="st0">&quot;Hello, world!<span class="es1">\n</span>&quot;</span><span class="sy4">;</span>
+&nbsp; &nbsp; <span class="kw1">return</span> <span class="nu0">0</span><span class="sy4">;</span>
 <span class="br0">&#125;</span></pre></td></tr></tbody></table></div>
 
-You can specify both "lang" and "line" or only one of them (resulting in either only line numbers or only syntax highlighting).
+<div class="image-frame align-right image-frame-align-right" style="width: 150px;"><div class="image"><a href="http://mydomain.com/wp-content/uploads/blogtexttests/lookup-window.png" rel="attachment" title="Window to lookup all supported programming languages."><img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_150x150_crop" title="Window to lookup all supported programming languages." alt="Window to lookup all supported programming languages." width="150" height="150"/></a></div><div class="image-caption">Window to lookup all supported programming languages.</div></div>
+BlogText uses <a class="external external-http" href="http://qbnz.com/highlighter/" target="_blank">GeSHi</a> for syntax highlighting. A full list of all supported programming languages is accessible through the button "lang lookup" in the Wordpress editor.
 
-BlogText uses <a class="external external-http" href="http://qbnz.com/highlighter/" target="_blank">GeSHi</a> for syntax highlighting. A full list of all supported programming languages supported can be found directly on the GeSHi homepage.
+You can also highlight some lines. To do this, use the <code class="not-hl">highlight</code> attribute and specify the line numbers (as comma-separated list). For example:
 
-<em>Note:</em> You can also use syntax highlighting in inline code fragments. You need to use the curly braces syntax (<code class="not-hl">{{{ ... }}}</code>) for this. It won't work with the number sign syntax (<code class="not-hl">##...##</code>). For example this <code class="not-hl">{{{ lang=&quot;php&quot; function do_something($my_var) }}}</code> will render like this: 
-<code class="hl hl-php"><span class="kw2">function</span> do_something<span class="br0">&#40;</span><span class="re0">$my_var</span><span class="br0">&#41;</span></code>.
+<pre class="code">
+{{{ lang=c# highlight=6,14 line=3
+#region codinghorror.com
+class Program : Object
+{
+    static int _I = 1;
 
+    /// &lt;summary&gt;
+    /// The quick brown fox jumps over the lazy dog
+    /// THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG
+    /// &lt;/summary&gt;
+    static void Main(string[] args)
+    {
+        Uri Illegal1Uri = new Uri(&quot;http://packmyboxwith/jugs.html?q=five-dozen&amp;t=liquor&quot;);
+        Regex OperatorRegex = new Regex(@&quot;\S#$&quot;, RegexOptions.IgnorePatternWhitespace);
+    }
+}
+#endregion
+}}}
+</pre>
 
-<h2 id="tables">Tables <a class="heading-link" href="#tables" title="Link to this section">¶</a></h2>
+will render as:
+
+<div class="code hl hl-csharp code-linenum"><table class="csharp"><tbody><tr class="li1"><td class="ln"><pre class="de1">3
+4
+5
+<span class="xtra ln-xtra">6</span>7
+8
+9
+10
+11
+12
+13
+<span class="xtra ln-xtra">14</span>15
+16
+17
+18
+</pre></td><td class="de1"><pre class="de1"><span class="co2">#region codinghorror.com</span>
+<span class="kw4">class</span> Program <span class="sy0">:</span> <span class="kw4">Object</span>
+<span class="br0">&#123;</span>
+<span class="xtra ln-xtra">&nbsp; &nbsp; <span class="kw1">static</span> <span class="kw4">int</span> _I <span class="sy0">=</span> <span class="nu0">1</span><span class="sy0">;</span></span>&nbsp;
+&nbsp; &nbsp; <span class="co1">/// &lt;summary&gt;</span>
+&nbsp; &nbsp; <span class="co1">/// The quick brown fox jumps over the lazy dog</span>
+&nbsp; &nbsp; <span class="co1">/// THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG</span>
+&nbsp; &nbsp; <span class="co1">/// &lt;/summary&gt;</span>
+&nbsp; &nbsp; <span class="kw1">static</span> <span class="kw4">void</span> Main<span class="br0">&#40;</span><span class="kw4">string</span><span class="br0">&#91;</span><span class="br0">&#93;</span> args<span class="br0">&#41;</span>
+&nbsp; &nbsp; <span class="br0">&#123;</span>
+<span class="xtra ln-xtra">&nbsp; &nbsp; &nbsp; &nbsp; Uri Illegal1Uri <span class="sy0">=</span> <span class="kw3">new</span> Uri<span class="br0">&#40;</span><span class="st0">&quot;http://packmyboxwith/jugs.html?q=five-dozen&amp;t=liquor&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span></span>&nbsp; &nbsp; &nbsp; &nbsp; Regex OperatorRegex <span class="sy0">=</span> <span class="kw3">new</span> Regex<span class="br0">&#40;</span><span class="st_h">@&quot;\S#$&quot;</span>, RegexOptions<span class="sy0">.</span><span class="me1">IgnorePatternWhitespace</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp; &nbsp; <span class="br0">&#125;</span>
+<span class="br0">&#125;</span>
+<span class="co2">#endregion</span></pre></td></tr></tbody></table></div>
+
+<em>Notes:</em> 
+<ul><li class="first-item">You can also enable syntax highlighting for inline code snippets. For this, you need to use the curly braces syntax (<code class="not-hl">{{{ ... }}}</code>). For example this <code class="not-hl">{{{ lang=php function do_something($my_var) }}}</code> will render like this: <code class="hl hl-php"><span class="kw2">function</span> do_something<span class="br0">&#40;</span><span class="re0">$my_var</span><span class="br0">&#41;</span></code>.</li><li class="last-item"><p>You can also specify the language by the file extension associated with the language. Simply use a dot followed by the file extension. For example, this will result in Ada highlighting: <code class="not-hl">{{{ lang=.adb ... }}}</code>.</p></li></ul><h2 id="tables">Tables <a class="heading-link" href="#tables" title="Link to this section">¶</a></h2>
 Since creating tables with HTML is quite lengthy and not that easy to read, BlogText provides easier syntax for specifying tables: a syntax for simple tables and one for more complex tables.
 
 <em>Limitations:</em> You can't specify BlogText lists in BlogText tables (since these tables don't allow line breaks). If you need a list within a table, you need either to create a HTML list (with <code class="not-hl">&lt;ul&gt;</code>, <code class="not-hl">&lt;ol&gt;</code>, and <code class="not-hl">&lt;li&gt;</code> tags) or create an HTML table (with <code class="not-hl">&lt;table&gt;</code>, <code class="not-hl">&lt;tr&gt;</code>, <code class="not-hl">&lt;th&gt;</code>, and <code class="not-hl">&lt;td&gt;</code> tags). <a class="section-link-above" href="#code_snippets_syntax">Code block</a> will work however.
