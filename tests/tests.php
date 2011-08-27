@@ -6,6 +6,11 @@
 #
 
 class BlogTextTests {
+  /**
+   * Returns the names of all available test cases.
+   * 
+   * @return array  the names as array of strings.
+   */
   public static function get_test_pages() {
     $base_dir = dirname(__FILE__).'/test-pages';
     $test_names = array();
@@ -66,10 +71,27 @@ class BlogTextTests {
     }
   }
   
+  /**
+   * Returns the directory containing all files of the specified test case.
+   * 
+   * @param string $page_name  the name of the test case/test page
+   * @return string  the directory as string
+   */
   private static function get_base_dir_for_page($page_name) {
     return dirname(__FILE__).'/test-pages/'.$page_name;
   }
   
+  /**
+   * Creates the test page for the specified test case. The test page's content is taken from the file
+   * "blogtext.txt" in the directory belonging to the test case. It also inserts all files from the 
+   * "uploads" directory into the Wordpress installation.
+   * 
+   * @param string $page_name  the noame of the test case/test page
+   * @param string $uploads_dir
+   * @return array  returns ($post_id, $added_attachment_ids) where "$post_id" is the id of the newly created
+   *   post and "$added_attachment_ids" is an array containing the ids (type: int) of all the attachments 
+   *   that were inserted.
+   */
   private static function create_test_post($page_name, $uploads_dir) {
     $base_dir = self::get_base_dir_for_page($page_name);
     $filename = $base_dir.'/blogtext.txt';
@@ -107,27 +129,43 @@ class BlogTextTests {
           continue;
         }
 
-        $added_attachment_ids[] = self::add_attachment($post_id, $media_dir, $media_name, $uploads_dir);
+        $added_attachment_ids[] = self::insert_attachment($post_id, $media_dir, $media_name, $uploads_dir);
       }
     }
     
     return array($post_id, $added_attachment_ids);
   }
   
-  private static function add_attachment($post_id, $media_dir, $media_filename, $uploads_dir) {
-    $src_filename = $media_dir.'/'.$media_filename;
+  /**
+   * Inserts the specified files as attachement into the Wordpress installation and links it to the specified
+   * post.
+   * 
+   * If a file called "$src_filename.txt" exists, it'll be used as description for the file. If a file called
+   * "$src_filename.alt.txt" exists, it'll be used as alt text for images.
+   * 
+   * @param int $post_id  the id of the newly created test post
+   * @param string $src_dir  the directory from which to take the file to be inserted
+   * @param string $src_filename  the file name of the file to be inserted. The file must exist in the source
+   *   directory. The file will be copied to the dest directory (so that the source file isn't deleted when
+   *   the attachment is deleted).
+   * @param string $dest_dir  the directory where to copy the source file.
+   * 
+   * @return int  the id of the newly inserted attachement 
+   */
+  private static function insert_attachment($post_id, $src_dir, $src_filename, $dest_dir) {
+    $src_filename = $src_dir.'/'.$src_filename;
     $desc = @file_get_contents($src_filename.'.txt');
 
-    $wp_filetype = wp_check_filetype(basename($media_filename), null);
+    $wp_filetype = wp_check_filetype(basename($src_filename), null);
     $attachment = array(
       'post_mime_type' => $wp_filetype['type'],
-      'post_title' => preg_replace('/\.[^.]+$/', '', $media_filename),
+      'post_title' => preg_replace('/\.[^.]+$/', '', $src_filename),
       'post_content' => '',
       'post_excerpt' => $desc,
       'post_status' => 'inherit'
     );
 
-    $dest_filename = $uploads_dir.'/'.$media_filename;
+    $dest_filename = $dest_dir.'/'.$src_filename;
     # Copy the file so that it isn't deleted when we delete the attachment.
     copy($src_filename, $dest_filename);
     $attach_id = wp_insert_attachment($attachment, $dest_filename, $post_id);
@@ -152,6 +190,17 @@ class BlogTextTests {
     return $attach_id;
   }
   
+  /**
+   * Converts the content of the specified post using BlogText and writes the result (HTML code) into a file.
+   * The post will be converted with RENDER_KIND_REGULAR (single page; HTML output) and RENDER_KIND_RSS. 
+   * 
+   * If there is a file called "template.html" in the test case's directory, it'll be used as template for the 
+   * HTML output. The keywords "###page_name###" and "###page_content###" will be replaced by the test case's
+   * name and converted content respectively.
+   * 
+   * @param int $post_id  the id of the create test page
+   * @param string $page_name  the name of the test case/test page
+   */
   private static function write_output($post_id, $page_name) {
     $base_dir = self::get_base_dir_for_page($page_name);
 
@@ -204,6 +253,14 @@ class BlogTextTests {
     }    
   }
   
+  /**
+   * Removes/Masks any strings that may vary from server to server or from test run to test run. This includes
+   * URLs to other posts or attachments as well as ids of posts or attachments.
+   * 
+   * @param int $post_id  the id of the test post whose output is being maskes
+   * @param string $output  the actual output
+   * @return string  the masked output 
+   */
   private static function mask_output($post_id, $output) {
     # Make test result independent from the Wordpress URL
     $output = str_replace(site_url(), 'http://mydomain.com', $output);
