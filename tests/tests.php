@@ -47,7 +47,6 @@ class BlogTextTests {
     
     $uploads = wp_upload_dir();
     $uploads_dir = $uploads['basedir'].'/blogtexttests';
-    @mkdir($uploads_dir);
     
     $added_attachment_ids = array();
     
@@ -129,7 +128,8 @@ class BlogTextTests {
           continue;
         }
 
-        $added_attachment_ids[] = self::insert_attachment($post_id, $media_dir, $media_name, $uploads_dir);
+        $added_attachment_ids[] = self::insert_attachment($post_id, $media_dir, $media_name, 
+                                                          $uploads_dir.'/'.$page_name);
       }
     }
     
@@ -153,10 +153,10 @@ class BlogTextTests {
    * @return int  the id of the newly inserted attachement 
    */
   private static function insert_attachment($post_id, $src_dir, $src_filename, $dest_dir) {
-    $src_filename = $src_dir.'/'.$src_filename;
-    $desc = @file_get_contents($src_filename.'.txt');
+    $src_file = $src_dir.'/'.$src_filename;
+    $desc = @file_get_contents($src_file.'.txt');
 
-    $wp_filetype = wp_check_filetype(basename($src_filename), null);
+    $wp_filetype = wp_check_filetype($src_filename, null);
     $attachment = array(
       'post_mime_type' => $wp_filetype['type'],
       'post_title' => preg_replace('/\.[^.]+$/', '', $src_filename),
@@ -165,11 +165,12 @@ class BlogTextTests {
       'post_status' => 'inherit'
     );
 
-    $dest_filename = $dest_dir.'/'.$src_filename;
+    @mkdir($dest_dir);
+    $dest_file = $dest_dir.'/'.$src_filename;
     # Copy the file so that it isn't deleted when we delete the attachment.
-    copy($src_filename, $dest_filename);
-    $attach_id = wp_insert_attachment($attachment, $dest_filename, $post_id);
-    $attach_data = wp_generate_attachment_metadata($attach_id, $dest_filename);
+    copy($src_file, $dest_file);
+    $attach_id = wp_insert_attachment($attachment, $dest_file, $post_id);
+    $attach_data = wp_generate_attachment_metadata($attach_id, $dest_file);
     wp_update_attachment_metadata($attach_id, $attach_data); 
 
     // Add guid - otherwise the image won't have a file name. Also note that this
@@ -182,7 +183,7 @@ class BlogTextTests {
     wp_update_post( $my_post );
 
     // Add ALT text for images
-    $alt_text = @file_get_contents($src_filename.'.alt.txt');
+    $alt_text = @file_get_contents($src_file.'.alt.txt');
     if (!empty($alt_text)) {
       update_post_meta($attach_id, '_wp_attachment_image_alt', $alt_text);
     }
