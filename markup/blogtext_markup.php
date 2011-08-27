@@ -692,7 +692,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
           $is_attachment = ($link_type == IInterlinkLinkResolver::TYPE_ATTACHMENT);
         } catch (LinkTargetNotFoundException $e) {
           $not_found_reason = $e->get_reason();
-          $title = $e->get_title();
+          $title = $e->get_link_name();
         }
       } else if (is_array($prefix_handler)) {
         // Simple text replacement
