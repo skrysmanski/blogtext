@@ -19,7 +19,10 @@
 #########################################################################################
 
 
-require_once(dirname(__FILE__).'/../api/commons.php');
+require_once(dirname(__FILE__).'/../../api/commons.php');
+
+MSCL_require_once('LinkTargetNotFoundException.php', __FILE__);
+
 
 /**
  * Interface to resolve an Interlink to a URL.

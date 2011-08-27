@@ -25,8 +25,8 @@ MSCL_Api::load(MSCL_Api::THUMBNAIL_CACHE);
 
 MSCL_require_once('textmarkup_base.php', __FILE__);
 MSCL_require_once('markup_cache.php', __FILE__);
-MSCL_require_once('macros.php', __FILE__);
-MSCL_require_once('resolver.php', __FILE__);
+MSCL_require_once('interlinks/MediaMacro.php', __FILE__);
+MSCL_require_once('interlinks/WordpressLinkResolver.php', __FILE__);
 
 
 class MarkupException extends Exception {

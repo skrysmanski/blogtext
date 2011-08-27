@@ -19,7 +19,7 @@
 #########################################################################################
 
 
-require_once(dirname(__FILE__).'/../api/commons.php');
+require_once(dirname(__FILE__).'/../../api/commons.php');
 
 interface IInterlinkMacro {
   /**

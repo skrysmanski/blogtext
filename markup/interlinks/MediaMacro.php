@@ -19,8 +19,10 @@
 #########################################################################################
 
 
-require_once(dirname(__FILE__).'/../api/commons.php');
+require_once(dirname(__FILE__).'/../../api/commons.php');
 MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
+
+MSCL_require_once('IInterlinkMacro.php', __FILE__);
 
 class MediaMacro implements IInterlinkMacro {
   public function get_handled_prefixes() {

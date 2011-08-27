@@ -19,95 +19,9 @@
 #########################################################################################
 
 
-require_once(dirname(__FILE__).'/../api/commons.php');
+require_once(dirname(__FILE__).'/../../api/commons.php');
 
-
-class LinkNotFoundException extends Exception {
-  const REASON_DONT_EXIST = 'doesn\'t exist';
-  const REASON_NOT_PUBLISHED = 'unpublished';
-
-  private $reason;
-  private $title;
-
-  /**
-   * Constructor.
-   *
-   * @param string $reason  the more detailed reason why the link could not be found. Should only be a few
-   *    words as they are added to the link title. Defaults to @see REASON_DONT_EXIST. When possible you
-   *    should use one of the constants provided by this class.
-   * @param string $title  the title of the link that could not be resolved, if known and not explicitely
-   *   provided in the interlink. Otherwise "null".
-   */
-  public function __construct($reason=null, $title=null) {
-    parent::__construct();
-    if ($reason === null || empty($reason)) {
-      $this->reason = self::REASON_DONT_EXIST;
-    } else {
-      $this->reason = $reason;
-    }
-    $this->title = $title;
-  }
-
-  public function get_reason() {
-    return $this->reason;
-  }
-
-  public function get_title() {
-    return $this->title;
-  }
-}
-
-interface IInterlinkLinkResolver {
-  /**
-   * Represents a post in the current blog. The value equals to "$post->post_type".
-   */
-  const TYPE_POST = 'post';
-  /**
-   * Represents a page in the current blog. The value equals to "$post->post_type".
-   */
-  const TYPE_PAGE = 'page';
-  /**
-   * Represents an attachment. The value equals to "$post->post_type".
-   */
-  const TYPE_ATTACHMENT = 'attachment';
-  /**
-   * Anchor to a section heading in the current page.
-   */
-  const TYPE_SAME_PAGE_ANCHOR = 'same-page-anchor';
-
-  /**
-   * Returns the names of all prefixes handled by this resolver.
-   *
-   * @return array the prefixed (as array of strings)
-   */
-  public function get_handled_prefixes();
-
-  /**
-   * Resolves the specified interlink. Throws a "LinkNotFoundException" when the specified link target doesn't
-   * exist.
-   *
-   * @param int $post_id  the id of the post/page the interlink is contained in
-   * @param string $prefix  the prefix to be handled. Will only be one of the prefixes returned by
-   *   @see get_handled_prefixes().
-   * @param array $params  the parameters as specified in the interlink.
-   *
-   * @return array Returns an array containing the following items (in this order):
-   *   url/link, title, is_external, type
-   *
-   *   "title" can be "null", if the last parameter is to be used as title.
-   *   This is a convention and should not be violated. The exception would be when it's absolutely sure that
-   *   the last parameter is actually a parameter and not the title. In this case the title should be returned
-   *   (as non null).
-   *
-   *   "is_external" indicates whether the link is an external link or not. External links usually are opened
-   *   in a new window while internal ones aren't. External usually means "outside of the current blog".
-   *
-   *   "type" should be one of this class' constants (eg. @see TYPE_POST). It can also be any other type but
-   *   this type may not be recognized by the user of this class. Usually just added to the link's CSS
-   *   classes.
-   */
-  public function resolve_link($post_id, $prefix, $params);
-}
+MSCL_require_once('IInterlinkLinkResolver.php', __FILE__);
 
 
 class WordpressLinkProvider implements IInterlinkLinkResolver {
