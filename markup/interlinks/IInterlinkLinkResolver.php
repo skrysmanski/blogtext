@@ -51,33 +51,36 @@ interface IInterlinkLinkResolver {
   /**
    * Returns the names of all prefixes handled by this resolver.
    *
-   * @return array the prefixed (as array of strings)
+   * @return array the prefixed (as array of strings). Prefixes are returned without trailing colon.
    */
   public function get_handled_prefixes();
 
   /**
-   * Resolves the specified interlink. Throws a "LinkTargetNotFoundException" when the specified link target doesn't
-   * exist.
+   * Resolves the specified interlink. Throws a "LinkTargetNotFoundException" if the specified link target 
+   * doesn't exist.
    *
    * @param int $post_id  the id of the post/page the interlink is contained in
    * @param string $prefix  the prefix to be handled. Will only be one of the prefixes returned by
    *   @see get_handled_prefixes().
-   * @param array $params  the parameters as specified in the interlink.
+   * @param array $params  the parameters as specified in the interlink. The first parameter will be without
+   *   the Interlink prefix (and without the trailing colon).
    *
    * @return array Returns an array containing the following items (in this order):
-   *   url/link, title, is_external, type
+   *   url, title, is_external, type
+   *   
+   *   "url": The URL to which this link points. Must not be empty or null.
    *
-   *   "title" can be "null", if the last parameter is to be used as title.
-   *   This is a convention and should not be violated. The exception would be when it's absolutely sure that
-   *   the last parameter is actually a parameter and not the title. In this case the title should be returned
-   *   (as non null).
+   *   "title": can be "null", if the last parameter is to be used as title. This is a convention and should 
+   *      not be violated. The exception would be when it's absolutely sure that the last parameter is 
+   *      actually a parameter and not the title. In this case the title should be returned (as non null).
    *
-   *   "is_external" indicates whether the link is an external link or not. External links usually are opened
-   *   in a new window while internal ones aren't. External usually means "outside of the current blog".
+   *   "is_external": indicates whether the link links to an external target or not. External links usually
+   *      are opened in a new window while internal ones aren't. External usually means "outside of the 
+   *      current blog".
    *
-   *   "type" should be one of this class' constants (eg. @see TYPE_POST). It can also be any other type but
-   *   this type may not be recognized by the user of this class. Usually just added to the link's CSS
-   *   classes.
+   *   "type": should be one of this class' constants (eg. @see TYPE_POST). It can also be any other type but
+   *      this type may not be recognized by the user of this class. Usually just added to the link's CSS
+   *      classes.
    */
   public function resolve_link($post_id, $prefix, $params);
 }
