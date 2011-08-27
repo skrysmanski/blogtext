@@ -56,7 +56,7 @@ interface IInterlinkLinkResolver {
   public function get_handled_prefixes();
 
   /**
-   * Resolves the specified interlink. Throws a "LinkNotFoundException" when the specified link target doesn't
+   * Resolves the specified interlink. Throws a "LinkTargetNotFoundException" when the specified link target doesn't
    * exist.
    *
    * @param int $post_id  the id of the post/page the interlink is contained in

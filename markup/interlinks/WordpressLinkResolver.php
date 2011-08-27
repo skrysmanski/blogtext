@@ -96,7 +96,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
     $post = MarkupUtil::get_post($page_id);
     if ($post === null) {
       // post not found
-      throw new LinkNotFoundException();
+      throw new LinkTargetNotFoundException();
     }
 
     $is_attachment = MarkupUtil::is_attachment_type($post->post_type);
@@ -127,7 +127,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
       // post_type: post|page|attachment
       $type = $post->post_type;
     } else {
-      throw new LinkNotFoundException(LinkNotFoundException::REASON_NOT_PUBLISHED, $title);
+      throw new LinkTargetNotFoundException(LinkTargetNotFoundException::REASON_NOT_PUBLISHED, $title);
     }
 
     if (!empty($anchor) && !$is_attachment) {
@@ -152,7 +152,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
     $att_id = MarkupUtil::get_attachment_id($params[0], $post_id);
     if ($att_id === null) {
       // attachment not found
-      throw new LinkNotFoundException();
+      throw new LinkTargetNotFoundException();
     }
 
     // Determine title - but only if the title wasn't specified explicitely.
@@ -175,12 +175,12 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
     if (is_numeric($params[0])) {
       $category_id = (int)$params[0];
       if (!is_category($category_id)) {
-        throw new LinkNotFoundException();
+        throw new LinkTargetNotFoundException();
       }
     } else {
       $category_id = get_cat_ID($params[0]);
       if ($category_id == 0) {
-        throw new LinkNotFoundException();
+        throw new LinkTargetNotFoundException();
       }
     }
 
@@ -204,12 +204,12 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
       $tag_id = (int)$params[0];
       $tag = get_tag($tag_id);
       if ($tag === null) {
-        throw new LinkNotFoundException();
+        throw new LinkTargetNotFoundException();
       }
     } else {
       $tag = get_term_by('name', $params[0], 'post_tag');
       if ($tag == false) {
-        throw new LinkNotFoundException();
+        throw new LinkTargetNotFoundException();
       }
       $tag_id = $tag->term_id;
     }

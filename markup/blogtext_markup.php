@@ -690,7 +690,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         try {
           list($link, $title, $is_external, $link_type) = $prefix_handler->resolve_link($post_id, $prefix_lowercase, $params);
           $is_attachment = ($link_type == IInterlinkLinkResolver::TYPE_ATTACHMENT);
-        } catch (LinkNotFoundException $e) {
+        } catch (LinkTargetNotFoundException $e) {
           $not_found_reason = $e->get_reason();
           $title = $e->get_title();
         }
@@ -712,7 +712,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       if (empty($prefix)) {
         // Special case: if the user (for some reasons) has removed the interlink handler for the empty
         // prefix.
-        $not_found_reason = LinkNotFoundException::REASON_DONT_EXIST;
+        $not_found_reason = LinkTargetNotFoundException::REASON_DONT_EXIST;
       } else {
         if (substr($params[0], 0, 2) == '//') {
           // URL
