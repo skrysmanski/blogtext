@@ -49,7 +49,7 @@ your webserver.
 == Changelog ==
 
 = 0.9.3 =
-* 
+* "cat:" is now allowed as alternative to the "category:" Interlink prefix
 
 = 0.9.2.1 =
 * Fixed line highlighting, if the code snippet doesn't start off line one.

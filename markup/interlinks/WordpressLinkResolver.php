@@ -24,6 +24,9 @@ require_once(dirname(__FILE__).'/../../api/commons.php');
 MSCL_require_once('IInterlinkLinkResolver.php', __FILE__);
 
 
+/**
+ * Provides Interlink prefixes for most Wordpress blog links, like other posts, categories, tags, ...
+ */
 class WordpressLinkProvider implements IInterlinkLinkResolver {
   const TYPE_CATEGORY = 'category';
   const TYPE_TAG = 'tag';
@@ -34,9 +37,10 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
    * Implements @see IInterlinkLinkResolver::get_handled_prefixes().
    */
   public function get_handled_prefixes() {
-    return array('', 
+    return array('', // link to other post; has no prefix
                  'attachment', 'attach', 'att', 'file',
-                 'category', 'tag');
+                 'category', 'cat',
+                 'tag');
   }
   
   /**
