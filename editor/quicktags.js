@@ -7,113 +7,108 @@
 // See: wp-includes/js/quicktags.dev.js
 //
 
-function get_blogtext_editor_buttons() {
-  var newEdButtons = new Array();
-  for (var i = 0; i < edButtons.length; i++) {
+//
+// Adds a BlogText button based on the regular editor button.
+//
+function blogtext_copy_tag_button(orig_button, prio, start_tag, end_tag, default_title, display) {
+  // Use default title only if there is no original title.
+  var title = orig_button.title || default_title;
+  display = display || orig_button.display;
+  
+  QTags.addButton('bt-'+orig_button.id, display, start_tag, end_tag, orig_button.access, title, prio);
+}
+
+function blogtext_create_tag_button(id, prio, start_tag, end_tag, title, display, access) {
+  QTags.addButton('bt-'+id, display, start_tag, end_tag, access, title, prio);
+}
+
+function blogtext_create_func_button(id, prio, func, title, display, access) {
+  QTags.addButton('bt-'+id, display, func, '', access, title, prio);
+}
+
+//
+// Creates the BlogText editor buttons.
+//
+function blogtext_create_buttons() {
+  // First, create BlogText versions of the existing buttons.
+  for (var i in edButtons) {
+    // Convert i to an integer. It's a string by default which makes problems with "i + 1" (otherwise 
+    // resulting in 201 for i = "20")
+    i = parseInt(i);
     var curButton = edButtons[i];
+    if (!curButton) {
+      // Not every index has an button. Some are left free for plugins.
+      continue;
+    }
+    
+    // For ids, see "qt._buttonsInit" -> "defaults"
     switch (curButton.id) {
-      case 'ed_strong':
-        curButton.tagStart = "**";
-        curButton.tagEnd = "**";
-        curButton.tooltip = "Bold Font";
+      case 'strong':
+        blogtext_copy_tag_button(curButton, i - 1, '**', '**', 'Bold Font');
         break;
-      case 'ed_em':
-        curButton.tagStart = "//";
-        curButton.tagEnd = "//";
-        curButton.tooltip = "Italics Font";
-        newEdButtons[newEdButtons.length] = curButton;
+      case 'em':
+        blogtext_copy_tag_button(curButton, i - 1, '//', '//', 'Italics Font');
 
         // Add additional strike-through button
-        curButton = new edButton('ed_strike', 'strike', '~~', '~~');
-        curButton.tooltip = "Strike-Through";
+        blogtext_create_tag_button('strike', i + 1, '~~', '~~', 'Strike-Through', 'strike', '');
         break;
-      case 'ed_link':
-        curButton.tagEnd = "]]";
-        curButton.tooltip = "Insert Link";
+      case 'link':
+        blogtext_create_func_button('link', i - 1, blogtext_insert_link, 'Insert Link', 'link', 
+                                    curButton.access);  
         break;
-      case 'ed_img':
-        curButton.tooltip = "Insert Image";
+      case 'img':
+        blogtext_create_func_button('img', i - 1, blogtext_insert_image, 'Insert Image', 'img', 
+                                    curButton.access);  
         break;
-      case 'ed_block':
-        curButton.tagStart = "\n>";
-        curButton.tagEnd = "";
-        curButton.open = -1;
-        curButton.tooltip = "Block Quote";
+      case 'block':
+        blogtext_copy_tag_button(curButton, i - 1, '\n>', '', 'Block Quote');
         break;
-      case 'ed_ul':
-        curButton.tagStart = "*";
-        curButton.tagEnd = "";
-        curButton.open = -1;
-        curButton.tooltip = "Bullet List";
+      case 'ul':
+        blogtext_copy_tag_button(curButton, i - 1, '*', '', 'Bullet List');
         break;
-      case 'ed_ol':
-        curButton.tagStart = "#";
-        curButton.tagEnd = "";
-        curButton.open = -1;
-        curButton.tooltip = "Numbered List";
+      case 'ol':
+        blogtext_copy_tag_button(curButton, i - 1, '#', '', 'Numbered List');
         break;
-      case 'ed_code':
+      case 'code':
         // Add additional single line code button
-        newEdButtons[newEdButtons.length] = new edButton('ed_code_single', '##code##', '##', '##');
-        newEdButtons[newEdButtons.length-1].tooltip = "Inline Code";
+        blogtext_create_tag_button('inline-code', i - 2, '##', '##', 'Inline Code', '##code##', '');
 
-        curButton.display = '{{{code}}}';
-        curButton.tagStart = "{{{";
-        curButton.tagEnd = "}}}";
-        curButton.tooltip = "Code Block";
+        blogtext_copy_tag_button(curButton, i - 1, '{{{', '}}}', 'Code Block', '{{{code}}}');
+        
+        blogtext_create_tag_button('no-parse', i + 1, '{{!', '!}}', 'Disable BlogText syntax for text section', 'no-parse', '');
         break;
-      case 'ed_more':
-        curButton.tooltip = "Insert More Tag";
-        break;
-
-      case 'ed_ins':
-      case 'ed_del':
-      case 'ed_li':
-        // Ignore useless tags (does anyone really use "<ins>" or "<del>"?)
-        continue;
     }
-    newEdButtons[newEdButtons.length] = curButton;
   }
-  var newEdButton = new edButton('ed_no_parse', 'no-parse', '{{!', '!}}');
-  newEdButton.tooltip = "Disable BlogText syntax for text section";
-  newEdButtons[newEdButtons.length] = newEdButton;
-
-  newEdButton = new edButton('geshi_lookup', 'lang lookup', '', '');
-  newEdButton.open = -1;
-  newEdButton.tooltip = "Opens a window to look up languages available for syntax highlighting.";
-  newEdButtons[newEdButtons.length] = newEdButton;
-
-  return newEdButtons;
+  
+  blogtext_create_func_button('geshi-lookup', 0, blogtext_geshi_lookup, 
+                              'Opens a window to look up languages available for syntax highlighting.', 
+                              'lang lookup', '');  
 }
 
-//
-// redefine methods for special buttons
-// Names are the same as the original function name but with "blogtext_" prefix
-//
-function blogtext_edInsertLink(myField, i, defaultValue) {
-	if (!defaultValue) {
-		defaultValue = 'http://';
-	}
-	if (!edCheckOpenTags(i)) {
-		var URL = prompt(quicktagsL10n.enterURL, defaultValue);
-		if (URL) {
-			edButtons[i].tagStart = '[[' + URL + '|';
-			edInsertTag(myField, i);
-		}
-	}
-	else {
-		edInsertTag(myField, i);
+function blogtext_insert_link(e, c, ed, defaultValue) {
+  // TODO: Use wpLink (see wplink.dev.js and the original link button) instead.
+	var url = prompt(quicktagsL10n.enterURL, 'http://');
+	if (url) {
+    var alt = prompt('Enter description for the link or leave it empty.', '');
+    var content = '[[' + url;
+    if (alt) {
+      content += '|' + alt;
+    }
+    content += ']]';
+		QTags.insertContent(content);
 	}
 }
 
-function blogtext_edInsertImage(myField) {
-	var myValue = prompt(quicktagsL10n.enterImageURL, 'http://');
-	if (myValue) {
-		myValue = '[[image:'
-				+ myValue
-				+ '|' + prompt(quicktagsL10n.enterImageDescription, '')
-				+ ']]';
-		edInsertContent(myField, myValue);
+function blogtext_insert_image(e, c, ed, defaultValue) {
+	var url = prompt(quicktagsL10n.enterImageURL, 'http://');
+	if (url) {
+    var alt = prompt(quicktagsL10n.enterImageDescription, '');
+    var content = '[[image:' + url;
+    if (alt) {
+      content += '|' + alt;
+    }
+    content += ']]';
+		QTags.insertContent(content);
 	}
 }
 
@@ -128,7 +123,7 @@ function blogtext_edInsertMultilineCode(myField) {
   edInsertContent(myField, code);
 }
 
-function blogtext_edLangLookup() {
+function blogtext_geshi_lookup() {
   window.open(blogTextPluginDir + '/editor/codeblock-lang/query.php', '_blank', 'width=320,toolbar=no,menubar=no,status=no,location=no,scrollbars=yes');
 }
 
@@ -175,14 +170,67 @@ function blogtext_edToolbar() {
   return code;
 }
 
+function blogtext_get_editor_toolbar() {
+  var toolbar = QTags.getInstance(0);
+  if (!toolbar || !toolbar.settings || !toolbar.settings.buttons) {
+    // Check object so that we don't break things.
+    return false;
+  }
+  return toolbar;
+}
+
+function blogtext_start_toolbar_editing(toolbar) {
+  // For easier matching, sourround the settings string with commas.
+  toolbar.settings.buttons = ',' + toolbar.settings.buttons + ',';
+}
+
+function blogtext_end_toolbar_editing(toolbar) {
+  toolbar.settings.buttons = toolbar.settings.buttons.slice(1, toolbar.settings.buttons.length - 1);
+}
+
+function blogtext_remove_toolbar_button(toolbar, button_id) {
+  toolbar.settings.buttons = toolbar.settings.buttons.replace(new RegExp(','+button_id+','), ',');
+}
+
+function blogtext_replace_toolbar_button(toolbar, button_id) {
+  toolbar.settings.buttons = toolbar.settings.buttons.replace(new RegExp(','+button_id+','), ',bt-'+button_id+',');
+}
+
+function blogtext_update_toolbar() {
+  QTags._buttonsInit();
+}
+
 // NOTE: the dollar $ object isn't defined in WordPress jQuery (historical reasons)
 jQuery(document).ready(function($) {
+  // rename editor tab
   $('#edButtonHTML').html(function(index, oldHtml) {
-    // rename editor tab
     return oldHtml + '/BlogText';
   });
-  $('#ed_toolbar').html(function(index, oldHtml) {
-    // replace toolbar content
+  // replace toolbar content
+  /*$('#ed_toolbar').html(function(index, oldHtml) {
     return blogtext_edToolbar();
-  });
+  });*/
+  blogtext_create_buttons();
+  var toolbar = blogtext_get_editor_toolbar();
+  if (toolbar) {
+    //console.log(editorToolbar);
+    blogtext_start_toolbar_editing(toolbar);
+    
+    blogtext_remove_toolbar_button(toolbar, 'ins');
+    blogtext_remove_toolbar_button(toolbar, 'del');
+    blogtext_remove_toolbar_button(toolbar, 'li');
+    blogtext_remove_toolbar_button(toolbar, 'spell');
+    
+    blogtext_replace_toolbar_button(toolbar, 'strong');
+    blogtext_replace_toolbar_button(toolbar, 'em');
+    blogtext_replace_toolbar_button(toolbar, 'link');
+    blogtext_replace_toolbar_button(toolbar, 'block');
+    blogtext_replace_toolbar_button(toolbar, 'img');
+    blogtext_replace_toolbar_button(toolbar, 'ul');
+    blogtext_replace_toolbar_button(toolbar, 'ol');
+    blogtext_replace_toolbar_button(toolbar, 'code');
+    
+    blogtext_end_toolbar_editing(toolbar);
+    blogtext_update_toolbar();
+  }
 });
