@@ -15,6 +15,26 @@ Prepare Wordpress Testinstallation
    $ hg diff ...
 
 
+Create Wordpress copies for each Wordpress version
+--------------------------------------------------
+This section describes how to maintain one Wordpress installation per Wordpress version. It assumes, you've 
+already created a working Wordpress installation. To update to the new version, do:
+
+ 1. Copy the Wordpress installation folder of the latest version you have (e.g. copy from "wordpress-3.2" to
+    "wordpress-3.3".
+ 2. Copy the database (e.g. from "wordpress-32" to "wordpress-33"). When using phpMyAdmin, go to the current
+    database, choose "Operations" and then "Copy database to".
+ 3. Update database entries to the new path. You need to update in "wp_options":
+    * "siteurl"
+    * "home"
+ 4. Update "wp-conf.php" to the new database name.
+
+NOTE: If you renamed the wordpress folder (for some reason) while your webserver was running, you may need to
+  restart it before it "knows" the new name.
+
+See also: http://codex.wordpress.org/Moving_WordPress
+
+
 Manual WP-integration tests
 ---------------------------
 These tests test stuff that uses some internals of WordPress and therefor is prone to be broken on version
