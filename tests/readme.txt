@@ -1,6 +1,9 @@
 Readme for tests
 ================
 
+See also: http://codex.wordpress.org/Debugging_in_WordPress
+
+
 Prepare Wordpress Testinstallation
 ----------------------------------
 
@@ -28,6 +31,7 @@ already created a working Wordpress installation. To update to the new version, 
     * "siteurl"
     * "home"
  4. Update "wp-conf.php" to the new database name.
+ 5. Update Wordpress to the new version.
 
 NOTE: If you renamed the wordpress folder (for some reason) while your webserver was running, you may need to
   restart it before it "knows" the new name.
