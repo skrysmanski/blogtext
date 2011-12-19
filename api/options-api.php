@@ -347,7 +347,9 @@ abstract class MSCL_AbstractOptionsForm {
     $this->form_id = $form_id;
 
     // Check whether options have been updated.
-    if (@$_REQUEST['action'] == 'update' && @$_REQUEST['option_page'] == $this->get_form_id()) {
+    if (   isset($_REQUEST['action'])
+        && $_REQUEST['action'] == 'update' 
+        && @$_REQUEST['option_page'] == $this->get_form_id()) {
       add_action('updated_option', array($this, 'updated_option_wrapper'), 10, 3);
       add_filter('wp_redirect', array($this, 'option_update_finished_wrapper'));
     }

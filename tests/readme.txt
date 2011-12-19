@@ -3,6 +3,10 @@ Readme for tests
 
 See also: http://codex.wordpress.org/Debugging_in_WordPress
 
+Recommended WP-Plugins:
+ 
+ * Debug Bar
+
 
 Prepare Wordpress Testinstallation
 ----------------------------------
