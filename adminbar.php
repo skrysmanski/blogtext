@@ -15,24 +15,32 @@ class BlogTextAdminBarMenu {
       return;
     }
     
-    // For the $admin_bar class, see: wp-include/class-wp-admin-bar.php
+    //
+    // For the $admin_bar class, see: 
+    // 
+    //   wp-include/class-wp-admin-bar.php
+    //
+    
     // Top Menu
     $admin_bar->add_menu(array('id' => self::MENU_ID, 'title' => 'BlogText'));
 
     // Sub menus
-    $admin_bar->add_menu(array('parent' => self::MENU_ID, 'title' => __('Clear page cache for all posts'),
+    $admin_bar->add_menu(array('id' => self::MENU_ID.'_clear_all', 'parent' => self::MENU_ID, 
+                               'title' => __('Clear page cache for all posts'),
                                'href' => add_query_arg(self::CLEAR_CACHE_REQUEST, 'true')));
     if (is_single() || is_page()) {
       global $post;
-      $admin_bar->add_menu(array('parent' => self::MENU_ID,
+      $admin_bar->add_menu(array('id' => self::MENU_ID.'_clear_one', 'parent' => self::MENU_ID,
                                  'title' => 'Clear page cache for this '.(is_page() ? 'page' : 'post')." (ID: $post->ID)",
                                  'href' => add_query_arg(self::CLEAR_CACHE_REQUEST, $post->ID)));
     }
     
-    $admin_bar->add_menu(array('parent' => self::MENU_ID, 'title' => __('BlogText settings'),
+    $admin_bar->add_menu(array('id' => self::MENU_ID.'_settings', 'parent' => self::MENU_ID, 
+                               'title' => __('BlogText settings'),
                                'href' => admin_url('options-general.php?page=blogtext_settings')));
     if (BlogTextPlugin::are_tests_available()) {
-      $admin_bar->add_menu(array('parent' => self::MENU_ID, 'title' => __('BlogText Tests'),
+      $admin_bar->add_menu(array('id' => self::MENU_ID.'_tests', 'parent' => self::MENU_ID, 
+                                 'title' => __('BlogText Tests'),
                                  'href' => admin_url('tools.php?page=blogtext_test_exec')));
     }
   }
