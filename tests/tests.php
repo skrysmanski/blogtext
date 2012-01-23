@@ -50,11 +50,24 @@ class BlogTextTests {
     
     $added_attachment_ids = array();
     
+    // Insert sample post so that we can query two to simulate a "multi-post" view.
+    $my_post = array(
+       'post_title' => '[DELETE ME] BlogText dummy test post',
+       'post_content' => 'Just a test.',
+       'post_status' => 'private'
+    );
+
+    $dummy_post_id = wp_insert_post($my_post);
+    if ($dummy_post_id === 0) {
+      die("Could not create dumy post");
+    }
+    
+    
     foreach ($page_names as $page_name) {
       list($post_id, $post_attach_ids) = self::create_test_post($page_name, $uploads_dir);
       $added_attachment_ids = array_merge($added_attachment_ids, $post_attach_ids);
       
-      self::write_output($post_id, $page_name);
+      self::write_output($post_id, $page_name, $dummy_post_id);
       
       if (empty($only_and_keep)) {
         # Don't delete the post when it has been requested.
@@ -105,7 +118,7 @@ class BlogTextTests {
     // NOTE: We need to escape backslashes (\) when inserting the content. Otherwise they will be removed by
     //   "wp_insert_post()".
     $my_post = array(
-       'post_title' => 'BlogText test post: '.$page_name,
+       'post_title' => '[DELETE ME] BlogText test post: '.$page_name,
        'post_content' => str_replace('\\', '\\\\', $contents),
        'post_status' => 'private'
     );
@@ -201,8 +214,9 @@ class BlogTextTests {
    * 
    * @param int $post_id  the id of the create test page
    * @param string $page_name  the name of the test case/test page
+   * @param int  id of another (dummy) post to simulate a multi-post view
    */
-  private static function write_output($post_id, $page_name) {
+  private static function write_output($post_id, $page_name, $dummy_post_id) {
     $base_dir = self::get_base_dir_for_page($page_name);
 
     // Obtain HTML template
@@ -213,6 +227,7 @@ class BlogTextTests {
     
     //
     // Run "loop" through the post we've just created
+    // FIRST: Single post view
     //
 
     // IMPORTANT: We can't create a "WP_Query" object here (but need to use "query_posts()") as the
@@ -232,9 +247,46 @@ class BlogTextTests {
         if (!empty($template_code)) {
           $template_output = str_replace('###page_name###', $post->post_title, $template_code);
           $template_output = str_replace('###page_content###', $output, $template_output);
-          file_put_contents($base_dir.'/output.html', $template_output);
+          file_put_contents($base_dir.'/output-single.html', $template_output);
         } else {
-          file_put_contents($base_dir.'/output.html', $output);
+          file_put_contents($base_dir.'/output-single.html', $output);
+        }
+      } catch (Exception $e) {
+        print MSCL_ErrorHandling::format_exception($e);
+        // exit here as the exception may come from some static constructor that is only executed once
+        exit;
+      }
+
+      break;
+    }    
+
+    //
+    // Run "loop" through the post we've just created
+    // SECOND: Multi post view and also RSS (which is always multi post view)
+    //
+    query_posts(array('post__in' => array($post_id, $dummy_post_id)));
+    while (have_posts()) {
+      the_post();
+      global $post;
+      
+      if ($post->ID == $dummy_post_id) {
+        // This is not the post we want.
+        continue;
+      }
+
+      try {
+        $markup = new BlogTextMarkup();
+        $output = $markup->convert_post_to_html($post, $post->post_content,
+                                                AbstractTextMarkup::RENDER_KIND_REGULAR, 
+                                                false);
+        $output = self::mask_output($post_id, $output);
+
+        if (!empty($template_code)) {
+          $template_output = str_replace('###page_name###', $post->post_title, $template_code);
+          $template_output = str_replace('###page_content###', $output, $template_output);
+          file_put_contents($base_dir.'/output-multi.html', $template_output);
+        } else {
+          file_put_contents($base_dir.'/output-multi.html', $output);
         }
 
         $output = $markup->convert_post_to_html($post, $post->post_content,
@@ -273,6 +325,9 @@ class BlogTextTests {
     # Mask ids to other posts, attachments, ...
     $output = preg_replace('#http://mydomain.com/\?(p|attachment_id)\=[0-9]+#',
                            'http://mydomain.com/?\1=XXX', $output);
+    
+    # Mask anchor names in multi post views
+    $output = str_replace("#${post_id}_", '#XXX_', $output);
     
     # Mask creation date
     $output = preg_replace('#^\s*<\!-- Generated "(.+)" item at .+ -->#iU',

@@ -7,6 +7,10 @@ Recommended WP-Plugins:
  
  * Debug Bar
 
+Debugging:
+
+ * var_dump() : dumps the whole structure of the variable to the output
+
 
 Prepare Wordpress Testinstallation
 ----------------------------------
