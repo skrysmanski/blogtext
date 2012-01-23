@@ -999,7 +999,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     #   post view the anchors won't be found.
     $this->headings_title_map[$pure_id] = $text;
 
-    return $this->format_heading($level, $text, $id, $permalink);
+    // Don't add anchor links (¶) to headings in the RSS feed. Usually doesn't look good.
+    return $this->format_heading($level, $text, $id, $permalink, !$this->is_rss);
   }
 
   private function format_heading($level, $text, $id, $id_link='', $add_anchor=true) {

@@ -52,6 +52,7 @@ your webserver.
 * "cat:" is now allowed as alternative to the "category:" Interlink prefix
 * Now runs with Wordpress 3.3
 * Fixed anchors to headings not working in multi post view and RSS feed (ticket #1)
+* Anchor links (¶) are no longer added to headings in the RSS feed
 
 = 0.9.2.1 =
 * Fixed line highlighting, if the code snippet doesn't start off line one.
