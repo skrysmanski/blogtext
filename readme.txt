@@ -2,7 +2,7 @@
 Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
-Tested up to: 3.2.1
+Tested up to: 3.3.1
 Stable tag: 0.9.3
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
@@ -50,6 +50,8 @@ your webserver.
 
 = 0.9.3 =
 * "cat:" is now allowed as alternative to the "category:" Interlink prefix
+* Now runs with Wordpress 3.3
+* Fixed anchors to headings not working in multi post view and RSS feed (ticket #1)
 
 = 0.9.2.1 =
 * Fixed line highlighting, if the code snippet doesn't start off line one.

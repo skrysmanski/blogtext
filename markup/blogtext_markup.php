@@ -789,8 +789,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
 
     if (!empty($not_found_reason)) {
-      // Page not found
-      $link = '#';
+      // Page or anchor not found
+      if ($link == '' || substr($link, 0, 1) != '#') {
+        // Replace link only for non anchors (i.e. full links).
+        $link = '#';
+      }
       // NOTE: Create title as otherwise "#" (the link) will be used as title
       if (empty($title) && count($params) == 1) {
         $title = $params[0];
@@ -952,7 +955,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     }
     return $this->generate_heading($level, $text, $id);
   }
-
+  
   private function generate_heading($level, $text, $id='') {
     // Check whether a heading with the exact same text already exists. If so, then add a counter.
     // NOTE: Actually we don't check the text but the ID generated from it, because headings with slightly
@@ -962,6 +965,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     }
     $this->register_html_id($id);
 
+    $pure_id = $id;
+    
     global $post;
     if (is_single() || is_page() || $this->is_rss) {
       // NOTE: Although RSS is generated in a multi post view, each post is a separated entity.
@@ -990,7 +995,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       'id' => $id,
       'text' => $text
     );
-    $this->headings_title_map[$id] = $text;
+    # NOTE: We need to store the original id here, as this is what's referenced in links. Otherwise in multi
+    #   post view the anchors won't be found.
+    $this->headings_title_map[$pure_id] = $text;
 
     return $this->format_heading($level, $text, $id, $permalink);
   }
