@@ -963,7 +963,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $this->register_html_id($id);
 
     global $post;
-    if (is_single() || is_page()) {
+    if (is_single() || is_page() || $this->is_rss) {
+      // NOTE: Although RSS is generated in a multi post view, each post is a separated entity.
+      // TODO: We need to check whether this is true.
       $permalink = '';
     } else {
       // Post listing, ie. not a single posting/page
