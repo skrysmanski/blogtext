@@ -81,6 +81,9 @@ class BlogTextTests {
       
       $content_width = $old_content_width;
     }
+    
+    # Delete dummy post again
+    wp_delete_post($dummy_post_id, true);
   }
   
   /**
