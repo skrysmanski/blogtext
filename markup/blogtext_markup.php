@@ -366,15 +366,18 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    * @param string   $textToMask  the text to be masked
    * @param string   $textId  the id of the text. The placeholder returned by this method is based on this value.
    *   Defaults to the text itself. TODO: Why would we need this?
-   * @param callback $valueCallbackFunc
-   * @param bool     $requiresTextPos
+   * @param callback $textPostProcessingCallback  while unmasking this text, this callback function will be called to
+   *   further process the text before putting it back in the whole text
+   * @param bool     $determineTextPos  if this is true, the text position of the placeholder text will be determined
+   *   and passed as second argument to the text post-processing callback. Has no effect, if no callback has been
+   *   defined. Defaults to false.
    *
    * @return string  the placeholder text to replace the masked text until its unmasking
    *
    * @see unmaskAllTextSections()
    */
-  private function registerMaskedText($textToMask, $textId = '', $valueCallbackFunc=null,
-                                      $requiresTextPos=false) {
+  private function registerMaskedText($textToMask, $textId = '', $textPostProcessingCallback=null,
+                                      $determineTextPos=false) {
     if (empty($textId)) {
       $textId = $textToMask;
     }
@@ -383,7 +386,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $placeholderId = md5($textId);
 
     # Register the masked text so that it can be unmasked later.
-    $this->m_placeholders[$placeholderId] = array($textToMask, $valueCallbackFunc, $requiresTextPos);
+    $this->m_placeholders[$placeholderId] = array($textToMask, $textPostProcessingCallback, $determineTextPos);
 
     # Create and return the placeholder. Wrap it in the delimiter so that we can find it more easily and make it even
     # more unique.
@@ -541,17 +544,17 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    * @see registerMaskedText()
    */
   private function unmaskAllTextSections($markupText) {
-    foreach ($this->m_placeholders as $placeholderKey => $maskedTextInfo) {
-      list($value, $callbackFunc, $requiresTextPos) = $maskedTextInfo;
+    foreach ($this->m_placeholders as $placeholderId => $maskedTextInfo) {
+      list($unused, $callbackFunc, $requiresTextPos) = $maskedTextInfo;
 
       if ($requiresTextPos && $callbackFunc !== null) {
         // Encode line in the placeholders
         // NOTE: This is highly inefficient but we don't have any alternative for now.
-        $search = self::$SECTION_MASKING_START_DELIM.$placeholderKey.self::$SECTION_MASKING_END_DELIM;
+        $search = self::$SECTION_MASKING_START_DELIM.$placeholderId.self::$SECTION_MASKING_END_DELIM;
         $pos = strpos($markupText, $search);
         if ($pos !== false) {
           $markupText = str_replace($search,
-                  self::$SECTION_MASKING_START_DELIM.$placeholderKey."_{$pos}_".self::$SECTION_MASKING_END_DELIM,
+                  self::$SECTION_MASKING_START_DELIM.$placeholderId."_{$pos}_".self::$SECTION_MASKING_END_DELIM,
                   $markupText);
         }
       }
@@ -562,13 +565,17 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
     // NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
     $pattern = '/'.self::$SECTION_MASKING_START_DELIM.'([a-f0-9]{32})(?:_([0-9]+)_)?'.self::$SECTION_MASKING_END_DELIM.'/';
-    return preg_replace_callback($pattern, array($this, 'decode_placeholders_callback'), $markupText);
+    return preg_replace_callback($pattern, array($this, 'unmaskTextSectionReplaceCallback'), $markupText);
   }
 
   /**
-   * The callback function for decode_no_markup_blocks
+   * The callback function for {@link unmaskAllTextSections()}.
+   *
+   * @param string[] $matches
+   *
+   * @return string  the replacement text
    */
-  private function decode_placeholders_callback($matches) {
+  private function unmaskTextSectionReplaceCallback($matches) {
     list($value, $callback_func, $requires_text_pos) = $this->m_placeholders[$matches[1]];
     if ($callback_func !== null) {
       if (!$requires_text_pos) {
