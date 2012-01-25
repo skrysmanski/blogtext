@@ -763,7 +763,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       //   execute rule after rule; so at this point all headings are already known.
       $anchor_name = substr($link, 1);
       if ($this->heading_name_exists($anchor_name)) {
-        $this->add_text_position_request('"'.$anchor_name.'"');
+        if ($this->needs_anchor_escaping()) {
+          $escaped_anchor_name = $this->create_escaped_anchor_id($anchor_name);
+          $this->add_text_position_request('"'.$escaped_anchor_name.'"');
+          $link = '#'.$escaped_anchor_name;
+        }
+        else {
+          $this->add_text_position_request('"'.$anchor_name.'"');
+        }
         // NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
         //   get the same position calculated.
         $placeholder = $this->encode_placeholder('section-link'.$anchor_name.$this->anchor_id_counter,
@@ -965,7 +972,18 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     }
     return $this->generate_heading($level, $text, $id);
   }
-  
+
+  private function needs_anchor_escaping() {
+    // NOTE: Although RSS is generated in a multi post view, each post is a separated entity.
+    // TODO: We need to check whether this is true.
+    return !is_single() && !is_page() && !$this->is_rss;
+  }
+
+  private function create_escaped_anchor_id($anchor_id) {
+    global $post;
+    return $post->ID.'_'.$anchor_id;
+  }
+
   private function generate_heading($level, $text, $id='') {
     // Check whether a heading with the exact same text already exists. If so, then add a counter.
     // NOTE: Actually we don't check the text but the ID generated from it, because headings with slightly
@@ -978,16 +996,16 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $pure_id = $id;
 
     global $post;
-    if (is_single() || is_page() || $this->is_rss) {
-      // NOTE: Although RSS is generated in a multi post view, each post is a separated entity.
-      // TODO: We need to check whether this is true.
-      $permalink = '';
-    } else {
+    if ($this->needs_anchor_escaping()) {
       // Post listing, ie. not a single posting/page
       // Therefor we need to append the post's ID to the heading ID, because there may be multiple headings
       // with the same text of multiple posts in the listing.
       $permalink = get_permalink($post->ID).'#'.$id;
-      $id = $post->ID.'_'.$id;
+      $id = $this->create_escaped_anchor_id($id);
+    }
+    else {
+      // Single post view or RSS feed
+      $permalink = '';
     }
 
     // adjust level; this helps to be able to use the top level heading (= heading =) without having to worry
