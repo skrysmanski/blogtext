@@ -21,6 +21,7 @@
 require_once(dirname(__FILE__).'/../api/commons.php');
 MSCL_Api::load(MSCL_Api::GESHI);
 
+MSCL_require_once('PlaceholderManager.php', __FILE__);
 MSCL_require_once('list_base.php', __FILE__);
 MSCL_require_once('table_base.php', __FILE__);
 
@@ -44,9 +45,10 @@ abstract class AbstractTextMarkup {
 
   private static $SUPPORTED_GESHI_LANGUAGES;
 
-  protected function __construct() {
-    self::static_constructor();
-  }
+  /**
+   * @var PlaceholderManager
+   */
+  private $m_placeholderManager;
 
   private static function static_constructor() {
     if (self::$IS_STATIC_INITIALIZED) {
@@ -60,6 +62,12 @@ abstract class AbstractTextMarkup {
     self::$IS_STATIC_INITIALIZED = true;
   }
 
+  protected function __construct() {
+    self::static_constructor();
+
+    $this->m_placeholderManager = new PlaceholderManager();
+  }
+
   public static function generate_error_html($message, $additional_css='') {
     if (!empty($additional_css)) {
       return '<span class="error '.$additional_css.'">'.$message.'</span>';
@@ -68,6 +76,39 @@ abstract class AbstractTextMarkup {
     return '<span class="error">'.$message.'</span>';
   }
 
+  protected function resetAbstractTextMarkup() {
+    $this->m_placeholderManager->clear();
+  }
+
+
+  ######################################################################################################################
+  #
+  # region: Placeholder Management
+  #
+
+  protected function registerMaskedText($textToMask, $textId = '', $textPostProcessingCallback=null,
+                                        $determineTextPos=false) {
+    return $this->m_placeholderManager->registerMaskedText($textToMask, $textId, $textPostProcessingCallback,
+                                                           $determineTextPos);
+  }
+
+  protected function unmaskAllTextSections($markupText) {
+    return $this->m_placeholderManager->unmaskAllTextSections($markupText);
+  }
+
+  protected function add_text_position_request($text) {
+    $this->m_placeholderManager->add_text_position_request($text);
+  }
+
+  protected function get_text_position($text) {
+    return $this->m_placeholderManager->get_text_position($text);
+  }
+
+
+  #
+  # region: Placeholder Management
+  #
+  ######################################################################################################################
 
   ////////////////////////////////////////////////////////////////////
   //

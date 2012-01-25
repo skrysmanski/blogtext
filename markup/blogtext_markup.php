@@ -108,32 +108,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   // Rules to remove white space at the beginning of line that don't expect this (headings, lists, quotes)
   private static $TRIM_RULE = '/^[ \t]*(?=[=\*#:;>$])/m';
 
-  /**
-   * Identifies the beginning of a masked text section. Text sections are masked by surrounding an id with this and
-   * {@link $SECTION_MASKING_END_DELIM}.
-   * @var string
-   * @see encode_placeholder()
-   */
-  private static $SECTION_MASKING_START_DELIM;
-  /**
-   * Identifies the end of a masked text section. Text sections are masked by surrounding an id with this and
-   * {@link $SECTION_MASKING_START_DELIM}.
-   * @var string
-   * @see encode_placeholder()
-   */
-  private static $SECTION_MASKING_END_DELIM;
-
   private static $interlinks = array();
 
   private $is_excerpt;
 
   private $is_rss;
-
-  /**
-   *
-   * @var array
-   */
-  private $m_placeholders = array();
 
   /**
    * This array contains the amount each id has occured in this posting. This is used to alter ids (by
@@ -148,67 +127,54 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private $headings_title_map = array();
 
-  /**
-   * Contains
-   * @var <type>
-   */
-  private $text_positions = array();
-
   private $anchor_id_counter = 0;
 
   private $thumbs_used = array();
-
-  public function __construct() {
-    parent::__construct();
-    self::static_constructor();
-  }
 
   /**
    * Used to prevent the static constructor from running multiple times.
    * @var bool
    */
-  private static $STATIC_INITIALIZED = false;
+  private static $IS_STATIC_INITIALIZED = false;
 
   private static function static_constructor() {
-    if (self::$STATIC_INITIALIZED) {
+    if (self::$IS_STATIC_INITIALIZED) {
       # Static constructor has already run.
       return;
     }
     self::$CACHE = new MarkupCache(self::CACHE_PREFIX);
 
-    # Adding some characters (here: "@@") to the delimiters gives us the ability to distinguish them both in the markup
-    # text and also prevents the misinterpretation of real MD5 hashes that might be contained in the markup text.
-    #
-    # NOTE: The additional character(s) (@) must neither have a meaning in BlogText (so that it's not parsed by
-    #   accident) nor must it have a meaning in a regular expression (again so that it's not parsed by accident).
-    self::$SECTION_MASKING_START_DELIM = '@@'.md5('%%%');
-    self::$SECTION_MASKING_END_DELIM = md5('%%%').'@@';
-
     //
     // interlinks
     //
 
-    // Handles regular links to post (ie. without prefix), as well as attachment and Wordpress links (such
+    // Handles regular links to post (ie. without prefix), as well as attachment and WordPress links (such
     // as categories, tags, blogroll, and archive).
     self::register_interlink_handler(self::$interlinks, new WordpressLinkProvider());
 
-    // let the custom interlinks overwrite the wordpress link provider, but not the media macro.
+    // let the custom interlinks overwrite the WordPress link provider, but not the media macro.
     self::register_all_interlink_patterns(self::$interlinks);
 
     // Media macro (images) - load it as the last one (to overwrite any previously created custom interlinks)
     self::register_interlink_handler(self::$interlinks, new MediaMacro());
 
-    self::$STATIC_INITIALIZED = true;
+    self::$IS_STATIC_INITIALIZED = true;
   }
 
-  private function reset_data($is_rss, $is_excerpt) {
+  public function __construct() {
+    self::static_constructor();
+    parent::__construct();
+
+    $this->resetBlogTextMarkup(false, false);
+  }
+
+  protected function resetBlogTextMarkup($is_rss, $is_excerpt) {
+    $this->resetAbstractTextMarkup();
     $this->is_rss = $is_rss;
     $this->is_excerpt = $is_excerpt;
-    $this->m_placeholders = array();
     $this->id_suffix = array();
     $this->headings = array();
     $this->headings_title_map = array();
-    $this->text_positions = array();
     $this->anchor_id_counter = 0;
     $this->thumbs_used = array();
   }
@@ -244,7 +210,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       $is_excerpt = false;
     }
 
-    $this->reset_data($is_rss, $is_excerpt);
+    $this->resetBlogTextMarkup($is_rss, $is_excerpt);
 
     // add blank lines for rules that expect a \n at the beginning of a line (even on the first)
     $markup_content = "\n$markup_content\n";
@@ -281,7 +247,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // them to find all thumbnails. Note that this method works on the original post content rather than on the
     // content WordPress gives us. This is necessary since the content Wordpress gives us may be only an excerpt
     // which in turn won't contain all image links.
-    $this->reset_data(false, false);
+    $this->resetBlogTextMarkup(false, false);
 
     // clean up line breaks - convert all to "\n"
     $ret = preg_replace('/\r\n|\r/', "\n", $post->post_content);
@@ -354,43 +320,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_inner_tag_urls_callback'), $markup_code);
 
     return $markup_code;
-  }
-
-  /**
-   * Registers some text to be masked and returns a placeholder text. Only registered texts can be unmasked later. The
-   * text to be masked must be replaced with the placeholder text that is returned.
-   *
-   * Text needs to be masked when it contains (or may contain) characters that form BlogText markup. Usually this
-   * applies to programming code and URL in HTML attributes.
-   *
-   * @param string   $textToMask  the text to be masked
-   * @param string   $textId  the id of the text. The placeholder returned by this method is based on this value.
-   *   Defaults to the text itself. TODO: Why would we need this?
-   * @param callback $textPostProcessingCallback  while unmasking this text, this callback function will be called to
-   *   further process the text before putting it back in the whole text
-   * @param bool     $determineTextPos  if this is true, the text position of the placeholder text will be determined
-   *   and passed as second argument to the text post-processing callback. Has no effect, if no callback has been
-   *   defined. Defaults to false.
-   *
-   * @return string  the placeholder text to replace the masked text until its unmasking
-   *
-   * @see unmaskAllTextSections()
-   */
-  private function registerMaskedText($textToMask, $textId = '', $textPostProcessingCallback=null,
-                                      $determineTextPos=false) {
-    if (empty($textId)) {
-      $textId = $textToMask;
-    }
-    # Creating an MD5 hash from the text results in a unique textual representation of the masked text that doesn't
-    # contain any BlogText markup.
-    $placeholderId = md5($textId);
-
-    # Register the masked text so that it can be unmasked later.
-    $this->m_placeholders[$placeholderId] = array($textToMask, $textPostProcessingCallback, $determineTextPos);
-
-    # Create and return the placeholder. Wrap it in the delimiter so that we can find it more easily and make it even
-    # more unique.
-    return self::$SECTION_MASKING_START_DELIM.$placeholderId.self::$SECTION_MASKING_END_DELIM;
   }
 
   /**
@@ -533,87 +462,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return $this->registerMaskedText($matches[0]);
   }
 
-  /**
-   * Unmasks all previously masked text section, i.e. restore their original text. Texts need to have been registered
-   * with {@link registerMaskedText()} to be restored.
-   *
-   * @param string $markupText  the markup text for which text sections are to be unmasked
-   *
-   * @return string  the the markup text with all masked text sections now unmasked
-   *
-   * @see registerMaskedText()
-   */
-  private function unmaskAllTextSections($markupText) {
-    foreach ($this->m_placeholders as $placeholderId => $maskedTextInfo) {
-      list($unused, $callbackFunc, $requiresTextPos) = $maskedTextInfo;
-
-      if ($requiresTextPos && $callbackFunc !== null) {
-        // Encode line in the placeholders
-        // NOTE: This is highly inefficient but we don't have any alternative for now.
-        $search = self::$SECTION_MASKING_START_DELIM.$placeholderId.self::$SECTION_MASKING_END_DELIM;
-        $pos = strpos($markupText, $search);
-        if ($pos !== false) {
-          $markupText = str_replace($search,
-                  self::$SECTION_MASKING_START_DELIM.$placeholderId."_{$pos}_".self::$SECTION_MASKING_END_DELIM,
-                  $markupText);
-        }
-      }
-    }
-
-    // NOTE: This must be done AFTER encoding the positions in the placeholders as this changes the text.
-    $this->determine_text_positions($markupText);
-
-    // NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
-    $pattern = '/'.self::$SECTION_MASKING_START_DELIM.'([a-f0-9]{32})(?:_([0-9]+)_)?'.self::$SECTION_MASKING_END_DELIM.'/';
-    return preg_replace_callback($pattern, array($this, 'unmaskTextSectionReplaceCallback'), $markupText);
-  }
-
-  /**
-   * The callback function for {@link unmaskAllTextSections()}.
-   *
-   * @param string[] $matches
-   *
-   * @return string  the replacement text
-   */
-  private function unmaskTextSectionReplaceCallback($matches) {
-    list($value, $callback_func, $requires_text_pos) = $this->m_placeholders[$matches[1]];
-    if ($callback_func !== null) {
-      if (!$requires_text_pos) {
-        return call_user_func($callback_func, $value);
-      } else {
-        return call_user_func($callback_func, $value, (int)$matches[2]);
-      }
-    } else {
-      return $value;
-    }
-  }
-
   #
   # endregion Masking Text Sections
   #
   ######################################################################################################################
 
-
-  private function add_text_position_request($text) {
-    $this->text_positions[$text] = -1;
-  }
-
-  private function determine_text_positions($markup_code) {
-    foreach ($this->text_positions as $text => $unused) {
-      $pos = strpos($markup_code, $text);
-      if ($pos !== false) {
-        $this->text_positions[$text] = $pos;
-      }
-    }
-  }
-
-  private function get_text_position($text) {
-    if (isset($this->text_positions[$text])) {
-      return $this->text_positions[$text];
-    } else {
-      return -1;
-    }
-  }
 
   //
   // RegExp callbacks
