@@ -1,2 +1,5 @@
 test\.php
 nbproject
+syntax: glob
+.idea/workspace.xml
+.idea/.name
