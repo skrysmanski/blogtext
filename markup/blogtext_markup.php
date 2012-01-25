@@ -38,8 +38,6 @@ class MarkupException extends Exception {
 class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, IMarkupCacheHandler {
   const CACHE_PREFIX = 'blogtext_';
 
-  private static $INITIALIZED = false;
-
   /**
    * @var MarkupCache
    */
@@ -110,8 +108,20 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   // Rules to remove white space at the beginning of line that don't expect this (headings, lists, quotes)
   private static $TRIM_RULE = '/^[ \t]*(?=[=\*#:;>$])/m';
 
-  private static $BLOCK_ENCODE_START_DELIM;
-  private static $BLOCK_ENCODE_END_DELIM;
+  /**
+   * Identifies the beginning of a masked text section. Text sections are masked by surrounding an id with this and
+   * {@link $SECTION_MASKING_END_DELIM}.
+   * @var string
+   * @see encode_placeholder()
+   */
+  private static $SECTION_MASKING_START_DELIM;
+  /**
+   * Identifies the end of a masked text section. Text sections are masked by surrounding an id with this and
+   * {@link $SECTION_MASKING_START_DELIM}.
+   * @var string
+   * @see encode_placeholder()
+   */
+  private static $SECTION_MASKING_END_DELIM;
 
   private static $interlinks = array();
 
@@ -119,7 +129,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private $is_rss;
 
-  private $placeholders = array();
+  /**
+   *
+   * @var array
+   */
+  private $m_placeholders = array();
 
   /**
    * This array contains the amount each id has occured in this posting. This is used to alter ids (by
@@ -149,14 +163,20 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     self::static_constructor();
   }
 
+  /**
+   * Used to prevent the static constructor from running multiple times.
+   * @var bool
+   */
+  private static $STATIC_INITIALIZED = false;
+
   private static function static_constructor() {
-    if (self::$INITIALIZED) {
+    if (self::$STATIC_INITIALIZED) {
       return;
     }
     self::$CACHE = new MarkupCache(self::CACHE_PREFIX);
 
-    self::$BLOCK_ENCODE_START_DELIM = '('.md5('%%%');
-    self::$BLOCK_ENCODE_END_DELIM = md5('%%%').')';
+    self::$SECTION_MASKING_START_DELIM = '('.md5('%%%');
+    self::$SECTION_MASKING_END_DELIM = md5('%%%').')';
 
     //
     // interlinks
@@ -172,13 +192,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // Media macro (images) - load it as the last one (to overwrite any previously created custom interlinks)
     self::register_interlink_handler(self::$interlinks, new MediaMacro());
 
-    self::$INITIALIZED = true;
+    self::$STATIC_INITIALIZED = true;
   }
 
   private function reset_data($is_rss, $is_excerpt) {
     $this->is_rss = $is_rss;
     $this->is_excerpt = $is_excerpt;
-    $this->placeholders = array();
+    $this->m_placeholders = array();
     $this->id_suffix = array();
     $this->headings = array();
     $this->headings_title_map = array();
@@ -224,7 +244,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $markup_content = "\n$markup_content\n";
     // clean up line breaks - convert all to "\n"
     $ret = preg_replace('/\r\n|\r/', "\n", $markup_content);
-    $ret = $this->encode_no_markup_texts($ret);
+    $ret = $this->maskNoParseTextSections($ret);
     // remove trailing whitespace
     $ret = preg_replace(self::$TRIM_RULE, '', $ret);
 
@@ -259,7 +279,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
     // clean up line breaks - convert all to "\n"
     $ret = preg_replace('/\r\n|\r/', "\n", $post->post_content);
-    $ret = $this->encode_no_markup_texts($ret);
+    $ret = $this->maskNoParseTextSections($ret);
 
     $this->execute_regex('interlinks', $ret);
 
@@ -292,32 +312,38 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return preg_replace_callback(self::$RULES[$regex_name], array($this, $regex_name.'_callback'), $value);
   }
 
+
+  ######################################################################################################################
+  #
+  # region Masking Text Sections
+  #
+
   /**
-   * Encode special code blocks that are to be ignore when parsing the markup. This includes code blocks
-   * (<code>, <pre> and {{{ ... }}}, `...`) as well as no-markup-blocks ({{! ... !}}). Also encodes tags that
-   * contain URLs in their attributes (such as <a> or <img>).
+   * Masks text sections that are to be excluded from markup parsing. This includes code blocks (<code>, <pre> and
+   * {{{ ... }}}, `...`), and no-markup blocks ({{! ... !}}). Also masks tags containing URLs in their attributes
+   * (such as <a> or <img>), and removes end-of-line comments (%%).
    *
-   * @param string $markup_code
+   * @param string $markup_code  the BlogText code
    *
-   * @return string
+   * @return string the masked BlogText code
    */
-  private function encode_no_markup_texts($markup_code) {
-    // comments (%%)
+  private function maskNoParseTextSections($markup_code) {
+    # end-of-line comments (%%)
     $pattern = '/(?<!%)%%(.*)$/m';
     $markup_code = preg_replace($pattern, '', $markup_code);
 
-    // IMPORTANT: The implementation of "encode_no_markup_blocks_callback()" depends on the order of the
-    //   alternative in this regexp! So don't change the order!
-    $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' // <pre> and <code>
-             . '|\{\{\{(.*?)\}\}\}'  // {{{ ... }}} - multi-line or single line code
-             . '|((?<!\n)[ \t]+|(?<![\*;:#\n \t]))##([^\n]*?)##(?!#)'  // ## ... ## single line code - a little bit more complicated
-             . '|(?<!\`)\`([^\n\`]*?)\`(?!\`)'  // ` ... ` single line code
-             . '|\{\{!(!)?(.*?)!\}\}/si';  // {{! ... !}} and {{!! ... !}} - no markup
+    # IMPORTANT: The implementation of "encode_no_markup_blocks_callback()" depends on the order of the
+    #   alternative in this regexp! So don't change the order unless you know what you're doing!
+    $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' # <pre> and <code>
+             . '|\{\{\{(.*?)\}\}\}'  # {{{ ... }}} - multi-line or single line code
+             . '|((?<!\n)[ \t]+|(?<![\*;:#\n \t]))##([^\n]*?)##(?!#)'  # ## ... ## single line code - a little bit more complicated
+             . '|(?<!\`)\`([^\n\`]*?)\`(?!\`)'  # ` ... ` single line code
+             . '|\{\{!(!)?(.*?)!\}\}/si';  # {{! ... !}} and {{!! ... !}} - no markup
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_no_markup_blocks_callback'), $markup_code);
 
-    //
-    // URLs in tag attributes
-    //
+    #
+    # URLs in tag attributes
+    #
     $pattern = '/<[a-zA-Z]+[ \t]+[^>]*[a-zA-Z0-9\+\.\-]+\:\/\/[^>]*>/Us';
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_inner_tag_urls_callback'), $markup_code);
 
@@ -325,16 +351,36 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   /**
-   * The callback function for encode_no_markup_blocks
+   * @param string $key
+   * @param string $value
+   * @param callback $value_callback_func
+   * @param bool $requires_text_pos
+   * @return string
+   */
+  private function encode_placeholder($key, $value, $value_callback_func=null, $requires_text_pos=false) {
+    $key = md5($key);
+    $this->m_placeholders[$key] = array($value, $value_callback_func, $requires_text_pos);
+    return self::$SECTION_MASKING_START_DELIM.$key.self::$SECTION_MASKING_END_DELIM;
+  }
+
+  /**
+   * The {@link preg_replace_callback()} callback function for encode_no_markup_blocks
+   *
+   * @param string[] $matches  array of matched elements in the complete markup text; this only includes the text to be
+   *   masked
+   *
+   * @return string  the masked text
    */
   private function encode_no_markup_blocks_callback($matches) {
+    $preceding_text = '';
+
     // Depending on the last array key we can find out which type of block was escaped.
-    $prefix = '';
     switch (count($matches)) {
       case 4: // capture groups: 3
         // HTML tag
         $value = $this->format_no_markup_block($matches[1], $matches[3], $matches[2]);
         break;
+
       case 5: // capture groups: 1
         // {{{ ... }}}
         $parts = explode("\n", $matches[4], 2);
@@ -344,15 +390,18 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
           $value = $this->format_no_markup_block('{{{', $parts[0], '');
         }
         break;
+
       case 7: // capture groups: 2
         // ##...##
-        $prefix = $matches[5];
+        $preceding_text = $matches[5];
         $value = $this->format_no_markup_block('##', $matches[6], '');
         break;
+
       case 8: // capture groups: 1
         // `...`
         $value = $this->format_no_markup_block('##', $matches[7], '');
         break;
+
       case 10: // capture groups: 2
         // {{! ... !}}} and {{!! ... !}} - ignore syntax
         if ($matches[8] != '!') {
@@ -364,14 +413,23 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
           $value = $matches[9];
         }
         break;
+
       default:
         throw new Exception('Plugin error: unexpected match count in "encode_callback()": '.count($matches)
-                ."\n".print_r($matches, true));
+                            ."\n".print_r($matches, true));
 
     }
-    return $prefix.$this->encode_placeholder($matches[0], $value);
+
+    return $preceding_text.$this->encode_placeholder($matches[0], $value);
   }
 
+  /**
+   * @param $block_type
+   * @param $contents
+   * @param $attributes
+   * @return string
+   * @throws Exception
+   */
   private function format_no_markup_block($block_type, $contents, $attributes) {
     switch ($block_type) {
       case 'pre':
@@ -445,23 +503,17 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return $this->encode_placeholder($matches[0], $matches[0]);
   }
 
-  private function encode_placeholder($key, $value, $value_callback_func=null, $requires_text_pos=false) {
-    $key = md5($key);
-    $this->placeholders[$key] = array($value, $value_callback_func, $requires_text_pos);
-    return self::$BLOCK_ENCODE_START_DELIM.$key.self::$BLOCK_ENCODE_END_DELIM;
-  }
-
   private function decode_placeholders($markup_code) {
-    foreach ($this->placeholders as $key => $infos) {
+    foreach ($this->m_placeholders as $key => $infos) {
       list($value, $callback_func, $requires_text_pos) = $infos;
       if ($requires_text_pos && $callback_func !== null) {
         // Encode line in the placeholders
         // NOTE: This is highly inefficient but we don't have any alternative for now.
-        $search = self::$BLOCK_ENCODE_START_DELIM.$key.self::$BLOCK_ENCODE_END_DELIM;
+        $search = self::$SECTION_MASKING_START_DELIM.$key.self::$SECTION_MASKING_END_DELIM;
         $pos = strpos($markup_code, $search);
         if ($pos !== false) {
           $markup_code = str_replace($search,
-                  self::$BLOCK_ENCODE_START_DELIM.$key."_{$pos}_".self::$BLOCK_ENCODE_END_DELIM,
+                  self::$SECTION_MASKING_START_DELIM.$key."_{$pos}_".self::$SECTION_MASKING_END_DELIM,
                   $markup_code);
         }
       }
@@ -471,7 +523,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $this->determine_text_positions($markup_code);
 
     // NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
-    $pattern = '/'.preg_quote(self::$BLOCK_ENCODE_START_DELIM).'([a-f0-9]{32})(?:_([0-9]+)_)?'.preg_quote(self::$BLOCK_ENCODE_END_DELIM).'/';
+    $pattern = '/'.preg_quote(self::$SECTION_MASKING_START_DELIM).'([a-f0-9]{32})(?:_([0-9]+)_)?'.preg_quote(self::$SECTION_MASKING_END_DELIM).'/';
     return preg_replace_callback($pattern, array($this, 'decode_placeholders_callback'), $markup_code);
   }
 
@@ -479,7 +531,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    * The callback function for decode_no_markup_blocks
    */
   private function decode_placeholders_callback($matches) {
-    list($value, $callback_func, $requires_text_pos) = $this->placeholders[$matches[1]];
+    list($value, $callback_func, $requires_text_pos) = $this->m_placeholders[$matches[1]];
     if ($callback_func !== null) {
       if (!$requires_text_pos) {
         return call_user_func($callback_func, $value);
@@ -490,6 +542,12 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       return $value;
     }
   }
+
+  #
+  # endregion Masking Text Sections
+  #
+  ######################################################################################################################
+
 
   private function add_text_position_request($text) {
     $this->text_positions[$text] = -1;
