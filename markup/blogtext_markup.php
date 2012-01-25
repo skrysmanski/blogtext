@@ -40,6 +40,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private static $INITIALIZED = false;
 
+  /**
+   * @var MarkupCache
+   */
   private static $CACHE;
 
   // regular expression rules
@@ -74,7 +77,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     //   other hand we can't use < and > as delimeter as this would interfere with URL interlinks.
     //   So plaintext urls need to be parsed before tables and lists.
     'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[[:punct:]])?/',
-      
+
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
     // simple tables - Creole syntax
@@ -194,7 +197,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   /**
-   * Converts the specified markup into HTML code. This method must explicitely convert the markup code
+   * Converts the specified markup into HTML code. This method must explicitly convert the markup code
    * without using cached HTML code for this markup.
    *
    * (Required by IMarkupCacheHandler)
@@ -235,7 +238,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // and line breaks.
     return trim($ret);
   }
-  
+
   /**
    * Determines the externals for the specified post. Externals are "links" to things that, if changed, will
    * invalidate the post's cache. Externals are for example thumbnails or links to other posts. Changed means
@@ -277,6 +280,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return is_single() || is_page();
   }
 
+  /**
+   * @param MSCL_Thumbnail $thumbnail
+   */
   public function add_used_thumbnail($thumbnail) {
     $token = $thumbnail->get_token();
     $this->thumbs_used[$token] = $thumbnail;
@@ -290,6 +296,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    * Encode special code blocks that are to be ignore when parsing the markup. This includes code blocks
    * (<code>, <pre> and {{{ ... }}}, `...`) as well as no-markup-blocks ({{! ... !}}). Also encodes tags that
    * contain URLs in their attributes (such as <a> or <img>).
+   *
+   * @param string $markup_code
+   *
+   * @return string
    */
   private function encode_no_markup_texts($markup_code) {
     // comments (%%)
@@ -367,7 +377,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       case 'pre':
         // No syntax highlighting for <pre>, just for <code>.
         return '<pre'.$attributes.'>'.htmlspecialchars($contents).'</pre>';
-        
+
       case '##':
       case 'code':
       case '{{{':
@@ -661,7 +671,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    *   found or the prefix doesn't allow direct linking.
    * @param string $text_after text that comes directly after the link; ie. the text isn't separated from
    *   the link by a space (like "[wiki:URL]s"). Not used when "$generate_html = false".
-   * 
+   *
    * @return string HTML code or the link (which may be "null")
    */
   public function resolve_link($prefix, $params, $generate_html, $text_after) {
@@ -700,7 +710,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         // because we can't pass them directly to the callback method, nested functions can't be used as
         // callback functions and anonymous function are only available in PHP 5.3 and higher.
         $this->cur_interlink_params = $params;
-        $link = preg_replace_callback('/\$(\d+)/', array($this, 'interlink_params_callback'), 
+        $link = preg_replace_callback('/\$(\d+)/', array($this, 'interlink_params_callback'),
                                       self::$interlinks[$prefix_lowercase]['pattern']);
         $is_external = self::$interlinks[$prefix_lowercase]['external'];
       } else {
@@ -878,7 +888,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
                   if ($real_suffix[strlen($real_suffix) - 1] == '_') {
                     $real_suffix = substr($real_suffix, 0, -1);
                   }
-                  
+
                   switch ($real_suffix) {
                     case 'htm':
                     case 'html':
@@ -966,7 +976,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $this->register_html_id($id);
 
     $pure_id = $id;
-    
+
     global $post;
     if (is_single() || is_page() || $this->is_rss) {
       // NOTE: Although RSS is generated in a multi post view, each post is a separated entity.
@@ -1061,7 +1071,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
     return ($heading_pos < $pos ? 'above' : 'below');
   }
-  
+
   private function heading_name_exists($anchor_name) {
     return isset($this->headings_title_map[$anchor_name]);
   }

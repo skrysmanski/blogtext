@@ -41,7 +41,7 @@ abstract class AbstractTextMarkup {
   const RENDER_KIND_PREVIEW = 'preview';
 
   private static $IS_STATIC_INITIALIZED = false;
-  
+
   private static $SUPPORTED_GESHI_LANGUAGES;
 
   protected function __construct() {
@@ -88,7 +88,7 @@ abstract class AbstractTextMarkup {
     foreach (BlogTextSettings::get_interlinks() as $prefix => $data) {
       $pattern = $data[0];
 
-      // find the hightest parameter number
+      // find the highest parameter number
       // NOTE: This doesn't need to be the same as the number of parameters as the user may has an interlink
       //   like this: http://www.mydomain/$3 (which only has one parameter but the highest number is three).
       $highest_para_num = 0;
@@ -202,7 +202,7 @@ abstract class AbstractTextMarkup {
       } else {
         $geshi->set_header_type(GESHI_HEADER_NONE);
       }
-      
+
       if (!empty($highlighted_lines)) {
         if ($start_line > 1) {
           $adapted_highlighted_lines = array();
@@ -254,17 +254,17 @@ abstract class AbstractTextMarkup {
         return '<code'.$additional_html_attribs.'>'.$code.'</code>';
       }
     }
-    
+
   }
 
   ////////////////////////////////////////////////////////////////////
   //
   // Lists
   //
-  
+
   /**
    * Generates the HTML code for the specified list.
-   * 
+   *
    * @param ATM_List $list the list
    */
   protected function generate_list_code($list, $ignore_empty_items=true) {
