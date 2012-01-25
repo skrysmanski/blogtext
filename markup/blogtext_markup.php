@@ -171,12 +171,18 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private static function static_constructor() {
     if (self::$STATIC_INITIALIZED) {
+      # Static constructor has already run.
       return;
     }
     self::$CACHE = new MarkupCache(self::CACHE_PREFIX);
 
-    self::$SECTION_MASKING_START_DELIM = '('.md5('%%%');
-    self::$SECTION_MASKING_END_DELIM = md5('%%%').')';
+    # Adding some characters (here: "@@") to the delimiters gives us the ability to distinguish them both in the markup
+    # text and also prevents the misinterpretation of real MD5 hashes that might be contained in the markup text.
+    #
+    # NOTE: The additional character(s) (@) must neither have a meaning in BlogText (so that it's not parsed by
+    #   accident) nor must it have a meaning in a regular expression (again so that it's not parsed by accident).
+    self::$SECTION_MASKING_START_DELIM = '@@'.md5('%%%');
+    self::$SECTION_MASKING_END_DELIM = md5('%%%').'@@';
 
     //
     // interlinks
@@ -252,7 +258,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       $ret = $this->execute_regex($name, $ret);
     }
 
-    $ret = $this->decode_placeholders($ret);
+    $ret = $this->unmaskAllTextSections($ret);
 
     // Remove line breaks from the start and end to prevent Wordpress from adding unnecessary paragraphs
     // and line breaks.
@@ -273,7 +279,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   public function determine_externals($post, &$thumbnail_ids) {
     // This method is a trimmed down version of "convert_markup_to_html_uncached()". It finds all interlinks and processes
     // them to find all thumbnails. Note that this method works on the original post content rather than on the
-    // content Wordpress gives us. This is necessary since the content Wordpress gives us may be only an excerpt
+    // content WordPress gives us. This is necessary since the content Wordpress gives us may be only an excerpt
     // which in turn won't contain all image links.
     $this->reset_data(false, false);
 
@@ -351,16 +357,37 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   /**
-   * @param string $key
-   * @param string $value
-   * @param callback $value_callback_func
-   * @param bool $requires_text_pos
-   * @return string
+   * Registers some text to be masked and returns a placeholder text. Only registered texts can be unmasked later. The
+   * text to be masked must be replaced with the placeholder text that is returned.
+   *
+   * Text needs to be masked when it contains (or may contain) characters that form BlogText markup. Usually this
+   * applies to programming code and URL in HTML attributes.
+   *
+   * @param string   $textToMask  the text to be masked
+   * @param string   $textId  the id of the text. The placeholder returned by this method is based on this value.
+   *   Defaults to the text itself. TODO: Why would we need this?
+   * @param callback $valueCallbackFunc
+   * @param bool     $requiresTextPos
+   *
+   * @return string  the placeholder text to replace the masked text until its unmasking
+   *
+   * @see unmaskAllTextSections()
    */
-  private function encode_placeholder($key, $value, $value_callback_func=null, $requires_text_pos=false) {
-    $key = md5($key);
-    $this->m_placeholders[$key] = array($value, $value_callback_func, $requires_text_pos);
-    return self::$SECTION_MASKING_START_DELIM.$key.self::$SECTION_MASKING_END_DELIM;
+  private function registerMaskedText($textToMask, $textId = '', $valueCallbackFunc=null,
+                                      $requiresTextPos=false) {
+    if (empty($textId)) {
+      $textId = $textToMask;
+    }
+    # Creating an MD5 hash from the text results in a unique textual representation of the masked text that doesn't
+    # contain any BlogText markup.
+    $placeholderId = md5($textId);
+
+    # Register the masked text so that it can be unmasked later.
+    $this->m_placeholders[$placeholderId] = array($textToMask, $valueCallbackFunc, $requiresTextPos);
+
+    # Create and return the placeholder. Wrap it in the delimiter so that we can find it more easily and make it even
+    # more unique.
+    return self::$SECTION_MASKING_START_DELIM.$placeholderId.self::$SECTION_MASKING_END_DELIM;
   }
 
   /**
@@ -420,7 +447,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
     }
 
-    return $preceding_text.$this->encode_placeholder($matches[0], $value);
+    return $preceding_text.$this->registerMaskedText($value);
   }
 
   /**
@@ -500,31 +527,42 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   private function encode_inner_tag_urls_callback($matches) {
-    return $this->encode_placeholder($matches[0], $matches[0]);
+    return $this->registerMaskedText($matches[0]);
   }
 
-  private function decode_placeholders($markup_code) {
-    foreach ($this->m_placeholders as $key => $infos) {
-      list($value, $callback_func, $requires_text_pos) = $infos;
-      if ($requires_text_pos && $callback_func !== null) {
+  /**
+   * Unmasks all previously masked text section, i.e. restore their original text. Texts need to have been registered
+   * with {@link registerMaskedText()} to be restored.
+   *
+   * @param string $markupText  the markup text for which text sections are to be unmasked
+   *
+   * @return string  the the markup text with all masked text sections now unmasked
+   *
+   * @see registerMaskedText()
+   */
+  private function unmaskAllTextSections($markupText) {
+    foreach ($this->m_placeholders as $placeholderKey => $maskedTextInfo) {
+      list($value, $callbackFunc, $requiresTextPos) = $maskedTextInfo;
+
+      if ($requiresTextPos && $callbackFunc !== null) {
         // Encode line in the placeholders
         // NOTE: This is highly inefficient but we don't have any alternative for now.
-        $search = self::$SECTION_MASKING_START_DELIM.$key.self::$SECTION_MASKING_END_DELIM;
-        $pos = strpos($markup_code, $search);
+        $search = self::$SECTION_MASKING_START_DELIM.$placeholderKey.self::$SECTION_MASKING_END_DELIM;
+        $pos = strpos($markupText, $search);
         if ($pos !== false) {
-          $markup_code = str_replace($search,
-                  self::$SECTION_MASKING_START_DELIM.$key."_{$pos}_".self::$SECTION_MASKING_END_DELIM,
-                  $markup_code);
+          $markupText = str_replace($search,
+                  self::$SECTION_MASKING_START_DELIM.$placeholderKey."_{$pos}_".self::$SECTION_MASKING_END_DELIM,
+                  $markupText);
         }
       }
     }
 
     // NOTE: This must be done AFTER encoding the positions in the placeholders as this changes the text.
-    $this->determine_text_positions($markup_code);
+    $this->determine_text_positions($markupText);
 
     // NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
-    $pattern = '/'.preg_quote(self::$SECTION_MASKING_START_DELIM).'([a-f0-9]{32})(?:_([0-9]+)_)?'.preg_quote(self::$SECTION_MASKING_END_DELIM).'/';
-    return preg_replace_callback($pattern, array($this, 'decode_placeholders_callback'), $markup_code);
+    $pattern = '/'.self::$SECTION_MASKING_START_DELIM.'([a-f0-9]{32})(?:_([0-9]+)_)?'.self::$SECTION_MASKING_END_DELIM.'/';
+    return preg_replace_callback($pattern, array($this, 'decode_placeholders_callback'), $markupText);
   }
 
   /**
@@ -831,8 +869,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         }
         // NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
         //   get the same position calculated.
-        $placeholder = $this->encode_placeholder('section-link'.$anchor_name.$this->anchor_id_counter,
-                                                 $anchor_name,
+        $placeholder = $this->registerMaskedText($anchor_name,
+                                                 'section-link'.$anchor_name.$this->anchor_id_counter,
                                                  array($this, 'resolve_heading_relative_pos'), true);
         $this->anchor_id_counter++;
         $css_classes = array('section-link-'.$placeholder => true);
@@ -1153,7 +1191,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   private function resolve_heading_name($anchor_name) {
-    // Called from decode_placeholders().
+    // Called from unmaskAllTextSections().
     if (isset($this->headings_title_map[$anchor_name])) {
       return $this->headings_title_map[$anchor_name];
     } else {
