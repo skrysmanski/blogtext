@@ -1,10 +1,10 @@
 /**
  * GeSHi CSS Inspired by TextMate Theme "Twilight"
  *
- * Copyright 2008 Mark Story 
- * 
- * This work is licensed under the Creative Commons Attribution-Share Alike 2.5 Canada License. 
- * To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/2.5/ca/ 
+ * Copyright 2008 Mark Story
+ *
+ * This work is licensed under the Creative Commons Attribution-Share Alike 2.5 Canada License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/2.5/ca/
  * or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
  *
  * @copyright		Copyright 2008, Mark Story.
@@ -42,16 +42,16 @@
 /* comments */
 .co1,
 .coMULTI {
-	color:#5F5A60;	
+	color:#5F5A60;
 }
 /* methods */
 .me1{
 	color:#fff;
 }
-.me0 {	
+.me0 {
 
 }
-.me2 {	
+.me2 {
 	color:#000;
 }
 
@@ -70,7 +70,7 @@
 	color: #CDA869;
 }
 .kw2 {
-	color:#F9EE98;		
+	color:#F9EE98;
 }
 
 .kw3 {
@@ -88,8 +88,8 @@
 }
 
 
-/* 
-* CSS selectors 
+/*
+* CSS selectors
 *****************/
 /* classnames */
 

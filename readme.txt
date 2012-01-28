@@ -41,7 +41,7 @@ your webserver.
 
 1. Simply download the BlogText .zip file.
 1. Extract it.
-1. Upload the folder "blogtext" (containing the file `blogtext.php` among others) into your blog's plugin 
+1. Upload the folder "blogtext" (containing the file `blogtext.php` among others) into your blog's plugin
    directory (usually `wp-content/plugins`).
 1. Activate it from the "Plugins" panel in your blog's admin interface
 1. Start writing your posts
@@ -60,14 +60,14 @@ your webserver.
 
 = 0.9.2 =
 * Checked compatibility against Wordpress 3.2
-* Fixed problem where the id of an attachment could not be determined in some cases. In these cases the 
+* Fixed problem where the id of an attachment could not be determined in some cases. In these cases the
   attachment would not display correctly.
 * Fix image info: Now also recognizes Exif JPEG images
 * Fixed error when updating a page that doesn't use BlogText
 * Added special (more natural) code block languages: C++, C++/Qt, C++/CLI, C#, Java (maps to java5)
 * Added two new GeSHi themes with more complete coloring; the bright one is now the default one
 * Added ability to highlight certain lines in code blocks
-* The language lookup window has been improved: it can now be closed by pressing Escape or Return, has 
+* The language lookup window has been improved: it can now be closed by pressing Escape or Return, has
   scrollbars, displays the language's full name, and displays the most popular languages at the top.
 * Updated GeSHI to the most recent SVN revision
 * Added some regression tests to avoid/reduce conversion errors when modifying BlogText's sources. (only in
@@ -85,7 +85,7 @@ your webserver.
 * Fixed image captions for external images; they no longer have a width of 0px.
 * Added "big" for image size which is just an alias for "large".
 * Certain JPEG images (encoded with Progressive DCT) can now be used
-* If an alt text is specified for an image, it's now used as title as well (if no title has been specified 
+* If an alt text is specified for an image, it's now used as title as well (if no title has been specified
   separately). Previously the file name was chosen instead.
 * Image titles will now be added as title attribute to the surround link, if there is any.
 * Plain text URLs in lists are now correctly recognized

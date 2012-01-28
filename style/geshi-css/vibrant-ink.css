@@ -1,10 +1,10 @@
 /**
  * GeSHi CSS Inspired by TextMate Theme "Vibrant Ink"
  *
- * Copyright 2008 Mark Story 
- * 
- * This work is licensed under the Creative Commons Attribution-Share Alike 2.5 Canada License. 
- * To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/2.5/ca/ 
+ * Copyright 2008 Mark Story
+ *
+ * This work is licensed under the Creative Commons Attribution-Share Alike 2.5 Canada License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/2.5/ca/
  * or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
  *
  * @copyright		Copyright 2008, Mark Story.
@@ -32,7 +32,6 @@
 }
 
 
-
 /* Line highlights */
 .li1 {
 	background: #030303;
@@ -42,16 +41,16 @@
 /* comments */
 .co1,
 .coMULTI {
-	color:#7830CC;	
+	color:#7830CC;
 }
 /* methods */
 .me1{
 	color:#fff;
 }
-.me0 {	
+.me0 {
 
 }
-.me2 {	
+.me2 {
 	color:#000;
 }
 
@@ -70,7 +69,7 @@
 	color: #C6C765;
 }
 .kw2 {
-	color:#FFC500;		
+	color:#FFC500;
 }
 
 .kw3 {
@@ -88,8 +87,8 @@
 }
 
 
-/* 
-* CSS selectors 
+/*
+* CSS selectors
 *****************/
 /* classnames */
 
