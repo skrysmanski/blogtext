@@ -456,7 +456,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         break;
     }
 
-    throw new Exception('Plugin error: invalid block type '.$value[0].' encountered in "format_no_markup_block()"');
+    throw new Exception('Plugin error: invalid block type '.$block_type.' encountered in "format_no_markup_block()"');
   }
 
   private function encode_inner_tag_urls_callback($matches) {
