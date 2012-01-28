@@ -4,8 +4,9 @@ Readme for tests
 See also: http://codex.wordpress.org/Debugging_in_WordPress
 
 Recommended WP-Plugins:
- 
+
  * Debug Bar
+ * Wordpress Logger (version 0.3 issues a warning since Wordpress 3.3)
 
 Debugging:
 
@@ -28,7 +29,7 @@ Prepare Wordpress Testinstallation
 
 Create Wordpress copies for each Wordpress version
 --------------------------------------------------
-This section describes how to maintain one Wordpress installation per Wordpress version. It assumes, you've 
+This section describes how to maintain one Wordpress installation per Wordpress version. It assumes, you've
 already created a working Wordpress installation. To update to the new version, do:
 
  1. Copy the Wordpress installation folder of the latest version you have (e.g. copy from "wordpress-3.2" to

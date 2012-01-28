@@ -22,6 +22,7 @@ require_once(dirname(__FILE__).'/../api/commons.php');
 MSCL_Api::load(MSCL_Api::GESHI);
 
 MSCL_require_once('PlaceholderManager.php', __FILE__);
+MSCL_require_once('TextPositionManager.php', __FILE__);
 MSCL_require_once('list_base.php', __FILE__);
 MSCL_require_once('table_base.php', __FILE__);
 
@@ -45,11 +46,6 @@ abstract class AbstractTextMarkup {
 
   private static $SUPPORTED_GESHI_LANGUAGES;
 
-  /**
-   * @var PlaceholderManager
-   */
-  private $m_placeholderManager;
-
   private static function static_constructor() {
     if (self::$IS_STATIC_INITIALIZED) {
       return;
@@ -62,10 +58,21 @@ abstract class AbstractTextMarkup {
     self::$IS_STATIC_INITIALIZED = true;
   }
 
+  /**
+   * @var TextPositionManager
+   */
+  private $m_textPosManager;
+
+  /**
+   * @var PlaceholderManager
+   */
+  private $m_placeholderManager;
+
   protected function __construct() {
     self::static_constructor();
 
-    $this->m_placeholderManager = new PlaceholderManager();
+    $this->m_textPosManager = new TextPostionManager();
+    $this->m_placeholderManager = new PlaceholderManager($this->m_textPosManager);
   }
 
   public static function generate_error_html($message, $additional_css='') {
@@ -77,7 +84,8 @@ abstract class AbstractTextMarkup {
   }
 
   protected function resetAbstractTextMarkup() {
-    $this->m_placeholderManager->clear();
+    $this->m_textPosManager->reset();
+    $this->m_placeholderManager->reset();
   }
 
 
@@ -88,20 +96,24 @@ abstract class AbstractTextMarkup {
 
   protected function registerMaskedText($textToMask, $textId = '', $textPostProcessingCallback=null,
                                         $determineTextPos=false) {
-    return $this->m_placeholderManager->registerMaskedText($textToMask, $textId, $textPostProcessingCallback,
-                                                           $determineTextPos);
+    return $this->m_placeholderManager->registerPlaceholder($textToMask, $textId, $textPostProcessingCallback,
+                                                            $determineTextPos);
   }
 
   protected function unmaskAllTextSections($markupText) {
     return $this->m_placeholderManager->unmaskAllTextSections($markupText);
   }
 
-  protected function add_text_position_request($text) {
-    $this->m_placeholderManager->add_text_position_request($text);
+  protected function add_text_position_request($text, $textId = null) {
+    $this->m_textPosManager->addTextPositionRequest($text, $textId);
+  }
+
+  protected function determineTextPositions($markupText) {
+    $this->m_textPosManager->determineTextPositions($markupText);
   }
 
   protected function get_text_position($text) {
-    return $this->m_placeholderManager->get_text_position($text);
+    return $this->m_textPosManager->getTextPosition($text);
   }
 
 

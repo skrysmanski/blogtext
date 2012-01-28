@@ -109,10 +109,10 @@ will look like this (which is exactly like the original code):
 </table>
 
 
-For more information on inserting code snippets, see <a class="section-link-not-existing" href="#XXX_code_snippets_syntax">#XXX_code_snippets_syntax</a> below.
+For more information on inserting code snippets, see <a class="section-link-below" href="#XXX_code_snippets_syntax">#XXX_code_snippets_syntax</a> below.
 
 <em>Limitations:</em>
-<ul><li class="first-item">You can't start an <a class="section-link-not-existing" href="#XXX_indenting_text">indention</a> with a bold word using the <code class="not-hl">**...**</code> syntax. Use <code class="not-hl">&lt;b&gt;...&lt;/b&gt;</code> instead.</li><li>You can't start a new line with a bold word using the <code class="not-hl">**...**</code> syntax directly after an <a class="section-link-not-existing" href="#XXX_lists">unordered list</a>.</li><li class="last-item"><p>You can't start a line with a <code class="not-hl">##</code> code snippet. Simply use one of the other syntaxes (ie. <code class="not-hl">`...`</code> or <code class="not-hl">{{{...}}}</code>).</p></li></ul><h2 id="XXX_links">Links <a class="heading-link" href="http://mydomain.com/?p=XXX#links" title="Link to this section">¶</a></h2>
+<ul><li class="first-item">You can't start an <a class="section-link-below" href="#XXX_indenting_text">indention</a> with a bold word using the <code class="not-hl">**...**</code> syntax. Use <code class="not-hl">&lt;b&gt;...&lt;/b&gt;</code> instead.</li><li>You can't start a new line with a bold word using the <code class="not-hl">**...**</code> syntax directly after an <a class="section-link-below" href="#XXX_lists">unordered list</a>.</li><li class="last-item"><p>You can't start a line with a <code class="not-hl">##</code> code snippet. Simply use one of the other syntaxes (ie. <code class="not-hl">`...`</code> or <code class="not-hl">{{{...}}}</code>).</p></li></ul><h2 id="XXX_links">Links <a class="heading-link" href="http://mydomain.com/?p=XXX#links" title="Link to this section">¶</a></h2>
 BlogText provides some constructs for creating links.
 
 <h3 id="XXX_plain-text_links">Plain-Text Links <a class="heading-link" href="http://mydomain.com/?p=XXX#plain-text_links" title="Link to this section">¶</a></h3>
@@ -145,10 +145,10 @@ This will render as:
 You can also link to specific section in a page or post by providing a so called "anchor name". The anchor name is simply append to the page's name separated by a hash sign (<code class="not-hl">#</code>). If you want to specify a link to a section on the same page, simply just specify the hash sign and the anchor name. For example this code:
 <p class="indented">This is a link to [[hello-world#example-section|another post's section]] and this to the section [[#internal_links]] on the same page.</p>
 would render as:
-<p class="indented">This is a link to <a class="internal internal-post" href="http://mydomain.com/?p=XXX#example-section">another post's section</a> and this to the section <a class="section-link-not-existing" href="#XXX_internal-links">#XXX_internal-links</a> on the same page.</p>
+<p class="indented">This is a link to <a class="internal internal-post" href="http://mydomain.com/?p=XXX#example-section">another post's section</a> and this to the section <a class="section-link-above" href="#XXX_internal-links">#XXX_internal-links</a> on the same page.</p>
 Note that when you don't specify a name for a link to a section on the same page, the section's title is automatically chosen.
 
-For more information about how to find out a section's anchor name and how to specify it, see <a class="section-link-not-existing" href="#XXX_anchor-names">#XXX_anchor-names</a>.
+For more information about how to find out a section's anchor name and how to specify it, see <a class="section-link-below" href="#XXX_anchor-names">#XXX_anchor-names</a>.
 
 Besides linking to other posts or pages you can also link to some special pages. The following table gives an overview over all possibilities:
 
@@ -211,17 +211,17 @@ The next thing you may have noticed is that you can specify a link's name by add
 If you don't specify a name after the pipe (<code class="not-hl">|</code>), the link target will be used as name.
 <p class="indented">For example, <code class="not-hl">[[file:gpl-3.0.pdf|]]</code> will render as <a class="attachment file-pdf" href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/gpl-3.0.pdf" rel="attachment">gpl-3.0.pdf</a> (whereas <code class="not-hl">[[file:gpl-3.0.pdf]]</code> - without trailing pipe - will render as <a class="attachment file-pdf" href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/gpl-3.0.pdf" rel="attachment">GNU General Public License v3</a>).</p>
 The text after a pipe is called a <em>parameter</em>. An Interlink can have multiple parameters. Parameters are separated by a pipe.
-<p class="indented">For example, <code class="not-hl">[[wiki:en|Portal (video game)|Portal]]</code> - which is a <a class="section-link-not-existing" href="#XXX_custom-interlinks">custom interlink</a> - will be rendered as <a class="external external-wiki" href="http://en.wikipedia.org/wiki/Portal (video game)" target="_blank">Portal</a>. This interlink has three parameters: <code class="not-hl">en</code>, <code class="not-hl">Portal (video game)</code>, and <code class="not-hl">Portal</code>.</p>
+<p class="indented">For example, <code class="not-hl">[[wiki:en|Portal (video game)|Portal]]</code> - which is a <a class="section-link-below" href="#XXX_custom-interlinks">custom interlink</a> - will be rendered as <a class="external external-wiki" href="http://en.wikipedia.org/wiki/Portal (video game)" target="_blank">Portal</a>. This interlink has three parameters: <code class="not-hl">en</code>, <code class="not-hl">Portal (video game)</code>, and <code class="not-hl">Portal</code>.</p>
 So, to be more precise, the link name is always determined by the <em>last parameter</em>. 
 <p class="indented">For example, <code class="not-hl">[[wiki:en|Portal (video game)]]</code> will be rendered as <a class="external external-wiki" href="http://en.wikipedia.org/wiki/Portal (video game)" target="_blank">Portal (video game)</a> while <code class="not-hl">[[wiki:en|Portal (video game)|]]</code> will be rendered as <a class="external external-wiki" href="http://en.wikipedia.org/wiki/Portal (video game)" target="_blank">en</a>.</p>
-There are, however, a few exceptions to this rule where the last parameter is not used as name - most prominently in conjunction with <a class="section-link-not-existing" href="#XXX_images">images</a>.
+There are, however, a few exceptions to this rule where the last parameter is not used as name - most prominently in conjunction with <a class="section-link-below" href="#XXX_images">images</a>.
 
 One last thing: If you specify a link within a word, the part of the word that comes after the link will be part of the link, whereas the part before the link won't be. For example:
 <p class="indented"><code class="not-hl">Link to [[syntax]]s and Test[[syntax]] (with &quot;[[syntax]]&quot;).</code></p>
 will render as:
 <p class="indented">Link to <a class="not-found" href="#">syntax[doesn't exist]s</a> and Test<a class="not-found" href="#">syntax[doesn't exist]</a> (with "<a class="not-found" href="#">syntax[doesn't exist]</a>").</p>
 <h2 id="XXX_images">Images <a class="heading-link" href="http://mydomain.com/?p=XXX#images" title="Link to this section">¶</a></h2>
-Inserting an image into a post or page works very similar to the process described in <a class="section-link-not-existing" href="#XXX_inserting-attachments">#XXX_inserting-attachments</a>. There are some small differences though.
+Inserting an image into a post or page works very similar to the process described in <a class="section-link-above" href="#XXX_inserting-attachments">#XXX_inserting-attachments</a>. There are some small differences though.
 
 <div class="image-frame align-center image-frame-align-center" style="width: 300px;"><div class="image"><a href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/image-upload-properties.png" rel="attachment" title="Alignment and size when inserting an image"><img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x300_resize_if_larger" title="Alignment and size when inserting an image" alt="Alignment and size when inserting an image" width="300" height="40"/></a></div><div class="image-caption">Alignment and size when inserting an image</div></div>
 
@@ -231,7 +231,7 @@ This will be rendered as:
 
 <div class="align-center image-align-center"><a href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/reflections_for_the_day.jpg" rel="attachment" title="&quot;reflections for the day&quot; by Dene' (Seattle) Miles on Flickr"><img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x300_resize_if_larger" title="&quot;reflections for the day&quot; by Dene' (Seattle) Miles on Flickr" alt="&quot;reflections for the day&quot; by Dene' (Seattle) Miles on Flickr" width="300" height="199"/></a></div>
 
-As you can see, the words <code class="not-hl">medium</code> (size) and <code class="not-hl">center</code> (alignment) appear as <a class="section-link-not-existing" href="#XXX_interlinks-in-general">Interlink parameters</a> along with <code class="not-hl">link=source</code>. The parameter <code class="not-hl">link=</code> defines what happens when the user clicks on the image. <code class="not-hl">link=source</code> means "link to the source image" - which is the full-size version of the smaller version displayed here.
+As you can see, the words <code class="not-hl">medium</code> (size) and <code class="not-hl">center</code> (alignment) appear as <a class="section-link-above" href="#XXX_interlinks-in-general">Interlink parameters</a> along with <code class="not-hl">link=source</code>. The parameter <code class="not-hl">link=</code> defines what happens when the user clicks on the image. <code class="not-hl">link=source</code> means "link to the source image" - which is the full-size version of the smaller version displayed here.
 
 If you want to display a caption for an image, you can either specify the caption in the media browser and add the <code class="not-hl">caption</code> parameter or specify the caption directly in the interlink:
 <p class="indented">Either use <code class="not-hl">[[image:myimage.jpg|caption]]</code> or <code class="not-hl">[[image:myimage.jpg|My special caption]]</code>.</p>
@@ -241,7 +241,7 @@ A caption for the image above will display as:
 
 <div class="image-frame align-center image-frame-align-center" style="width: 300px;"><div class="image"><img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x300_resize_if_larger" title="Reflection for the day - by Dene' (Seattle) Miles" alt="Reflection for the day - by Dene' (Seattle) Miles" width="300" height="199"/></div><div class="image-caption">Reflection for the day - by Dene' (Seattle) Miles</div></div>
 
-Note that you can specify the image parameters in any order. For example <code class="not-hl">[[image:reflections_for_the_day.jpg|link=source|medium|center]]</code> will have the same result as the code above. For a full list of all available parameters and their values, see <a class="section-link-not-existing" href="#XXX_image-param-ref">#XXX_image-param-ref</a>.
+Note that you can specify the image parameters in any order. For example <code class="not-hl">[[image:reflections_for_the_day.jpg|link=source|medium|center]]</code> will have the same result as the code above. For a full list of all available parameters and their values, see <a class="section-link-below" href="#XXX_image-param-ref">#XXX_image-param-ref</a>.
 
 One more thing: Inserting a small image (possibly without alignment) with a link to its source image is a special case. In this case BlogText assumes you want to insert a so called "thumbnail" (which is basically a small image with a link to its source image). The code in this case (with alignment "None") would look like this:
 <p class="indented"><code class="not-hl">[[image:eflections_for_the_day.jpg|thumb]]</code></p>
@@ -297,7 +297,7 @@ The section describes all parameters and their values for images (<code class="n
 <tr>
 <td>Link with prefix</td>
 <td><code class="not-hl">link=category:Announcements</code></td>
-<td>You can used any available <a class="section-link-not-existing" href="#XXX_interlinks-in-general">Interlink</a>. It's no problem, if the interlink requires one than one parameter. All parameters not recognized by the image Interlink will automatically be passed as parameter to the link Interlink.</td>
+<td>You can used any available <a class="section-link-above" href="#XXX_interlinks-in-general">Interlink</a>. It's no problem, if the interlink requires one than one parameter. All parameters not recognized by the image Interlink will automatically be passed as parameter to the link Interlink.</td>
 </tr>
 <tr>
 <td>Link to external page</td>
@@ -339,7 +339,7 @@ With this Interlink you can define Wikipedia links for any available language. F
 <p class="indented"><code class="not-hl">[[wiki:en|Portal (video game)|Portal in English]] and [[wiki:de|Portal (Computerspiel)|Portal auf Deutsch]]</code></p>
 which then would render as:
 <p class="indented"><a class="external external-wiki" href="http://en.wikipedia.org/wiki/Portal (video game)" target="_blank">Portal in English</a> and <a class="external external-wiki" href="http://de.wikipedia.org/wiki/Portal (Computerspiel)" target="_blank">Portal auf Deutsch</a></p>
-As you can see, each placeholder in the prefix definition (ie. <code class="not-hl">$1</code>, <code class="not-hl">$2</code>, ...) is substituted with the Interlink parameter with the same "position number" (ie. <code class="not-hl">$1</code> is replaced by the first parameter, <code class="not-hl">$2</code> by the second, and so forth). This means, however, that the order of the parameters is not arbitrary (unlike <a class="section-link-not-existing" href="#XXX_images">images</a> for which parameters can be specified in any order).
+As you can see, each placeholder in the prefix definition (ie. <code class="not-hl">$1</code>, <code class="not-hl">$2</code>, ...) is substituted with the Interlink parameter with the same "position number" (ie. <code class="not-hl">$1</code> is replaced by the first parameter, <code class="not-hl">$2</code> by the second, and so forth). This means, however, that the order of the parameters is not arbitrary (unlike <a class="section-link-above" href="#XXX_images">images</a> for which parameters can be specified in any order).
 
 Also custom interlinks have the advantage to let you specify a custom icon for this particular link type (via CSS) - like it is done for the Wikipedia links here.
 
@@ -429,7 +429,7 @@ This would render as:
 
 which would render as:
 
-<ol><li class="first-item">list 1, item 1</li><li class="last-item"><p>list 1, item 2</p></li></ol><ol><li class="first-item">list 2, item 1</li><li class="last-item"><p>list 2, item 2</p></li></ol><em>Note:</em> If you're looking for definition lists, see <a class="section-link-not-existing" href="#XXX_definition-lists">#XXX_definition-lists</a>.
+<ol><li class="first-item">list 1, item 1</li><li class="last-item"><p>list 1, item 2</p></li></ol><ol><li class="first-item">list 2, item 1</li><li class="last-item"><p>list 2, item 2</p></li></ol><em>Note:</em> If you're looking for definition lists, see <a class="section-link-below" href="#XXX_definition-lists">#XXX_definition-lists</a>.
 
 <h2 id="XXX_headings">Headings <a class="heading-link" href="http://mydomain.com/?p=XXX#headings" title="Link to this section">¶</a></h2>
 If your post or page has gotten a little bit longer, it's a good advise to split the post or page into sections. Sections are created by inserting headings into the post or page. Headings are created like this:
@@ -470,13 +470,13 @@ For your anchor name, you shouldn't use fancy characters like spaces, tabulators
 <h2 id="XXX_code_snippets_syntax">Insertings Code Snippets <a class="heading-link" href="http://mydomain.com/?p=XXX#code_snippets_syntax" title="Link to this section">¶</a></h2>
 BlogText provides a convenient method to add code snippets to your post or page.
 
-<em>Note:</em> If you're just looking for a way to prevent BlogText from interpreting some text, you should use a <a class="section-link-not-existing" href="#XXX_no-parse">no-parse section</a>.
+<em>Note:</em> If you're just looking for a way to prevent BlogText from interpreting some text, you should use a <a class="section-link-below" href="#XXX_no-parse">no-parse section</a>.
 
-Inline code fragments have already been mentioned in <a class="section-link-not-existing" href="#XXX_basic-inline-format">#XXX_basic-inline-format</a> but are repeated here for completeness. There are three forms available: using <code class="not-hl">##</code>, <code class="not-hl">`</code>, and <code class="not-hl">{{{ ... }}}</code>. For example:
+Inline code fragments have already been mentioned in <a class="section-link-above" href="#XXX_basic-inline-format">#XXX_basic-inline-format</a> but are repeated here for completeness. There are three forms available: using <code class="not-hl">##</code>, <code class="not-hl">`</code>, and <code class="not-hl">{{{ ... }}}</code>. For example:
 <p class="indented"><code class="not-hl">An example ##code fragment##, a `second one`, and</code><code class="not-hl"> {{{another one}}} here.</code></p>
 This would render as:
 <p class="indented">An example <code class="not-hl">code fragment</code>, <code class="not-hl">second one</code>, and <code class="not-hl">another one</code> here.</p>
-<em>Limitation:</em> You can't use <code class="not-hl">## ... ##</code> as first thing on a line as this will be considered an <a class="section-link-not-existing" href="#XXX_lists">ordered list</a>. Use <code class="not-hl">{{{ ... }}}</code> or <code class="not-hl">` ... `</code> instead.
+<em>Limitation:</em> You can't use <code class="not-hl">## ... ##</code> as first thing on a line as this will be considered an <a class="section-link-above" href="#XXX_lists">ordered list</a>. Use <code class="not-hl">{{{ ... }}}</code> or <code class="not-hl">` ... `</code> instead.
 
 More often, however, you will want to use <em>code blocks</em>. You can specify a code block like this:
 
@@ -594,7 +594,7 @@ will render as:
 <ul><li class="first-item">You can also enable syntax highlighting for inline code snippets. For this, you need to use the curly braces syntax (<code class="not-hl">{{{ ... }}}</code>). For example this <code class="not-hl">{{{ lang=php function do_something($my_var) }}}</code> will render like this: <code class="hl hl-php"><span class="kw2">function</span> do_something<span class="br0">&#40;</span><span class="re0">$my_var</span><span class="br0">&#41;</span></code>.</li><li class="last-item"><p>You can also specify the language by the file extension associated with the language. Simply use a dot followed by the file extension. For example, this will result in Ada highlighting: <code class="not-hl">{{{ lang=.adb ... }}}</code>.</p></li></ul><h2 id="XXX_tables">Tables <a class="heading-link" href="http://mydomain.com/?p=XXX#tables" title="Link to this section">¶</a></h2>
 Since creating tables with HTML is quite lengthy and not that easy to read, BlogText provides easier syntax for specifying tables: a syntax for simple tables and one for more complex tables.
 
-<em>Limitations:</em> You can't specify BlogText lists in BlogText tables (since these tables don't allow line breaks). If you need a list within a table, you need either to create a HTML list (with <code class="not-hl">&lt;ul&gt;</code>, <code class="not-hl">&lt;ol&gt;</code>, and <code class="not-hl">&lt;li&gt;</code> tags) or create an HTML table (with <code class="not-hl">&lt;table&gt;</code>, <code class="not-hl">&lt;tr&gt;</code>, <code class="not-hl">&lt;th&gt;</code>, and <code class="not-hl">&lt;td&gt;</code> tags). <a class="section-link-not-existing" href="#XXX_code_snippets_syntax">Code block</a> will work however.
+<em>Limitations:</em> You can't specify BlogText lists in BlogText tables (since these tables don't allow line breaks). If you need a list within a table, you need either to create a HTML list (with <code class="not-hl">&lt;ul&gt;</code>, <code class="not-hl">&lt;ol&gt;</code>, and <code class="not-hl">&lt;li&gt;</code> tags) or create an HTML table (with <code class="not-hl">&lt;table&gt;</code>, <code class="not-hl">&lt;tr&gt;</code>, <code class="not-hl">&lt;th&gt;</code>, and <code class="not-hl">&lt;td&gt;</code> tags). <a class="section-link-above" href="#XXX_code_snippets_syntax">Code block</a> will work however.
 
 <h3 id="XXX_simple-table-syntax">Simple Tables (Creole Syntax) <a class="heading-link" href="http://mydomain.com/?p=XXX#simple-table-syntax" title="Link to this section">¶</a></h3>
 This syntax is only usable for very simple tables, although this might suffice in most cases. The simpliest form looks like this:
@@ -646,7 +646,7 @@ and renders as:
 <p class="table-caption"> This is an example table.</p>
 
 
-That's what you can do with this table syntax. If you want custom CSS styles for certain table cell, column-spanning, or row-spanning you need to use the <a class="section-link-not-existing" href="#XXX_complex-table-syntax">syntax for complex tables</a>.
+That's what you can do with this table syntax. If you want custom CSS styles for certain table cell, column-spanning, or row-spanning you need to use the <a class="section-link-below" href="#XXX_complex-table-syntax">syntax for complex tables</a>.
 
 <em>Note:</em> The trailing pipe characters (<code class="not-hl">|</code>) is optional. So is the alignment of the pipe characters. The last table example could also be written like this (yielding the same result):
 
@@ -900,7 +900,7 @@ If you don't want a certain portion of text to be interpreted as BlogText syntax
 <p class="indented"><code class="not-hl">{{! This text **won't be bold** printed. !}}</code></p>
 This will render as:
 <p class="indented"> This text **won't be bold** printed. </p>
-The difference to a <a class="section-link-not-existing" href="#XXX_code_snippets_syntax">code block</a> is that this isn't rendered with a <a class="external external-wiki" href="http://en.wikipedia.org/wiki/Monospaced_font" target="_blank">monospaced font</a> but with the blog's regular font.
+The difference to a <a class="section-link-above" href="#XXX_code_snippets_syntax">code block</a> is that this isn't rendered with a <a class="external external-wiki" href="http://en.wikipedia.org/wiki/Monospaced_font" target="_blank">monospaced font</a> but with the blog's regular font.
 
 <em>Note:</em> A no-parse section won't allow you by default to used HTML inside of it. If you really need to use HTML within a no-parse section, add a second exclamation mark to the opening marker (ie. <code class="not-hl">{{!!</code> instead of <code class="not-hl">{{!</code>). For example:
 <p class="indented"><code class="not-hl">{{!!&lt;code&gt;&amp;#37;&amp;#37;&lt;/code&gt;!}} vs. {{!&lt;code&gt;&amp;#37;&amp;#37;&lt;/code&gt;!}}</code></p>

@@ -20,7 +20,7 @@
 
 
 require_once(dirname(__FILE__).'/../api/commons.php');
-
+MSCL_require_once('TextPositionManager.php', __FILE__);
 
 class PlaceholderManager {
   /**
@@ -39,16 +39,15 @@ class PlaceholderManager {
   private static $SECTION_MASKING_END_DELIM;
 
   /**
+   * @var TextPositionManager
+   */
+  private $m_textPositionManager;
+
+  /**
    *
    * @var mixed[]
    */
   private $m_placeholders = array();
-
-  /**
-   * Contains
-   * @var <type>
-   */
-  private $text_positions = array();
 
   /**
    * Used to prevent the static constructor from running multiple times.
@@ -73,13 +72,20 @@ class PlaceholderManager {
     self::$IS_STATIC_INITIALIZED = true;
   }
 
-  public function __construct() {
+  public function __construct($textPositionManager) {
     self::static_constructor();
+
+    $this->m_textPositionManager = $textPositionManager;
   }
 
-  public function clear() {
+  public function reset() {
     $this->m_placeholders = array();
-    $this->text_positions = array();
+  }
+
+  private static function createPlaceholderText($placeholderId) {
+    # Create and return the placeholder. Wrap it in the delimiter so that we can find it more easily and make it even
+    # more unique.
+    return self::$SECTION_MASKING_START_DELIM.$placeholderId.self::$SECTION_MASKING_END_DELIM;
   }
 
   /**
@@ -102,7 +108,7 @@ class PlaceholderManager {
    *
    * @see unmaskAllTextSections()
    */
-  public function registerMaskedText($textToMask, $textId = '', $textPostProcessingCallback=null,
+  public function registerPlaceholder($textToMask, $textId = '', $textPostProcessingCallback=null,
                                       $determineTextPos=false) {
     if (empty($textId)) {
       $textId = $textToMask;
@@ -114,9 +120,11 @@ class PlaceholderManager {
     # Register the masked text so that it can be unmasked later.
     $this->m_placeholders[$placeholderId] = array($textToMask, $textPostProcessingCallback, $determineTextPos);
 
-    # Create and return the placeholder. Wrap it in the delimiter so that we can find it more easily and make it even
-    # more unique.
-    return self::$SECTION_MASKING_START_DELIM.$placeholderId.self::$SECTION_MASKING_END_DELIM;
+    $placeholderText = self::createPlaceholderText($placeholderId);
+    if ($determineTextPos) {
+      $this->m_textPositionManager->addTextPositionRequest($placeholderText, $placeholderId);
+    }
+    return $placeholderText;
   }
 
   /**
@@ -130,27 +138,8 @@ class PlaceholderManager {
    * @see registerMaskedText()
    */
   public function unmaskAllTextSections($markupText) {
-    foreach ($this->m_placeholders as $placeholderId => $maskedTextInfo) {
-      list($unused, $callbackFunc, $requiresTextPos) = $maskedTextInfo;
-
-      if ($requiresTextPos && $callbackFunc !== null) {
-        // Encode line in the placeholders
-        // NOTE: This is highly inefficient but we don't have any alternative for now.
-        $search = self::$SECTION_MASKING_START_DELIM.$placeholderId.self::$SECTION_MASKING_END_DELIM;
-        $pos = strpos($markupText, $search);
-        if ($pos !== false) {
-          $markupText = str_replace($search,
-                  self::$SECTION_MASKING_START_DELIM.$placeholderId."_{$pos}_".self::$SECTION_MASKING_END_DELIM,
-                  $markupText);
-        }
-      }
-    }
-
-    // NOTE: This must be done AFTER encoding the positions in the placeholders as this changes the text.
-    $this->determine_text_positions($markupText);
-
-    // NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
-    $pattern = '/'.self::$SECTION_MASKING_START_DELIM.'([a-f0-9]{32})(?:_([0-9]+)_)?'.self::$SECTION_MASKING_END_DELIM.'/';
+    # NOTE: MD5 ist 32 hex chars (a - f, 0 - 9)
+    $pattern = '/'.self::$SECTION_MASKING_START_DELIM.'([a-f0-9]{32})'.self::$SECTION_MASKING_END_DELIM.'/';
     return preg_replace_callback($pattern, array($this, 'unmaskTextSectionReplaceCallback'), $markupText);
   }
 
@@ -162,36 +151,17 @@ class PlaceholderManager {
    * @return string  the replacement text
    */
   private function unmaskTextSectionReplaceCallback($matches) {
-    list($value, $callback_func, $requires_text_pos) = $this->m_placeholders[$matches[1]];
-    if ($callback_func !== null) {
-      if (!$requires_text_pos) {
-        return call_user_func($callback_func, $value);
+    $placeholderId = $matches[1];
+    list($text, $textPostProcessingCallback, $determineTextPos) = $this->m_placeholders[$placeholderId];
+    if ($textPostProcessingCallback !== null) {
+      if (!$determineTextPos) {
+        return call_user_func($textPostProcessingCallback, $text, $placeholderId);
       } else {
-        return call_user_func($callback_func, $value, (int)$matches[2]);
+        return call_user_func($textPostProcessingCallback, $text, $placeholderId,
+                              $this->m_textPositionManager->getTextPosition($placeholderId));
       }
     } else {
-      return $value;
-    }
-  }
-
-  public function add_text_position_request($text) {
-    $this->text_positions[$text] = -1;
-  }
-
-  private function determine_text_positions($markup_code) {
-    foreach ($this->text_positions as $text => $unused) {
-      $pos = strpos($markup_code, $text);
-      if ($pos !== false) {
-        $this->text_positions[$text] = $pos;
-      }
-    }
-  }
-
-  public function get_text_position($text) {
-    if (isset($this->text_positions[$text])) {
-      return $this->text_positions[$text];
-    } else {
-      return -1;
+      return $text;
     }
   }
 

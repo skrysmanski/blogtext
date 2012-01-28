@@ -224,6 +224,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       $ret = $this->execute_regex($name, $ret);
     }
 
+    $this->determineTextPositions($ret);
     $ret = $this->unmaskAllTextSections($ret);
 
     // Remove line breaks from the start and end to prevent Wordpress from adding unnecessary paragraphs
@@ -720,20 +721,22 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       $anchor_name = substr($link, 1);
       if ($this->heading_name_exists($anchor_name)) {
         if ($this->needs_anchor_escaping()) {
+          # Ids and anchor names are prefixed with the post's id
           $escaped_anchor_name = $this->create_escaped_anchor_id($anchor_name);
-          $this->add_text_position_request('"'.$escaped_anchor_name.'"');
+          $this->add_text_position_request('="'.$escaped_anchor_name.'"', $anchor_name);
           $link = '#'.$escaped_anchor_name;
         }
         else {
-          $this->add_text_position_request('"'.$anchor_name.'"');
+          # Search for id or name attribute containing the anchor name
+          $this->add_text_position_request('="'.$anchor_name.'"', $anchor_name);
         }
-        // NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
-        //   get the same position calculated.
-        $placeholder = $this->registerMaskedText($anchor_name,
+        # NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
+        #   get the same position calculated.
+        $placeholderText = $this->registerMaskedText($anchor_name,
                                                  'section-link'.$anchor_name.$this->anchor_id_counter,
-                                                 array($this, 'resolve_heading_relative_pos'), true);
+                                                 array($this, '_resolveHeadingRelativePos'), true);
         $this->anchor_id_counter++;
-        $css_classes = array('section-link-'.$placeholder => true);
+        $css_classes = array('section-link-'.$placeholderText => true);
       } else {
         $not_found_reason = 'not existing';
       }
@@ -911,6 +914,20 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   //
 
   /**
+   * This is a callback function. Don't call it directly.
+   */
+  public function _resolveHeadingRelativePos($anchorName, $anchorId, $anchorPos) {
+    # Retrieve the text position of the heading
+    $headingPos = $this->get_text_position($anchorName);
+    if ($headingPos == -1) {
+      return 'not-existing';
+    }
+
+    # Compare the link's position with the heading's position
+    return ($headingPos < $anchorPos ? 'above' : 'below');
+  }
+
+  /**
    * The callback function for headings (=====)
    */
   private function headings_callback($matches) {
@@ -1032,18 +1049,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       default:
         return self::generate_error_html('Plugin "'.$matches[1].'" not found.');
     }
-  }
-
-  /**
-   * This is a callback function. Don't call it directly.
-   */
-  public function resolve_heading_relative_pos($anchor_name, $pos) {
-    $heading_pos = $this->get_text_position('"'.$anchor_name.'"');
-    if ($heading_pos == -1) {
-      return 'not-existing';
-    }
-
-    return ($heading_pos < $pos ? 'above' : 'below');
   }
 
   private function heading_name_exists($anchor_name) {
