@@ -109,7 +109,7 @@ will look like this (which is exactly like the original code):
 </table>
 
 
-For more information on inserting code snippets, see <a class="section-link-below" href="#XXX_code_snippets_syntax">#XXX_code_snippets_syntax</a> below.
+For more information on inserting code snippets, see <a class="section-link-below" href="#XXX_code_snippets_syntax">Insertings Code Snippets</a> below.
 
 <em>Limitations:</em>
 <ul><li class="first-item">You can't start an <a class="section-link-below" href="#XXX_indenting_text">indention</a> with a bold word using the <code class="not-hl">**...**</code> syntax. Use <code class="not-hl">&lt;b&gt;...&lt;/b&gt;</code> instead.</li><li>You can't start a new line with a bold word using the <code class="not-hl">**...**</code> syntax directly after an <a class="section-link-below" href="#XXX_lists">unordered list</a>.</li><li class="last-item"><p>You can't start a line with a <code class="not-hl">##</code> code snippet. Simply use one of the other syntaxes (ie. <code class="not-hl">`...`</code> or <code class="not-hl">{{{...}}}</code>).</p></li></ul><h2 id="XXX_links">Links <a class="heading-link" href="http://mydomain.com/?p=XXX#links" title="Link to this section">¶</a></h2>
@@ -145,10 +145,10 @@ This will render as:
 You can also link to specific section in a page or post by providing a so called "anchor name". The anchor name is simply append to the page's name separated by a hash sign (<code class="not-hl">#</code>). If you want to specify a link to a section on the same page, simply just specify the hash sign and the anchor name. For example this code:
 <p class="indented">This is a link to [[hello-world#example-section|another post's section]] and this to the section [[#internal_links]] on the same page.</p>
 would render as:
-<p class="indented">This is a link to <a class="internal internal-post" href="http://mydomain.com/?p=XXX#example-section">another post's section</a> and this to the section <a class="section-link-above" href="#XXX_internal-links">#XXX_internal-links</a> on the same page.</p>
+<p class="indented">This is a link to <a class="internal internal-post" href="http://mydomain.com/?p=XXX#example-section">another post's section</a> and this to the section <a class="section-link-above" href="#XXX_internal-links">Internal Links</a> on the same page.</p>
 Note that when you don't specify a name for a link to a section on the same page, the section's title is automatically chosen.
 
-For more information about how to find out a section's anchor name and how to specify it, see <a class="section-link-below" href="#XXX_anchor-names">#XXX_anchor-names</a>.
+For more information about how to find out a section's anchor name and how to specify it, see <a class="section-link-below" href="#XXX_anchor-names">Anchor names for sections</a>.
 
 Besides linking to other posts or pages you can also link to some special pages. The following table gives an overview over all possibilities:
 
@@ -221,7 +221,7 @@ One last thing: If you specify a link within a word, the part of the word that c
 will render as:
 <p class="indented">Link to <a class="not-found" href="#">syntax[doesn't exist]s</a> and Test<a class="not-found" href="#">syntax[doesn't exist]</a> (with "<a class="not-found" href="#">syntax[doesn't exist]</a>").</p>
 <h2 id="XXX_images">Images <a class="heading-link" href="http://mydomain.com/?p=XXX#images" title="Link to this section">¶</a></h2>
-Inserting an image into a post or page works very similar to the process described in <a class="section-link-above" href="#XXX_inserting-attachments">#XXX_inserting-attachments</a>. There are some small differences though.
+Inserting an image into a post or page works very similar to the process described in <a class="section-link-above" href="#XXX_inserting-attachments">Links to Media/Attachments</a>. There are some small differences though.
 
 <div class="image-frame align-center image-frame-align-center" style="width: 300px;"><div class="image"><a href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/image-upload-properties.png" rel="attachment" title="Alignment and size when inserting an image"><img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x300_resize_if_larger" title="Alignment and size when inserting an image" alt="Alignment and size when inserting an image" width="300" height="40"/></a></div><div class="image-caption">Alignment and size when inserting an image</div></div>
 
@@ -241,7 +241,7 @@ A caption for the image above will display as:
 
 <div class="image-frame align-center image-frame-align-center" style="width: 300px;"><div class="image"><img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x300_resize_if_larger" title="Reflection for the day - by Dene' (Seattle) Miles" alt="Reflection for the day - by Dene' (Seattle) Miles" width="300" height="199"/></div><div class="image-caption">Reflection for the day - by Dene' (Seattle) Miles</div></div>
 
-Note that you can specify the image parameters in any order. For example <code class="not-hl">[[image:reflections_for_the_day.jpg|link=source|medium|center]]</code> will have the same result as the code above. For a full list of all available parameters and their values, see <a class="section-link-below" href="#XXX_image-param-ref">#XXX_image-param-ref</a>.
+Note that you can specify the image parameters in any order. For example <code class="not-hl">[[image:reflections_for_the_day.jpg|link=source|medium|center]]</code> will have the same result as the code above. For a full list of all available parameters and their values, see <a class="section-link-below" href="#XXX_image-param-ref">Image Parameter Reference</a>.
 
 One more thing: Inserting a small image (possibly without alignment) with a link to its source image is a special case. In this case BlogText assumes you want to insert a so called "thumbnail" (which is basically a small image with a link to its source image). The code in this case (with alignment "None") would look like this:
 <p class="indented"><code class="not-hl">[[image:eflections_for_the_day.jpg|thumb]]</code></p>
@@ -429,7 +429,7 @@ This would render as:
 
 which would render as:
 
-<ol><li class="first-item">list 1, item 1</li><li class="last-item"><p>list 1, item 2</p></li></ol><ol><li class="first-item">list 2, item 1</li><li class="last-item"><p>list 2, item 2</p></li></ol><em>Note:</em> If you're looking for definition lists, see <a class="section-link-below" href="#XXX_definition-lists">#XXX_definition-lists</a>.
+<ol><li class="first-item">list 1, item 1</li><li class="last-item"><p>list 1, item 2</p></li></ol><ol><li class="first-item">list 2, item 1</li><li class="last-item"><p>list 2, item 2</p></li></ol><em>Note:</em> If you're looking for definition lists, see <a class="section-link-below" href="#XXX_definition-lists">Definitions (Definition Lists)</a>.
 
 <h2 id="XXX_headings">Headings <a class="heading-link" href="http://mydomain.com/?p=XXX#headings" title="Link to this section">¶</a></h2>
 If your post or page has gotten a little bit longer, it's a good advise to split the post or page into sections. Sections are created by inserting headings into the post or page. Headings are created like this:
@@ -472,7 +472,7 @@ BlogText provides a convenient method to add code snippets to your post or page.
 
 <em>Note:</em> If you're just looking for a way to prevent BlogText from interpreting some text, you should use a <a class="section-link-below" href="#XXX_no-parse">no-parse section</a>.
 
-Inline code fragments have already been mentioned in <a class="section-link-above" href="#XXX_basic-inline-format">#XXX_basic-inline-format</a> but are repeated here for completeness. There are three forms available: using <code class="not-hl">##</code>, <code class="not-hl">`</code>, and <code class="not-hl">{{{ ... }}}</code>. For example:
+Inline code fragments have already been mentioned in <a class="section-link-above" href="#XXX_basic-inline-format">Basic Inline Formatting</a> but are repeated here for completeness. There are three forms available: using <code class="not-hl">##</code>, <code class="not-hl">`</code>, and <code class="not-hl">{{{ ... }}}</code>. For example:
 <p class="indented"><code class="not-hl">An example ##code fragment##, a `second one`, and</code><code class="not-hl"> {{{another one}}} here.</code></p>
 This would render as:
 <p class="indented">An example <code class="not-hl">code fragment</code>, <code class="not-hl">second one</code>, and <code class="not-hl">another one</code> here.</p>
