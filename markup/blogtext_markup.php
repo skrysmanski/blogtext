@@ -720,9 +720,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       //   execute rule after rule; so at this point all headings are already known.
       $anchor_name = substr($link, 1);
       if ($this->heading_name_exists($anchor_name)) {
-        if ($this->needs_anchor_escaping()) {
+        if ($this->needsHmlIdEscaping()) {
           # Ids and anchor names are prefixed with the post's id
-          $escaped_anchor_name = $this->create_escaped_anchor_id($anchor_name);
+          $escaped_anchor_name = $this->escapeHtmlId($anchor_name);
           $this->add_text_position_request('="'.$escaped_anchor_name.'"', $anchor_name);
           $link = '#'.$escaped_anchor_name;
         }
@@ -792,10 +792,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         }
       }
 
-      // No "else if" here as (although unlikely) the first parameter may be empty
+      // No "else if(empty($title))" here as (although unlikely) the last parameter may have been empty
       if (empty($title)) {
         if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
           $anchor_name = substr($link, 1); // remove leading #
+          if ($this->needsHmlIdEscaping()) {
+            $anchor_name = $this->unescapeHtmlId($anchor_name);
+          }
           $title = $this->resolve_heading_name($anchor_name, true);
         } else {
           // If no name has been specified explicitly, we use the link instead.
@@ -946,15 +949,27 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return $this->generate_heading($level, $text, $id);
   }
 
-  private function needs_anchor_escaping() {
+  private function needsHmlIdEscaping() {
     // NOTE: Although RSS is generated in a multi post view, each post is a separated entity.
     // TODO: We need to check whether this is true.
     return !is_single() && !is_page() && !$this->is_rss;
   }
 
-  private function create_escaped_anchor_id($anchor_id) {
+  private function escapeHtmlId($anchor_id) {
     global $post;
     return $post->ID.'_'.$anchor_id;
+  }
+
+  private function unescapeHtmlId($escapedHtmlId) {
+    global $post;
+    $prefix = $post->ID.'_';
+    $prefix_len = strlen($prefix);
+    if (!substr($escapedHtmlId, 0, $prefix_len)) {
+      warn("Tried to unescape id '$escapedHtmlId' with prefix '$prefix'.");
+      return $escapedHtmlId;
+    }
+
+    return substr($escapedHtmlId, $prefix_len);
   }
 
   private function generate_heading($level, $text, $id='') {
@@ -969,12 +984,12 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $pure_id = $id;
 
     global $post;
-    if ($this->needs_anchor_escaping()) {
+    if ($this->needsHmlIdEscaping()) {
       // Post listing, ie. not a single posting/page
       // Therefor we need to append the post's ID to the heading ID, because there may be multiple headings
       // with the same text of multiple posts in the listing.
       $permalink = get_permalink($post->ID).'#'.$id;
-      $id = $this->create_escaped_anchor_id($id);
+      $id = $this->escapeHtmlId($id);
     }
     else {
       // Single post view or RSS feed
@@ -1056,7 +1071,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   private function resolve_heading_name($anchor_name) {
-    // Called from unmaskAllTextSections().
     if (isset($this->headings_title_map[$anchor_name])) {
       return $this->headings_title_map[$anchor_name];
     } else {
