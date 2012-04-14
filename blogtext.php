@@ -3,7 +3,7 @@
 Plugin Name: BlogText for WordPress
 Plugin URI: http://wordpress.org/extend/plugins/blogtext/
 Description: Allows you to write your posts and pages with an alternative, easy-to-learn, and fast-to-type syntax
-Version: 0.9.3
+Version: 0.9.4
 Author: Sebastian Krysmanski
 Author URI: http://mayastudios.com
 */
@@ -57,7 +57,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
     // NOTE: We can't use the "the_content_feed" filter here as its being applied after running the
     //   "the_content" filter. The same is true for "the_excerpt".
     add_filter('the_content', array($this, 'convert_content'), 5);
-    
+
     //add_filter('get_the_excerpt', array($this, 'convert_excerpt'), 5);
     //add_filter('the_excerpt_rss', array($this, 'convert_excerpt_rss'), 5);
     //add_filter('comment_text', array($this, 'convert_content'), 5);
@@ -67,7 +67,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
     add_action('wp_head', array($this, 'insert_custom_css'));
   }
-  
+
   public static function are_tests_available() {
     return (is_dir(dirname(__FILE__).'/tests'));
   }
@@ -78,7 +78,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
     if (is_admin()) {
       // We're in the backend. Create option page. It registers itself.
       $this->main_options_page = new BlogTextSettingsPage();
-      
+
       if (self::are_tests_available()) {
         // Tests are available
         MSCL_require_once('tests/tests-admin-page.php', __FILE__);
@@ -139,7 +139,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
   protected function get_main_options_page() {
     return $this->main_options_page;
   }
-  
+
   private function add_stylesheets() {
     if (BlogTextSettings::use_default_css()) {
       $this->add_frontend_stylesheet('style/default.css');
