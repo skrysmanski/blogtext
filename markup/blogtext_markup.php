@@ -84,7 +84,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     'simple_table' => '/\n(\|(?!\+)[^\|]+\|.+(?:\n\|(?!\+)[^\|]+\|.+)*)(?:\n\|\+(.+))?/',
     // Ordered (#) and unordered (*) lists; definition list(;)
     // NOTE: The user can't start a list with "**" (list with sublist).
-    'list' => '/\n[\*#;][^\*#;].*?\n(?:(?:[\*#; \t].*?)?\n)*/',
+    // NOTE: Indentations in lists must be done with at least two spaces/tabs. Otherwise it's too easy to accidentially
+    //   insert a space and thereby add a line to a list. This also "fixes" the problem of having a more-link directly
+    //   after a list being placed inside the list.
+    'list' => '/\n[\*#;][^\*#;].*?\n(?:(?:(?:[\*#;]|[ \t]{2,}).*?)?\n)*/',
     // Block quotes
     'blockquote' => '/\n>(.*?\n)(?!>)/s',
     // Indention (must be done AFTER lists)
@@ -204,7 +207,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    */
   public function convert_markup_to_html_uncached($markup_content, $post, $is_rss) {
     if (!$this->is_single()) {
-      // For the regular expression, see "get_the_content()" in "post-template.php".
+      # For the regular expression, see "get_the_content()" in "post-template.php".
+      # NOTE: If this posting has a "more" link, $markup_content will already contain the converted link. This makes
+      #   it kind of hard to exclude it from being included in the parsing process.
       $is_excerpt = (preg_match('/<!--more(.*?)?-->/', $post->post_content) == 1);
     } else {
       $is_excerpt = false;
