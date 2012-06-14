@@ -1,0 +1,108 @@
+Hacking BlogText
+================
+This file contains some hints for developing BlogText.
+
+See also: http://codex.wordpress.org/Debugging_in_WordPress
+
+Recommended WP-Plugins:
+
+ * Debug Bar
+ * Wordpress Logger (version 0.3 issues a warning since Wordpress 3.3)
+
+Debugging:
+
+ * var_dump() : dumps the whole structure of the variable to the output
+
+
+Generic Development Directory Structure
+---------------------------------------
+If you only want to develop against one Wordpress version (say, the latest), just check out BlogText directly into the
+"plugins" folder (see next section).
+
+If, on the other hand, you want to develop against multiple Wordpress version, use symlinks and the following structure:
+
+  /
+  +- BlogText  <-- checked out hg repo
+  +- wordpress-3.1  <-- for Wordpress 3.1.x
+     +- wp-content/plugins/blogtext  <-- symlink to /BlogText
+  +- wordpress-3.2  <-- for Wordpress 3.2.x
+     +- wp-content/plugins/blogtext  <-- symlink to /BlogText
+  +- wordpress-3.3  <-- for Wordpress 3.3.x
+     +- wp-content/plugins/blogtext  <-- symlink to /BlogText
+  ...
+
+On Windows, you can use the "Link Shell Extension" (http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html)
+to create "Symbolic Links" (Windows Vista and higher) or "Junctions" (Windows XP and lower).
+
+On the webserver then create a symlink to the root directory (i.e. the one containing the "wordpress-x.x" directories).
+This way you automatically gain access to all Wordpress versions (and don't need to link each one individually).
+
+
+Prepare Wordpress Testinstallation
+----------------------------------
+Only once do this:
+
+  Create a MySQL database called "wordpress" (or whatever you want to call it) and an associated user.
+
+  When using phpMyAdmin:
+    1. Log in
+    2. Go to "Privileges"
+    3. "Add new user"
+    4a. "User name": wordpress
+    4b. "Password" select "No password" from the dropdown menu (or choose one, if you wish)
+    4c. "Database for user": "Create database with same name and grant all privileges"
+    4d. Click "Create user"
+
+Then for each new Wordpress installation, do:
+
+  1.  Download the desired Wordpress version
+      * Most recent release: http://wordpress.org/download/
+      * Release Archive: http://wordpress.org/download/release-archive/
+  2.  Open URL to the Wordpress installation (e.g. http://localhost/bt/wordpress-3.3/)
+  3.  Click "Create a Configuration File" and follow the steps.
+  4.  Database Setup:
+      For "Table Prefix" specify "wpxx_" with the Wordpress version (e.g. "wp33_" for Wordpress 3.3.x)
+  5.  General Setup:
+      Use "Wordpress x.x" as title and fill the other stuff.
+  6.  Set "define('WP_DEBUG', true);" in "wp-config.php". (define already exists at the end of the file)
+  7.  Install and activate BlogText plugin (under "InstallDir/wp-content/plugins")
+      a) either directly from the BitBucket repository
+      b) or create a symlink (like described in the previous section)
+  8.  Make sure that you use the default permalink structure (.../?p=123)
+  9.  Run the tests (under Tools/BlogTextTests).
+  10. Check whether the output files have changed.
+      $ hg diff ...
+
+
+Create Wordpress copies for each Wordpress version
+--------------------------------------------------
+This section describes how to maintain one Wordpress installation per Wordpress version. It assumes, you've
+already created a working Wordpress installation. To update to the new version, do:
+
+ 1. Copy the Wordpress installation folder of the latest version you have (e.g. copy from "wordpress-3.2" to
+    "wordpress-3.3".
+ 2. Copy the database (e.g. from "wordpress-32" to "wordpress-33"). When using phpMyAdmin, go to the current
+    database, choose "Operations" and then "Copy database to".
+ 3. Update database entries to the new path. You need to update in "wp_options":
+    * "siteurl"
+    * "home"
+ 4. Update "wp-conf.php" to the new database name.
+ 5. Update Wordpress to the new version.
+
+NOTE: If you renamed the wordpress folder (for some reason) while your webserver was running, you may need to
+  restart it before it "knows" the new name.
+
+See also: http://codex.wordpress.org/Moving_WordPress
+
+
+Manual WP-integration tests
+---------------------------
+These tests test stuff that uses some internals of WordPress and therefor is prone to be broken on version
+changes.
+
+ * Are the editor buttons in the editor and do they insert their code correctly?
+ * Is previewing a post working?
+ * Does the language lookup button work?
+ * Does the settings page still look ok?
+ * When clearing the page cache (using the BlogText settings page), do we get a notification that the page
+   cache was cleared?
