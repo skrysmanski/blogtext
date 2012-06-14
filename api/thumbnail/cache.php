@@ -36,35 +36,11 @@ class MSCL_ThumbnailCache {
   private $table_name;
 
   private function  __construct() {
-    $plugin_dir = dirname(dirname(dirname(__FILE__)));
-    $default_upload_dir = dirname(dirname($plugin_dir)).'/uploads';
-    if (is_dir($default_upload_dir)) {
-      // upload directory exists at the default position; so use it as base dir
-      $base_dir = $default_upload_dir;
-    } else {
-      // upload directory doesn't exist at the default position (ie. in the same directory as the the
-      // "plugins" directory). Use the plugin directory as base directory.
-      // NOTE: We can't use "wp_upload_dir()" for this as it isn't available in "do.php".
-      // NOTE 2: We considered letting the user specify the upload dir in this case but passing it to "do.php"
-      //   would be reveal too much of the internal directory structure. So we dumped this idea.
-      $base_dir = $plugin_dir;
-      if (MSCL_is_wordpress_loaded()) {
-        // The base upload directory doesn't exist. Check why and give a specific error message in this case.
-        // NOTE: "wp_upload_dir()" will create the upload directory, if it didn't exist.
-        $upload_infos = wp_upload_dir();
-        if (!empty($upload_infos['error'])) {
-          // An error occured while determining the uploads dir
-          throw new MSCL_AdminException('The uploads directory is not accessible.',
-                                        'Error: '.$upload_infos['error']);
-        } else {
-          // uploads dir could be determined; now check whether its the same as the default directory
-          if ($upload_infos['basedir'] == $default_upload_dir) {
-            // "wp_upload_dir()" has now created the uploads dir. So use it.
-            $base_dir = $default_upload_dir;
-          }
-        }
+    require_once(dirname(__FILE__).'/wp-upload-dir.php');
 
-      }
+    $base_dir = MSCL_WPUploadDirDeterminator::determine_upload_dir();
+    if (!$base_dir) {
+      throw new MSCL_AdminException('The uploads directory could not be determined.');
     }
 
     $this->local_file_cache_dir_path = str_replace('//', '/', $base_dir.'/'.LOCAL_IMG_CACHE_DIR);
