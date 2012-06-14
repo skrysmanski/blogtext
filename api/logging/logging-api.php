@@ -16,8 +16,48 @@
 #
 #########################################################################################
 
+class MSCL_FileLogger {
+  private $file;
+
+  public function __construct($file) {
+    $this->file = $file;
+    $this->write_line("\n\n----------------------------------------------------\n");
+  }
+
+  private function write_line($text) {
+    $fh = fopen($this->file, 'a');
+    if (!$fh) {
+      return;
+    }
+    fwrite($fh, $text."\n");
+    fclose($fh);
+  }
+
+  public function error($obj, $label) {
+    $this->log($obj, '[ERR] '.$label);
+    MSCL_WordpressLogging::get_instance(false)->error($obj, $label);
+  }
+
+  public function warn($obj, $label) {
+    $this->log($obj, '[WARN] '.$label);
+    MSCL_WordpressLogging::get_instance(false)->warn($obj, $label);
+  }
+
+  public function info($obj, $label) {
+    $this->log($obj, '[INFO] '.$label);
+    MSCL_WordpressLogging::get_instance(false)->info($obj, $label);
+  }
+
+  public function log($obj, $label) {
+    $this->write_line($label.': '.print_r($obj, true));
+    MSCL_WordpressLogging::get_instance(false)->log($obj, $label);
+  }
+}
+
 // See: http://www.firephp.org/HQ/Use.htm
 class MSCL_WordpressLogging {
+  public static $file_logger = null;
+
   private function __construct() { }
 
   public static function is_logging_available() {
@@ -37,13 +77,17 @@ class MSCL_WordpressLogging {
     return FirePHP::getInstance(true);
   }
 
-  public static function get_instance() {
+  public static function get_instance($allow_file_logger = true) {
     static $instance = null;
     static $mock_instance = null;
 
     if ($instance === null) {
       $instance = self::create_instance();
       $mock_instance = new MSCL_WordpressLogging();
+    }
+
+    if ($allow_file_logger && self::$file_logger != null) {
+      return self::$file_logger;
     }
 
     if (self::is_logging_available()) {
@@ -59,6 +103,10 @@ class MSCL_WordpressLogging {
   public function warn($obj, $label) { }
   public function info($obj, $label) { }
   public function log($obj, $label) { }
+}
+
+function enable_file_logging($logfile) {
+  MSCL_WordpressLogging::$file_logger = new MSCL_FileLogger($logfile);
 }
 
 function console($obj, $label = null) {

@@ -3,3 +3,4 @@ nbproject
 syntax: glob
 .idea/workspace.xml
 .idea/.name
+tests/log.txt

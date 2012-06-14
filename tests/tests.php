@@ -30,6 +30,8 @@ class BlogTextTests {
   }
   
   public static function run_tests($only_and_keep = '') {
+    enable_file_logging(dirname(__FILE__).'/log.txt');
+
     try {
       require_once(dirname(__FILE__).'/../markup/blogtext_markup.php');
       require_once(dirname(__FILE__).'/../admin/settings.php');
