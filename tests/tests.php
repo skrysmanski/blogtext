@@ -34,6 +34,10 @@ class BlogTextTests {
     @unlink($log_file);
     enable_file_logging($log_file);
 
+    // Fix user agent so that the output doesn't depend on operating system or browser. For example, PDF attachments
+    // aren't opened in a new window on Mac OS X.
+    $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:13.0) Gecko/20100101 Firefox/13.0';
+
     try {
       require_once(dirname(__FILE__).'/../markup/blogtext_markup.php');
       require_once(dirname(__FILE__).'/../admin/settings.php');
