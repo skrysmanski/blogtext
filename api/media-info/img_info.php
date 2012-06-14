@@ -56,14 +56,22 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
 
   protected function finish_initialization() {
     if ($this->type === null) {
-      throw new MSCL_MediaFileFormatException("Could not determine image type.", $file_path, $this->is_remote_file());
+      throw new MSCL_MediaFileFormatException("Could not determine image type.", $this->get_file_path(), $this->is_remote_file());
     }
 
     if ($this->width === null) {
-      throw new MSCL_MediaFileFormatException("Could not determine image size.", $file_path, $this->is_remote_file());
+      throw new MSCL_MediaFileFormatException("Could not determine image size.", $this->get_file_path(), $this->is_remote_file());
     }
   }
 
+  /**
+   * Returns information about the specified file. Throws MSCL_MediaInfoException if the information isn't available
+   * (for example when CURL isn't installed but it's a remote image).
+   *
+   * @param string $file_path  the file path/url to the file to be inspected
+   * @param $cache_date
+   * @return MSCL_ImageInfo|null
+   */
   public static function get_instance($file_path, $cache_date=null) {
     $info = self::get_cached_remote_file_info($file_path, self::name);
     if ($info === null) {
