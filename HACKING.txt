@@ -12,6 +12,7 @@ Recommended WP-Plugins:
 Debugging:
 
  * var_dump() : dumps the whole structure of the variable to the output
+ * MSCL_ErrorHandling::print_stacktrace() : prints a brief stacktrace
 
 
 Generic Development Directory Structure

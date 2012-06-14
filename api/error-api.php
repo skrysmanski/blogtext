@@ -98,74 +98,90 @@ class MSCL_ErrorHandling {
     if ($show_stacktrace) {
       // display additional information to the admin
       $admin_code = '<p><b>Exception Type: </b>'.get_class($excpt)."</p>\n";
-      if (count($excpt->getTrace()) > 0) {
-        // TODO: Make this stack trace as fancy as in Trac
-        $admin_code .= '<p><b>Stack Trace: </b></p>';
-        $admin_code .= '<pre class="stack-trace">'."\n";
-        foreach ($excpt->getTrace() as $frame) {
-          // Format function name
-          if (array_key_exists('class', $frame)) {
-            // class method; "type" is "::" or "->"
-            $func_name = $frame['class'].$frame['type'].$frame['function'];
-          } else {
-            // global function
-            $func_name = $frame['function'];
-          }
-
-          // Format function args
-          $args = array();
-          foreach ($frame['args'] as $arg) {
-            if ($arg === null) {
-              $args[] = 'null';
-            } else if (is_bool($arg)) {
-              $args[] = $arg ? 'true' : 'false';
-            } else if (is_string($arg)) {
-              // get only the first line
-              $first_lines = explode("\n", preg_replace('/\r|\r\n/', "\n", $arg), 2);
-              $arg = trim($first_lines[0], "\n");
-              if (strlen($arg) > 50) {
-                $arg = substr($arg, 0, 50).'...';
-              } else if (count($first_lines) > 1) {
-                // there are more lines
-                $arg .= '...';
-              }
-              $args[] = '"'.htmlspecialchars($arg).'"';
-            } else if (is_object($arg)) {
-              $args[] = get_class($arg).' object';
-            } else if (is_array($arg)) {
-              $args[] = 'array('.count($arg).')';
-            } else {
-              $args[] = (string)$arg;
-            }
-          }
-
-          // Format file name
-          if (array_key_exists('file', $frame)) {
-            $filename = $frame['file'];
-            if (empty($filename)) {
-              var_dump($frame);
-            }
-            if (function_exists('plugin_basename')) {
-              // Is this a file in a plugin?
-              $filename = plugin_basename($filename);
-              // Otherwise (even for themes) check whether the file is even in the wordpress dir
-              $filename = str_replace(ABSPATH, '', $filename);
-            }
-
-            $linenr = $frame['line'];
-            $pos = "at $filename:$linenr";
-          } else {
-            // not file information available; is be possible for callback functions
-            $pos = 'at unknown position';
-          }
-          $admin_code .= '<span class="func-name">'.$func_name.'</span>('.  join(', ', $args).")\n   $pos\n";
-        }
-        $admin_code .= '</pre>';
-      }
+      $admin_code .= self::format_stacktrace($excpt->getTrace());
       $admin_code = "\n$admin_code\n";
     }
     return self::format_error('<b>Fatal error:</b> '.str_replace("\n", "<br/>\n", $excpt->getMessage()), 
                               $admin_code);
+  }
+
+  public static function print_stacktrace() {
+    echo self::format_stacktrace(debug_backtrace(), 1);
+  }
+
+  public static function format_stacktrace($stack_trace, $skip_frames = 0) {
+    $admin_code = '';
+
+    if (count($stack_trace) > $skip_frames) {
+      // TODO: Make this stack trace as fancy as in Trac
+      $admin_code .= '<p><b>Stack Trace: </b></p>';
+      $admin_code .= '<pre class="stack-trace">'."\n";
+      $frame_counter = 0;
+
+      foreach ($stack_trace as $frame) {
+        if ($frame_counter < $skip_frames) {
+          $frame_counter++;
+          continue;
+        }
+
+        // Format function name
+        if (array_key_exists('class', $frame)) {
+          // class method; "type" is "::" or "->"
+          $func_name = $frame['class'].$frame['type'].$frame['function'];
+        } else {
+          // global function
+          $func_name = $frame['function'];
+        }
+
+        // Format function args
+        $args = array();
+        foreach ($frame['args'] as $arg) {
+          if ($arg === null) {
+            $args[] = 'null';
+          } else if (is_bool($arg)) {
+            $args[] = $arg ? 'true' : 'false';
+          } else if (is_string($arg)) {
+            // get only the first line
+            $first_lines = explode("\n", preg_replace('/\r|\r\n/', "\n", $arg), 2);
+            $arg = trim($first_lines[0], "\n");
+            if (strlen($arg) > 50) {
+              $arg = substr($arg, 0, 50).'...';
+            } else if (count($first_lines) > 1) {
+              // there are more lines
+              $arg .= '...';
+            }
+            $args[] = '"'.htmlspecialchars($arg).'"';
+          } else if (is_object($arg)) {
+            $args[] = get_class($arg).' object';
+          } else if (is_array($arg)) {
+            $args[] = 'array('.count($arg).')';
+          } else {
+            $args[] = (string)$arg;
+          }
+        }
+
+        // Format file name
+        if (array_key_exists('file', $frame)) {
+          $filename = $frame['file'];
+          if (function_exists('plugin_basename')) {
+            // Is this a file in a plugin?
+            $filename = plugin_basename($filename);
+            // Otherwise (even for themes) check whether the file is even in the wordpress dir
+            $filename = str_replace(ABSPATH, '', $filename);
+          }
+
+          $linenr = $frame['line'];
+          $pos = "at $filename:$linenr";
+        } else {
+          // not file information available; is be possible for callback functions
+          $pos = 'at unknown position';
+        }
+        $admin_code .= '<span class="func-name">'.$func_name.'</span>('.  join(', ', $args).")\n   $pos\n";
+      }
+      $admin_code .= '</pre>';
+    }
+
+    return $admin_code;
   }
 }
 
