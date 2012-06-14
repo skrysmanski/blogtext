@@ -136,28 +136,39 @@ class MSCL_ErrorHandling {
         // Format function args
         $args = array();
         foreach ($frame['args'] as $arg) {
+          $shortend = false;
           if ($arg === null) {
-            $args[] = 'null';
+            $arg_str = 'null';
           } else if (is_bool($arg)) {
-            $args[] = $arg ? 'true' : 'false';
+            $arg_str = $arg ? 'true' : 'false';
           } else if (is_string($arg)) {
             // get only the first line
             $first_lines = explode("\n", preg_replace('/\r|\r\n/', "\n", $arg), 2);
-            $arg = trim($first_lines[0], "\n");
+            $arg_str = trim($first_lines[0], "\n");
             if (strlen($arg) > 50) {
-              $arg = substr($arg, 0, 50).'...';
+              $arg_str = substr($arg_str, 0, 50).'...';
+              $shortend = true;
             } else if (count($first_lines) > 1) {
               // there are more lines
-              $arg .= '...';
+              $arg_str .= '...';
+              $shortend = true;
             }
-            $args[] = '"'.htmlspecialchars($arg).'"';
+            $arg_str = '"'.htmlspecialchars($arg_str).'"';
           } else if (is_object($arg)) {
-            $args[] = get_class($arg).' object';
+            $arg_str = get_class($arg).' object';
+            $shortend = true;
           } else if (is_array($arg)) {
-            $args[] = 'array('.count($arg).')';
+            $arg_str = 'array('.count($arg).')';
+            $shortend = true;
           } else {
-            $args[] = (string)$arg;
+            // int, float
+            $arg_str = htmlspecialchars(print_r($arg, true));
           }
+
+          if ($shortend) {
+            $arg_str = '<span title="'.htmlspecialchars(print_r($arg, true)).'">'.$arg_str.'</span>';
+          }
+          $args[] = $arg_str;
         }
 
         // Format file name
@@ -176,7 +187,8 @@ class MSCL_ErrorHandling {
           // not file information available; is be possible for callback functions
           $pos = 'at unknown position';
         }
-        $admin_code .= '<span class="func-name">'.$func_name.'</span>('.  join(', ', $args).")\n   $pos\n";
+        $admin_code .= '<b>'.$func_name.'</b>('.  join(', ', $args).")\n"
+                    .  "  <span style=\"color:gray;\">$pos</span>\n";
       }
       $admin_code .= '</pre>';
     }
