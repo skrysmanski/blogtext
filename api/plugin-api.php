@@ -108,16 +108,25 @@ abstract class MSCL_AbstractPlugin {
   }
 
   /**
+   * Wordpress callback function (action: init). Don't call directly.
+   *
    * Called when Wordpress' init action has happen (and won't be called, if Wordpress isn't loaded). Designed
    * to be overloaded by subclasses.
-   * 
-   * Wordpress callback function. Don't call directly.
    */
   public function wordpress_initialize() { }
 
+  /**
+   * Wordpress callback function (action: plugin_action_links). Don't call directly.
+   *
+   * Adds the settings link to the plugin list in the admin backend.
+   *
+   * @param array of strings $links  each item contains HTML code for one link of a certain plugin in the plugins admin
+   *   page
+   * @param string $file  the relative file name of the plugin the links belong to (eg. "blogtext/blogtext.php")
+   *
+   * @return array of string  the modified $links array
+   */
   public function add_settings_page_link_callback($links, $file) {
-    // links is an array where each item represent the HTML code for one of the links in the plugin page
-    // file is the relative file name of the plugin the links belong to (eg. "blogtext/blogtext.php")
     if ($file == $this->plugin_filename_relative) {
       $option_page = $this->get_main_options_page();
       if ($option_page !== null) {
@@ -133,7 +142,7 @@ abstract class MSCL_AbstractPlugin {
    * Returns the main options page. The link to this page is added to Wordpress' plugin list. Note that you
    * need to override this method to return the correct page.
    * 
-   * @return MSCL_OptionPage the option page or "null", if there's no option page
+   * @return MSCL_OptionPage  the option page or "null", if there's no option page
    */
   protected function get_main_options_page() {
     return null;
