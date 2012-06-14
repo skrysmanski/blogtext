@@ -5,6 +5,8 @@
 # syntax problems resulting from code changes.
 #
 
+require_once(dirname(__FILE__).'/../api/commons.php');
+
 class BlogTextTests {
   /**
    * Returns the names of all available test cases.
@@ -28,62 +30,69 @@ class BlogTextTests {
   }
   
   public static function run_tests($only_and_keep = '') {
-    require_once(dirname(__FILE__).'/../markup/blogtext_markup.php');
-    require_once(dirname(__FILE__).'/../settings.php');
-    // you must first include the image.php file
-    // for the function wp_generate_attachment_metadata() to work
-    require_once(ABSPATH . 'wp-admin/includes/image.php');
-    
-    // Unset the theme's content width as this may change from theme to theme. Will be reset at the end.
-    global $content_width;
-    $old_content_width = $content_width;
-    $content_width = 0;
-    
-    if (empty($only_and_keep)) {
-      $page_names = self::get_test_pages();
-    } else {
-      $page_names = array($only_and_keep);
-    }
-    
-    $uploads = wp_upload_dir();
-    $uploads_dir = $uploads['basedir'].'/blogtexttests';
-    
-    $added_attachment_ids = array();
-    
-    // Insert sample post so that we can query two to simulate a "multi-post" view.
-    $my_post = array(
-       'post_title' => '[DELETE ME] BlogText dummy test post',
-       'post_content' => 'Just a test.',
-       'post_status' => 'private'
-    );
+    try {
+      require_once(dirname(__FILE__).'/../markup/blogtext_markup.php');
+      require_once(dirname(__FILE__).'/../admin/settings.php');
+      // you must first include the image.php file
+      // for the function wp_generate_attachment_metadata() to work
+      require_once(ABSPATH . 'wp-admin/includes/image.php');
 
-    $dummy_post_id = wp_insert_post($my_post);
-    if ($dummy_post_id === 0) {
-      die("Could not create dumy post");
-    }
-    
-    
-    foreach ($page_names as $page_name) {
-      list($post_id, $post_attach_ids) = self::create_test_post($page_name, $uploads_dir);
-      $added_attachment_ids = array_merge($added_attachment_ids, $post_attach_ids);
-      
-      self::write_output($post_id, $page_name, $dummy_post_id);
-      
+      // Unset the theme's content width as this may change from theme to theme. Will be reset at the end.
+      global $content_width;
+      $old_content_width = $content_width;
+      $content_width = 0;
+
       if (empty($only_and_keep)) {
-        # Don't delete the post when it has been requested.
-        wp_delete_post($post_id, true);
-        foreach ($added_attachment_ids as $attach_id) {
-          wp_delete_attachment($attach_id, true);
-        }
+        $page_names = self::get_test_pages();
       } else {
-        BlogTextPostSettings::set_use_blogtext($post_id, true);
+        $page_names = array($only_and_keep);
       }
-      
-      $content_width = $old_content_width;
+
+      $uploads = wp_upload_dir();
+      $uploads_dir = $uploads['basedir'].'/blogtexttests';
+
+      $added_attachment_ids = array();
+
+      // Insert sample post so that we can query two to simulate a "multi-post" view.
+      $my_post = array(
+         'post_title' => '[DELETE ME] BlogText dummy test post',
+         'post_content' => 'Just a test.',
+         'post_status' => 'private'
+      );
+
+      $dummy_post_id = wp_insert_post($my_post);
+      if ($dummy_post_id === 0) {
+        die("Could not create dumy post");
+      }
+
+
+      foreach ($page_names as $page_name) {
+        list($post_id, $post_attach_ids) = self::create_test_post($page_name, $uploads_dir);
+        $added_attachment_ids = array_merge($added_attachment_ids, $post_attach_ids);
+
+        self::write_output($post_id, $page_name, $dummy_post_id);
+
+        if (empty($only_and_keep)) {
+          # Don't delete the post when it has been requested.
+          wp_delete_post($post_id, true);
+          foreach ($added_attachment_ids as $attach_id) {
+            wp_delete_attachment($attach_id, true);
+          }
+        } else {
+          BlogTextPostSettings::set_use_blogtext($post_id, true);
+        }
+
+        $content_width = $old_content_width;
+      }
+
+      # Delete dummy post again
+      wp_delete_post($dummy_post_id, true);
     }
-    
-    # Delete dummy post again
-    wp_delete_post($dummy_post_id, true);
+    catch (Exception $e) {
+      print MSCL_ErrorHandling::format_exception($e);
+      // exit here so that Wordpress doesn't overwrite the output
+      exit;
+    }
   }
   
   /**
@@ -181,9 +190,15 @@ class BlogTextTests {
       'post_status' => 'inherit'
     );
 
-    @mkdir($dest_dir);
+    if (!@is_dir($dest_dir)) {
+      // Create directories recursively
+      if (!@mkdir($dest_dir, 0777, true)) {
+        throw new MSCL_ExceptionEx('Could not create dest dir: '.$dest_dir);
+      }
+    }
     $dest_file = $dest_dir.'/'.$src_filename;
-    # Copy the file so that it isn't deleted when we delete the attachment.
+
+    # Copy the file so that source file isn't deleted when the attachment is deleted (it'll delete the copy instead).
     copy($src_file, $dest_file);
     $attach_id = wp_insert_attachment($attachment, $dest_file, $post_id);
     $attach_data = wp_generate_attachment_metadata($attach_id, $dest_file);
