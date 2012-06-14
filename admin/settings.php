@@ -22,10 +22,9 @@
 /*
  * This file contains all of the plugin's settings.
  */
-require_once(dirname(__FILE__).'/api/commons.php');
+require_once(dirname(__FILE__) . '/../api/commons.php');
 MSCL_Api::load(MSCL_Api::OPTIONS_API);
-
-require_once(dirname(__FILE__).'/docu.php');
+MSCL_require_once('docu.php', __FILE__);
 
 class BlogTextSettings {
   const OWN_GESHI_STYLE = 'own';

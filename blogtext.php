@@ -31,13 +31,13 @@ Author URI: http://mayastudios.com
 require_once(dirname(__FILE__).'/api/commons.php');
 
 require_once(dirname(__FILE__).'/util.php');
-require_once(dirname(__FILE__).'/settings.php');
+require_once(dirname(__FILE__).'/admin/settings.php');
 require_once(dirname(__FILE__).'/error-checking.php');
-require_once(dirname(__FILE__).'/adminbar.php');
+require_once(dirname(__FILE__).'/admin/adminbar.php');
 
 require_once(dirname(__FILE__).'/markup/blogtext_markup.php');
-require_once(dirname(__FILE__).'/settings-page.php');
-require_once(dirname(__FILE__).'/editor/editor.php');
+require_once(dirname(__FILE__).'/admin/settings-page.php');
+require_once(dirname(__FILE__).'/admin/editor/editor.php');
 
 
 class BlogTextPlugin extends MSCL_AbstractPlugin {

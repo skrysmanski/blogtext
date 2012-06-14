@@ -22,10 +22,9 @@
 /*
  * This file contains the plugin's options page.
  */
-require_once(dirname(__FILE__).'/api/commons.php');
+require_once(dirname(__FILE__) . '/../api/commons.php');
 MSCL_Api::load(MSCL_Api::OPTIONS_API);
-
-require_once(dirname(__FILE__).'/settings.php');
+MSCL_require_once('settings.php', __FILE__);
 
 class BlogTextSettingsMainForm extends MSCL_OptionsForm {
   const FORM_ID = 'blogtext_settings';
@@ -105,7 +104,7 @@ class BlogTextActionButtonsForm extends MSCL_ButtonsForm {
   }
 
   public static function clear_page_cache() {
-    require_once(dirname(__FILE__).'/markup/blogtext_markup.php');
+    MSCL_require_once('../markup/blogtext_markup.php', __FILE__);
     BlogTextMarkup::clear_page_cache();
   }
 }

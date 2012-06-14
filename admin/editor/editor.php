@@ -57,9 +57,13 @@ class BlogTextEditor {
   }
 
   public static function insert_css_files($plugin) {
-    $plugin->add_backend_stylesheet('editor/editor.css');
+    if (!self::is_editor_present()) {
+      return;
+    }
+
+    $plugin->add_backend_stylesheet('admin/editor/editor.css');
     if (BlogTextSettings::enable_monospace_editor_font()) {
-      $plugin->add_backend_stylesheet('editor/editor-monospace.css');
+      $plugin->add_backend_stylesheet('admin/editor/editor-monospace.css');
     }
   }
 
@@ -71,7 +75,7 @@ class BlogTextEditor {
     } else {
       $js_file = 'quicktags.js';
     }
-    echo '<script type="text/javascript" src="'.BlogTextPlugin::get_instance()->get_plugin_url().'/editor/'.$js_file.'"></script>';
+    echo '<script type="text/javascript" src="'.BlogTextPlugin::get_instance()->get_plugin_url().'/admin/editor/'.$js_file.'"></script>';
 ?>
 <script type="text/javascript">
   var blogTextPluginDir = "<?php echo BlogTextPlugin::get_instance()->get_plugin_url(); ?>";

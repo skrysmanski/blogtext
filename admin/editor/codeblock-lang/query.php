@@ -1,7 +1,7 @@
 <?php
 // See: http://orderedlist.com/blog/articles/live-search-with-quicksilver-style-for-jquery/
 
-require_once(dirname(__FILE__).'/../../thirdparty/geshi/geshi.php');
+require_once(dirname(__FILE__).'/../../../thirdparty/geshi/geshi.php');
 $geshi = new GeSHi();
 
 function is_popular_language($lang_name) {
