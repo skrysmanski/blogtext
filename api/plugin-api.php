@@ -32,17 +32,27 @@ abstract class MSCL_AbstractPlugin {
   private $scripts = array();
 
   protected function  __construct() {
+    // Get information about this class, or about the sub class to be more precise since this class is abstract
     $class_info = new ReflectionClass(get_class($this));
+    // NOTE: At least on Windows, symlinks are resolved for "$plugin_file". So, if the plugin directory is a symlink,
+    //   it is resolved and the real file path is returned.
     $plugin_file = $class_info->getFileName();
 
     $this->plugin_dir = dirname($plugin_file);
-    $this->plugin_name = basename($this->plugin_dir);
+    // Since the plugin directory may be symlinked, use the plugin file name instead of the directory.
+    $this->plugin_name = basename($plugin_file, '.php');
 
     $this->was_wordpress_loaded = MSCL_is_wordpress_loaded();
     if ($this->was_wordpress_loaded) {
-      $this->plugin_dir_relative = plugin_basename($this->plugin_dir);
-      $this->plugin_filename_relative = plugin_basename($plugin_file);
-      $this->plugin_url = plugins_url('', $plugin_file);
+      $in_plugins_dir = WP_PLUGIN_DIR.'/'.$this->plugin_name;
+      if (!is_dir($in_plugins_dir) || realpath($in_plugins_dir) != realpath($this->plugin_dir)) {
+        log_error('Could not determined plugin directory relative to the Wordpress installation.');
+      }
+
+      // Use defaults in any case (i.e. regardless of whether the plugin directory could be found).
+      $this->plugin_dir_relative = $this->plugin_name;
+      $this->plugin_filename_relative = $this->plugin_name.'/'.$this->plugin_name.'php';
+      $this->plugin_url = plugins_url($this->plugin_dir_relative);
 
       add_action('init', array($this, 'wordpress_initialize'));
       add_action('wp_print_styles', array($this, 'enqueue_stylesheets_callback'));
@@ -52,13 +62,17 @@ abstract class MSCL_AbstractPlugin {
     }
   }
 
+  /**
+   * Returns the name of this plugin (which is based on the file name of the implementing class).
+   * @return string
+   */
   public function get_plugin_name() {
     return $this->plugin_name;
   }
 
   /**
-   * Returns the base directory of this plugin (without trailing slash).
-   *
+   * Returns the base directory of this plugin (without trailing slash). Note that this directory is the canonical path
+   * of the plugin directory, i.e. if the plugin directory was a symlink it has been resolved.
    * @return string
    */
   public function get_plugin_dir() {
@@ -67,7 +81,6 @@ abstract class MSCL_AbstractPlugin {
 
   /**
    * Indicates whether Wordpress was loaded when the instance of this class was created.
-   *
    * @return bool
    */
   public function was_wordpress_loaded() {
@@ -80,6 +93,10 @@ abstract class MSCL_AbstractPlugin {
     }
   }
 
+  /**
+   * Returns the directory of this plugin relative to the Wordpress installation's plugin directory.
+   * @return string
+   */
   public function get_plugin_dir_relative() {
     $this->check_wordpress_was_loaded();
     return $this->plugin_dir_relative;
@@ -122,20 +139,30 @@ abstract class MSCL_AbstractPlugin {
     return null;
   }
 
+  /**
+   * Resolves the file name of the file to be enqueued and sets the name, if non has been specified.
+   * @param string $file  file to be enqueued, relative to the plugin directory
+   * @param string $name  name with which the files is going to be enqueued
+   * @return bool  Returns true, if the file can be enqueued; false otherwise.
+   */
   private function resolve_enqueable_link(&$file, &$name) {
     $file = '/'.$this->get_plugin_dir_relative().'/'.$file;
     if (!file_exists(WP_PLUGIN_DIR.$file)) {
-      throw new MSCL_ExceptionEx("Could not find file: ".WP_PLUGIN_DIR.$file, 'enqueable_file_not_found');
+      log_error("Could not resolve enquable file '$file' because it couldn't be found.");
+      return false;
     }
 
     if ($name === null) {
       $name = $this->get_plugin_name().'_'.basename($file);
     }
+
+    return true;
   }
 
   public function add_stylesheet($file, $name=null) {
-    $this->resolve_enqueable_link($file, $name);
-    $this->stylesheets[] = array($name, $file);
+    if ($this->resolve_enqueable_link($file, $name)) {
+      $this->stylesheets[] = array($name, $file);
+    }
   }
 
   public function add_frontend_stylesheet($file, $name=null) {
@@ -162,8 +189,9 @@ abstract class MSCL_AbstractPlugin {
   }
 
   public function add_script($file, $name=null) {
-    $this->resolve_enqueable_link($file, $name);
-    $this->scripts[] = array($name, $file);
+    if ($this->resolve_enqueable_link($file, $name)) {
+      $this->scripts[] = array($name, $file);
+    }
   }
 
   public function add_frontend_script($file, $name=null) {
