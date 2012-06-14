@@ -226,7 +226,7 @@ abstract class MSCL_AbstractFileInfo {
 
       $result = curl_exec($ch);
       if ($result === false) {
-        self::handle_curl_error($ch);
+        self::handle_curl_error($ch, $file_path);
       }
 
       $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
