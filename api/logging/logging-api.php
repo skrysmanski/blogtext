@@ -41,7 +41,7 @@ class MSCL_WordpressLogging {
     static $mock_instance = null;
 
     if ($instance === null) {
-      $instance = create_instance();
+      $instance = self::create_instance();
       $mock_instance = new MSCL_WordpressLogging();
     }
 
@@ -61,7 +61,7 @@ class MSCL_WordpressLogging {
 }
 
 function console($obj, $label = null) {
-  MSCL_WordpressLogging::getInstance()->log($obj, $label);
+  MSCL_WordpressLogging::get_instance()->log($obj, $label);
 }
 
 function log_error($obj, $label = null) {
