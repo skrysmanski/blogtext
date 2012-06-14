@@ -21,7 +21,8 @@ class MSCL_WordpressLogging {
   private function __construct() { }
 
   public static function is_logging_available() {
-    if (!function_exists('current_user_can')) {
+    // NOTE: We need to check for both functions ('current_user_can()' alone is not enough)!
+    if (!function_exists('current_user_can') || !function_exists('wp_get_current_user')) {
       // Wordpress isn't loaded. Enable logging (special circumstances).
       return true;
     }
