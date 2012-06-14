@@ -65,6 +65,10 @@ function console($obj, $label = null) {
   MSCL_WordpressLogging::get_instance()->log($obj, $label);
 }
 
+function log_exception($message) {
+  log_error(debug_backtrace(), $message);
+}
+
 function log_error($obj, $label = null) {
   MSCL_WordpressLogging::get_instance()->error($obj, $label);
 }
