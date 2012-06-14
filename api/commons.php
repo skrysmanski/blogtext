@@ -73,7 +73,7 @@ class MSCL_Api {
 }
 
 MSCL_Api::load('error-api.php');
-MSCL_Api::load('logging-api.php');
+MSCL_Api::load('logging/logging-api.php');
 MSCL_Api::load('plugin-api.php');
 
 function MSCL_is_wordpress_loaded() {

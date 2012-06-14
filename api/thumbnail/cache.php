@@ -155,8 +155,7 @@ class MSCL_ThumbnailCache {
 
     // FIXME: Some times all thumbnails are deleted
     if (count($old_thumb_ids) > 1 && count($thumbnail_ids) == 0) {
-      log_error("Thumbnail deletion problem occured.");
-      log_error(debug_backtrace());
+      log_error(debug_backtrace(), "Thumbnail deletion problem occured.");
     }
 
     // insert new thumb ids

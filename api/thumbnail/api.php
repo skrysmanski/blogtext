@@ -684,10 +684,6 @@ class MSCL_Thumbnail {
     }
 
     if ($is_uptodate !== $this->is_uptodate) {
-      if (!$is_uptodate && is_logging_available()) {
-        // NOTE: Do the logging here as in "do.php" we won't have logging (ie. in "update_thumbnail()").
-        log_info("Thumbnail for $this->img_src needs to be updated.");
-      }
       $this->is_uptodate = $is_uptodate;
       $this->update_thumbnail_size_from_src();
     }

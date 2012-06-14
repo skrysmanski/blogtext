@@ -525,7 +525,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   // Links
   //
   private function plain_text_urls_callback($matches) {
-    #log_debug("URL: ".print_r($matches, true));
     $protocol = $matches[2];
     $url = $matches[1];
     if (count($matches) == 5) {

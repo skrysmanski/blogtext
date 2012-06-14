@@ -52,9 +52,6 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
   protected function __construct($file_path, $cache_date=null) {
     // determines file info - see "handle_data()" and "finish_initialization()"
     parent::__construct($file_path, $cache_date);
-    if ($this->is_remote_file() && is_logging_available()) {
-      log_info("Checking remote image info for: ".$file_path);
-    }
   }
 
   protected function finish_initialization() {
