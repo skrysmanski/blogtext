@@ -76,6 +76,7 @@ class MediaMacro implements IInterlinkMacro {
 
     if (   !$is_attachment
         && MSCL_AbstractFileInfo::is_remote_file($ref)
+        && MSCL_AbstractFileInfo::is_remote_support_available()
         && !MSCL_AbstractFileInfo::is_protocol_supported($ref)) {
       // Remote image whose protocol isn't supported. Create a good looking error message here.
       return self::generate_error_html("The protocol for remote file '".$ref."' isn't supported.");
@@ -204,9 +205,17 @@ class MediaMacro implements IInterlinkMacro {
           // the cache HTML code can be used).
           if ($has_frame && !empty($title)) {
             // NOTE: For a frame together with a title we need at least the image's width (see below).
-            $info = MSCL_ImageInfo::get_instance($img_url);
-            $img_width = $info->get_width();
-            $img_height = $info->get_height();
+            try {
+              $info = MSCL_ImageInfo::get_instance($img_url);
+              $img_width = $info->get_width();
+              $img_height = $info->get_height();
+            }
+            catch (MSCL_MediaInfoException $e) {
+              // Media information not available; don't specify size
+              log_error($e->getMessage(), 'media info not available');
+              $img_width = 0;
+              $img_height = 0;
+            }
           } else {
             $img_width = 0;
             $img_height = 0;
@@ -226,11 +235,14 @@ class MediaMacro implements IInterlinkMacro {
           list($img_url, $img_width, $img_height) = MSCL_ThumbnailApi::get_thumbnail_info($link_resolver, $ref, $img_size);
         }
       }
-    } catch (MSCL_MediaFileNotFoundException $e) {
+    }
+    catch (MSCL_MediaFileNotFoundException $e) {
       return self::generate_error_html($e->get_file_path(), true);
-    } catch (MSCL_MediaInfoException $e) {
+    }
+    catch (MSCL_MediaInfoException $e) {
       return self::generate_error_html($e->getMessage());
-    } catch (MSCL_ThumbnailException $e) {
+    }
+    catch (MSCL_ThumbnailException $e) {
       return self::generate_error_html($e->getMessage());
     }
 

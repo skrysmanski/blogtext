@@ -19,7 +19,8 @@
 #########################################################################################
 
 
-require_once(dirname(__FILE__).'/exceptions.php');
+require_once(dirname(__FILE__).'/../commons.php');
+MSCL_require_once('exceptions.php', __FILE__);
 
 abstract class MSCL_AbstractFileInfo {
   const name = 'MSCL_AbstractFileInfo';
@@ -42,6 +43,9 @@ abstract class MSCL_AbstractFileInfo {
     $this->is_remote_file = $this->is_remote_file($file_path);
     if ($this->is_remote_file) {
       // remote file
+      if (!self::is_remote_support_available()) {
+        throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $file_path, true);
+      }
       $this->open_remote_file($cache_date);
     } else {
       if (!file_exists($file_path)) {
@@ -68,7 +72,7 @@ abstract class MSCL_AbstractFileInfo {
    * Returns whether remote file info is supported. This required cURL being installed.
    * @return bool
    */
-  public static function is_remote_support_enabled() {
+  public static function is_remote_support_available() {
     static $is_supported = null;
     if ($is_supported === null) {
       $is_supported = function_exists('curl_init');
@@ -99,7 +103,7 @@ abstract class MSCL_AbstractFileInfo {
     }
 
     if ($supported_protocols === null) {
-      if (!self::is_remote_support_enabled()) {
+      if (!self::is_remote_support_available()) {
         throw new Exception("Remote file info is not supported on this system.");
       }
       $info = curl_version();
@@ -127,7 +131,7 @@ abstract class MSCL_AbstractFileInfo {
     static $version_int = null;
     static $version_str = null;
     if ($version_int === null) {
-      if (!self::is_remote_support_enabled()) {
+      if (!self::is_remote_support_available()) {
         throw new Exception("Remote file info is not supported on this system.");
       }
       $info = curl_version();
@@ -221,6 +225,10 @@ abstract class MSCL_AbstractFileInfo {
   public static function get_file_contents($file_path) {
     $is_remote = self::is_remote_file($file_path);
     if ($is_remote) {
+      if (!self::is_remote_support_available()) {
+        throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $file_path, true);
+      }
+
       $ch = self::prepare_curl_handle($file_path, null);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
