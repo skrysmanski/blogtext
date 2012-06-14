@@ -23,6 +23,11 @@
  * Loads commonly used apis.
  */
 
+/**
+ * The root directory of this plugin.
+ */
+define('MSCL_PLUGIN_ROOT_DIR', dirname(dirname(__FILE__)));
+
 class MSCL_Api {
   const FILE_INFO = 'media-info/base_file_info.php';
   const IMAGE_INFO = 'media-info/img_info.php';
@@ -38,8 +43,7 @@ class MSCL_Api {
 
   /**
    * Loads the specified API.
-   * @staticvar string $api_dir
-   * @param <type> $api_file
+   * @param string $api_file
    */
   public static function load($api_file) {
     if (self::$api_dir === null) {
@@ -96,7 +100,7 @@ function MSCL_check_wordpress_is_loaded() {
  * Includes (actually requires) the specified file. Usually invoked like this:
  * 
  *   MSCL_require_once('file/to/include.php', __FILE__);
- * 
+ *
  */
 function MSCL_require_once($relative_required_file, $base_file) {
   static $base_files = array();

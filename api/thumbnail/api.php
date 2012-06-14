@@ -253,8 +253,6 @@ class MSCL_Thumbnail {
    */
   const MODE_CROP_AND_RESIZE = 'crop_resize';
 
-  private static $thumbnail_base_url = null;
-
   private $img_token;
   /**
    * @var string the source image for this thumbnail. Can be a local or a remote image.
@@ -394,12 +392,13 @@ class MSCL_Thumbnail {
   }
 
   public function get_thumb_image_url() {
-    if (self::$thumbnail_base_url === null) {
-      if (!defined('WP_PLUGIN_URL') || !function_exists('plugin_basename')) {
+    static $script_do_php_url = null;
+
+    if ($script_do_php_url === null) {
+      if (!defined('WP_PLUGIN_URL')) {
         throw new Exception("The thumbnail image url isn't available because WordPress isn't loaded.");
       }
-      $cur_dir = WP_PLUGIN_URL.'/'.plugin_basename(dirname(__FILE__));
-      self::$thumbnail_base_url = $cur_dir.'/do.php?';
+      $script_do_php_url = WP_PLUGIN_URL.MSCL_AbstractPlugin::get_plugin_basename(dirname(__FILE__)).'/do.php?';
     }
     // NOTE: We don't return the direct path to the thumbnail here for several reasons:
     //  1. The browser had to load the same image twice (one time to create the thumbnail using "do.php" and
@@ -407,8 +406,8 @@ class MSCL_Thumbnail {
     //  2. A direct link won't update the thumbnail, if necessary. The user might copy the direct link when
     //     he/she instead wanted to have a link to an thumbnail that's always up-to-date.
     //  3. The load on "do.php" is not that big since the browser's cache is used.
-    // NOTE: "$img_token" doen't need to run through "urlencode()". See definition above.
-    return self::$thumbnail_base_url.'id='.$this->img_token;
+    // NOTE: "$img_token" doesn't need to run through "urlencode()". See definition above.
+    return $script_do_php_url.'id='.$this->img_token;
   }
 
   private static function create_token_glob($cache_dir, $token) {

@@ -80,6 +80,27 @@ abstract class MSCL_AbstractPlugin {
   }
 
   /**
+   * Returns the file name relative to the parent directory of the plugin.
+   *
+   * Replacement for Wordpress' "plugin_basename()" as this doesn't work the file passed to it isn't inside the
+   * "plugins" directory of the Wordpress installation.
+   *
+   * @param string $file  the file inside the plugin directory
+   * @return string
+   */
+  public static function get_plugin_basename($file) {
+    static $root_dir = null;
+
+    if ($root_dir === null) {
+      $root_dir = realpath(dirname(MSCL_PLUGIN_ROOT_DIR));
+      $root_dir = str_replace('\\', '/', $root_dir);
+    }
+
+    $count = 1;
+    return str_ireplace($root_dir, '', str_replace('\\', '/', realpath($file)), $count);
+  }
+
+  /**
    * Indicates whether Wordpress was loaded when the instance of this class was created.
    * @return bool
    */
