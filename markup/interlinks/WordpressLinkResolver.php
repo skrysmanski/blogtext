@@ -159,7 +159,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
       throw new LinkTargetNotFoundException();
     }
 
-    // Determine title - but only if the title wasn't specified explicitely.
+    // Determine title - but only if the title wasn't specified explicitly.
     if (count($params) == 1) {
       $title = MarkupUtil::get_attachment_title($att_id);
     }
