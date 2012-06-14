@@ -206,7 +206,13 @@ class MediaMacro implements IInterlinkMacro {
           if ($has_frame && !empty($title)) {
             // NOTE: For a frame together with a title we need at least the image's width (see below).
             try {
-              $info = MSCL_ImageInfo::get_instance($img_url);
+              if ($is_attachment) {
+                $img_path = get_attached_file($ref, true);
+              }
+              else {
+                $img_path = $img_url;
+              }
+              $info = MSCL_ImageInfo::get_instance($img_path);
               $img_width = $info->get_width();
               $img_height = $info->get_height();
             }
