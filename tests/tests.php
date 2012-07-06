@@ -198,12 +198,7 @@ class BlogTextTests {
       'post_status' => 'inherit'
     );
 
-    if (!@is_dir($dest_dir)) {
-      // Create directories recursively
-      if (!@mkdir($dest_dir, 0777, true)) {
-        throw new MSCL_ExceptionEx('Could not create dest dir: '.$dest_dir);
-      }
-    }
+    self::mkdir($dest_dir);
     $dest_file = $dest_dir.'/'.$src_filename;
 
     # Copy the file so that source file isn't deleted when the attachment is deleted (it'll delete the copy instead).
@@ -253,7 +248,10 @@ class BlogTextTests {
     else {
       $template_code = file_get_contents(dirname(__FILE__).'/default-template.html');
     }
-    
+
+    $output_dir = $base_dir.'/output';
+    self::mkdir($output_dir);
+
     //
     // Run "loop" through the post we've just created
     // FIRST: Single post view
@@ -265,7 +263,7 @@ class BlogTextTests {
     while (have_posts()) {
       the_post();
 
-      self::generate_output(AbstractTextMarkup::RENDER_KIND_REGULAR, $base_dir.'/output-single.html', $template_code);
+      self::generate_output(AbstractTextMarkup::RENDER_KIND_REGULAR, $output_dir.'/output-single.html', $template_code);
 
       break;
     }    
@@ -284,8 +282,8 @@ class BlogTextTests {
         continue;
       }
 
-      self::generate_output(AbstractTextMarkup::RENDER_KIND_REGULAR, $base_dir.'/output-multi.html', $template_code);
-      self::generate_output(AbstractTextMarkup::RENDER_KIND_RSS, $base_dir.'/output-rss.xml', '');
+      self::generate_output(AbstractTextMarkup::RENDER_KIND_REGULAR, $output_dir.'/output-multi.html', $template_code);
+      self::generate_output(AbstractTextMarkup::RENDER_KIND_RSS, $output_dir.'/output-rss.xml', '');
 
       break;
     }    
@@ -348,6 +346,15 @@ class BlogTextTests {
     $output = str_replace("javascript:toggle_toc($post_id);", 'javascript:toggle_toc(XXX);', $output);
     
     return $output;
+  }
+
+  private static function mkdir($dir) {
+    if (!@is_dir($dir)) {
+      // Create directories recursively
+      if (!@mkdir($dir, 0777, true)) {
+        throw new MSCL_ExceptionEx('Could not create dest dir: '.$dir);
+      }
+    }
   }
 }
 ?>
