@@ -250,6 +250,9 @@ class BlogTextTests {
     if (file_exists($base_dir.'/template.html')) {
       $template_code = file_get_contents($base_dir.'/template.html');
     }
+    else {
+      $template_code = file_get_contents(dirname(__FILE__).'/default-template.html');
+    }
     
     //
     // Run "loop" through the post we've just created
@@ -261,27 +264,8 @@ class BlogTextTests {
     query_posts('p='.$post_id);
     while (have_posts()) {
       the_post();
-      global $post;
 
-      try {
-        $markup = new BlogTextMarkup();
-        $output = $markup->convert_post_to_html($post, $post->post_content,
-                                                AbstractTextMarkup::RENDER_KIND_REGULAR, 
-                                                false);
-        $output = self::mask_output($post_id, $output);
-
-        if (!empty($template_code)) {
-          $template_output = str_replace('###page_name###', $post->post_title, $template_code);
-          $template_output = str_replace('###page_content###', $output, $template_output);
-          file_put_contents($base_dir.'/output-single.html', $template_output);
-        } else {
-          file_put_contents($base_dir.'/output-single.html', $output);
-        }
-      } catch (Exception $e) {
-        print MSCL_ErrorHandling::format_exception($e);
-        // exit here as the exception may come from some static constructor that is only executed once
-        exit;
-      }
+      self::generate_output(AbstractTextMarkup::RENDER_KIND_REGULAR, $base_dir.'/output-single.html', $template_code);
 
       break;
     }    
@@ -300,36 +284,34 @@ class BlogTextTests {
         continue;
       }
 
-      try {
-        $markup = new BlogTextMarkup();
-        $output = $markup->convert_post_to_html($post, $post->post_content,
-                                                AbstractTextMarkup::RENDER_KIND_REGULAR, 
-                                                false);
-        $output = self::mask_output($post_id, $output);
-
-        if (!empty($template_code)) {
-          $template_output = str_replace('###page_name###', $post->post_title, $template_code);
-          $template_output = str_replace('###page_content###', $output, $template_output);
-          file_put_contents($base_dir.'/output-multi.html', $template_output);
-        } else {
-          file_put_contents($base_dir.'/output-multi.html', $output);
-        }
-
-        $output = $markup->convert_post_to_html($post, $post->post_content,
-                                                AbstractTextMarkup::RENDER_KIND_RSS, 
-                                                false);
-        $output = self::mask_output($post_id, $output);
-
-        file_put_contents($base_dir.'/output-rss.xml', $output);
-
-      } catch (Exception $e) {
-        print MSCL_ErrorHandling::format_exception($e);
-        // exit here as the exception may come from some static constructor that is only executed once
-        exit;
-      }
+      self::generate_output(AbstractTextMarkup::RENDER_KIND_REGULAR, $base_dir.'/output-multi.html', $template_code);
+      self::generate_output(AbstractTextMarkup::RENDER_KIND_RSS, $base_dir.'/output-rss.xml', '');
 
       break;
     }    
+  }
+
+  private static function generate_output($render_kind, $output_file, $template_code) {
+    try {
+      global $post;
+
+      $markup = new BlogTextMarkup();
+      $output = $markup->convert_post_to_html($post, $post->post_content, $render_kind, false);
+      $output = self::mask_output($post->ID, $output);
+
+      if (!empty($template_code)) {
+        $template_output = str_replace('###page_name###', $post->post_title, $template_code);
+        $template_output = str_replace('###page_content###', $output, $template_output);
+        $output = $template_output;
+      }
+
+      file_put_contents($output_file, $output);
+    }
+    catch (Exception $e) {
+      print MSCL_ErrorHandling::format_exception($e);
+      // exit here as the exception may come from some static constructor that is only executed once
+      exit;
+    }
   }
   
   /**
