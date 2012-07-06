@@ -174,12 +174,10 @@ class MSCL_ErrorHandling {
         // Format file name
         if (array_key_exists('file', $frame)) {
           $filename = $frame['file'];
-          if (function_exists('plugin_basename')) {
-            // Is this a file in a plugin?
-            $filename = plugin_basename($filename);
-            // Otherwise (even for themes) check whether the file is even in the wordpress dir
-            $filename = str_replace(ABSPATH, '', $filename);
-          }
+          // Is this a file in a plugin?
+          $filename = MSCL_AbstractPlugin::get_plugin_basename($filename);
+          // Otherwise (even for themes) check whether the file is even in the wordpress dir
+          $filename = str_replace(ABSPATH, '', $filename);
 
           $linenr = $frame['line'];
           $pos = "at $filename:$linenr";

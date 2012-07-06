@@ -84,8 +84,8 @@ abstract class MSCL_AbstractPlugin {
   /**
    * Returns the file name relative to the parent directory of the plugin.
    *
-   * Replacement for Wordpress' "plugin_basename()" as this doesn't work the file passed to it isn't inside the
-   * "plugins" directory of the Wordpress installation.
+   * Replacement for Wordpress' "plugin_basename()" as it doesn't work with files that are not inside the "plugins"
+   * directory (but are, for example, symlinked there).
    *
    * @param string $file  the file inside the plugin directory
    * @return string
