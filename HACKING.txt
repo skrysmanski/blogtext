@@ -69,31 +69,12 @@ Then for each new Wordpress installation, do:
   7.  Install and activate BlogText plugin (under "InstallDir/wp-content/plugins")
       a) either directly from the BitBucket repository
       b) or create a symlink (like described in the previous section)
-  8.  Make sure that you use the default permalink structure (.../?p=123)
-  9.  Run the tests (under Tools/BlogTextTests).
-  10. Check whether the output files have changed.
+  8.  Activate BlogText
+  9.  Make sure that you use the "Default" permalink structure (.../?p=123)
+      under "Settings" -> "Permalinks"
+  10. Run the tests (under Tools/BlogTextTests).
+  11. Check whether the output files have changed.
       $ hg diff ...
-
-
-Create Wordpress copies for each Wordpress version
---------------------------------------------------
-This section describes how to maintain one Wordpress installation per Wordpress version. It assumes, you've
-already created a working Wordpress installation. To update to the new version, do:
-
- 1. Copy the Wordpress installation folder of the latest version you have (e.g. copy from "wordpress-3.2" to
-    "wordpress-3.3".
- 2. Copy the database (e.g. from "wordpress-32" to "wordpress-33"). When using phpMyAdmin, go to the current
-    database, choose "Operations" and then "Copy database to".
- 3. Update database entries to the new path. You need to update in "wp_options":
-    * "siteurl"
-    * "home"
- 4. Update "wp-conf.php" to the new database name.
- 5. Update Wordpress to the new version.
-
-NOTE: If you renamed the wordpress folder (for some reason) while your webserver was running, you may need to
-  restart it before it "knows" the new name.
-
-See also: http://codex.wordpress.org/Moving_WordPress
 
 
 Manual WP-integration tests
