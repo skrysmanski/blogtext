@@ -7,12 +7,12 @@ See also: http://codex.wordpress.org/Debugging_in_WordPress
 Recommended WP-Plugins:
 
  * Debug Bar
- * Wordpress Logger (version 0.3 issues a warning since Wordpress 3.3)
 
 Debugging:
 
  * var_dump() : dumps the whole structure of the variable to the output
  * MSCL_ErrorHandling::print_stacktrace() : prints a brief stacktrace
+ * log_error(), log_warn(), log_info(), console() : logs to FireBug console
 
 
 Generic Development Directory Structure

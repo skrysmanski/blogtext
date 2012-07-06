@@ -16,47 +16,19 @@
 #
 #########################################################################################
 
-class MSCL_FileLogger {
-  private $file;
 
-  public function __construct($file) {
-    $this->file = $file;
-    $this->write_line("\n\n----------------------------------------------------\n");
-  }
-
-  private function write_line($text) {
-    $fh = fopen($this->file, 'a');
-    if (!$fh) {
-      return;
-    }
-    fwrite($fh, $text."\n");
-    fclose($fh);
-  }
-
-  public function error($obj, $label) {
-    $this->log($obj, '[ERR] '.$label);
-    MSCL_WordpressLogging::get_instance(false)->error($obj, $label);
-  }
-
-  public function warn($obj, $label) {
-    $this->log($obj, '[WARN] '.$label);
-    MSCL_WordpressLogging::get_instance(false)->warn($obj, $label);
-  }
-
-  public function info($obj, $label) {
-    $this->log($obj, '[INFO] '.$label);
-    MSCL_WordpressLogging::get_instance(false)->info($obj, $label);
-  }
-
-  public function log($obj, $label) {
-    $this->write_line($label.': '.print_r($obj, true));
-    MSCL_WordpressLogging::get_instance(false)->log($obj, $label);
-  }
+class MSCL_NoLogger {
+  // mock functions
+  public function on_wordpress_loaded() { }
+  public function error($obj, $label) { }
+  public function warn($obj, $label) { }
+  public function info($obj, $label) { }
+  public function log($obj, $label) { }
 }
 
 // See: http://www.firephp.org/HQ/Use.htm
-class MSCL_WordpressLogging {
-  public static $file_logger = null;
+class MSCL_Logging {
+  private static $file_logger = null;
 
   private function __construct() { }
 
@@ -72,9 +44,22 @@ class MSCL_WordpressLogging {
   }
 
   private static function create_instance() {
-    require_once(dirname(__FILE__).'/FirePHP.class.php');
+    require_once(dirname(__FILE__).'/WordpressLogger.class.php');
+    return new MSCL_WordpressLogger();
+  }
 
-    return FirePHP::getInstance(true);
+  public static function enable_file_logging($logfile) {
+    if (self::$file_logger === null) {
+      require_once(dirname(__FILE__).'/FileLogger.class.php');
+      self::$file_logger = new MSCL_FileLogger($logfile);
+    }
+  }
+
+  /**
+   * Must be called once Wordpress is loaded. Can be called multiple times.
+   */
+  public static function on_wordpress_loaded() {
+    self::get_instance(false)->on_wordpress_loaded();
   }
 
   public static function get_instance($allow_file_logger = true) {
@@ -83,7 +68,7 @@ class MSCL_WordpressLogging {
 
     if ($instance === null) {
       $instance = self::create_instance();
-      $mock_instance = new MSCL_WordpressLogging();
+      $mock_instance = new MSCL_NoLogger();
     }
 
     if ($allow_file_logger && self::$file_logger != null) {
@@ -97,20 +82,10 @@ class MSCL_WordpressLogging {
       return $mock_instance;
     }
   }
-
-  // mock functions
-  public function error($obj, $label) { }
-  public function warn($obj, $label) { }
-  public function info($obj, $label) { }
-  public function log($obj, $label) { }
-}
-
-function enable_file_logging($logfile) {
-  MSCL_WordpressLogging::$file_logger = new MSCL_FileLogger($logfile);
 }
 
 function console($obj, $label = null) {
-  MSCL_WordpressLogging::get_instance()->log($obj, $label);
+  MSCL_Logging::get_instance()->log($obj, $label);
 }
 
 function log_exception($message) {
@@ -118,14 +93,13 @@ function log_exception($message) {
 }
 
 function log_error($obj, $label = null) {
-  MSCL_WordpressLogging::get_instance()->error($obj, $label);
+  MSCL_Logging::get_instance()->error($obj, $label);
 }
 
 function log_warn($obj, $label = null) {
-  MSCL_WordpressLogging::get_instance()->warn($obj, $label);
+  MSCL_Logging::get_instance()->warn($obj, $label);
 }
 
 function log_info($obj, $label = null) {
-  MSCL_WordpressLogging::get_instance()->info($obj, $label);
+  MSCL_Logging::get_instance()->info($obj, $label);
 }
-?>

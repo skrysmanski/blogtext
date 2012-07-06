@@ -44,6 +44,8 @@ abstract class MSCL_AbstractPlugin {
 
     $this->was_wordpress_loaded = MSCL_is_wordpress_loaded();
     if ($this->was_wordpress_loaded) {
+      MSCL_Logging::on_wordpress_loaded();
+
       $in_plugins_dir = WP_PLUGIN_DIR.'/'.$this->plugin_name;
       if (!is_dir($in_plugins_dir) || realpath($in_plugins_dir) != realpath($this->plugin_dir)) {
         log_error('Could not determined plugin directory relative to the Wordpress installation.');

@@ -32,7 +32,7 @@ class BlogTextTests {
   public static function run_tests($only_and_keep = '') {
     $log_file = dirname(__FILE__).'/log.txt';
     @unlink($log_file);
-    enable_file_logging($log_file);
+    MSCL_Logging::enable_file_logging($log_file);
 
     // Fix user agent so that the output doesn't depend on operating system or browser. For example, PDF attachments
     // aren't opened in a new window on Mac OS X.
