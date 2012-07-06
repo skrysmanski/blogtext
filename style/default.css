@@ -123,9 +123,7 @@ div.image-frame {
  * TOC
  */
 .toc {
-  /*display: table; /* Make the TOC as small as it needs to be. */
   max-width: 200px;
-  float: right;
 
 	border: 1px solid #AAA;
 	background-color: #F9F9F9;
