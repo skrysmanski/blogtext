@@ -112,7 +112,13 @@ will look like this (which is exactly like the original code):
 For more information on inserting code snippets, see <a class="section-link-below" href="#code_snippets_syntax">Insertings Code Snippets</a> below.
 
 <em>Limitations:</em>
-<ul><li class="first-item">You can't start an <a class="section-link-below" href="#indenting_text">indention</a> with a bold word using the <code class="not-hl">**...**</code> syntax. Use <code class="not-hl">&lt;b&gt;...&lt;/b&gt;</code> instead.</li><li>You can't start a new line with a bold word using the <code class="not-hl">**...**</code> syntax directly after an <a class="section-link-below" href="#lists">unordered list</a>.</li><li class="last-item"><p>You can't start a line with a <code class="not-hl">##</code> code snippet. Simply use one of the other syntaxes (ie. <code class="not-hl">`...`</code> or <code class="not-hl">{{{...}}}</code>).</p></li></ul><h2 id="links">Links <a class="heading-link" href="#links" title="Link to this section">¶</a></h2>
+<ul>
+<li class="first-item">You can't start an <a class="section-link-below" href="#indenting_text">indention</a> with a bold word using the <code class="not-hl">**...**</code> syntax. Use <code class="not-hl">&lt;b&gt;...&lt;/b&gt;</code> instead.</li>
+<li>You can't start a new line with a bold word using the <code class="not-hl">**...**</code> syntax directly after an <a class="section-link-below" href="#lists">unordered list</a>.</li>
+<li class="last-item"><p>You can't start a line with a <code class="not-hl">##</code> code snippet. Simply use one of the other syntaxes (ie. <code class="not-hl">`...`</code> or <code class="not-hl">{{{...}}}</code>).</p></li>
+</ul>
+
+<h2 id="links">Links <a class="heading-link" href="#links" title="Link to this section">¶</a></h2>
 BlogText provides some constructs for creating links.
 
 <h3 id="plain-text_links">Plain-Text Links <a class="heading-link" href="#plain-text_links" title="Link to this section">¶</a></h3>
@@ -187,7 +193,13 @@ Wordpress makes it quite easy to <a class="not-found" href="#">upload images and
 
 After clicking on one of the four buttons (it doesn't matter which one), you can select the file to upload. In our example we've uploaded the file <code class="not-hl">gpl.pdf</code>. In the upload form
 
-<ol><li class="first-item">add the information you want (eg. a caption is recommended),</li><li>then click the button called "File URL" (only sometimes necessary),</li><li class="last-item"><p>and then click the "Insert Into Post" button.</p></li></ol><div class="image-frame align-center image-frame-align-center" style="width: 300px;"><div class="image"><a href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/insert-file.jpg" rel="attachment" title="Uploading a file with the media browser"><img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x300_resize_if_larger" title="Uploading a file with the media browser" alt="Uploading a file with the media browser" width="300" height="302"/></a></div><div class="image-caption">Uploading a file with the media browser</div></div>
+<ol>
+<li class="first-item">add the information you want (eg. a caption is recommended),</li>
+<li>then click the button called "File URL" (only sometimes necessary),</li>
+<li class="last-item"><p>and then click the "Insert Into Post" button.</p></li>
+</ol>
+
+<div class="image-frame align-center image-frame-align-center" style="width: 300px;"><div class="image"><a href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/insert-file.jpg" rel="attachment" title="Uploading a file with the media browser"><img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x300_resize_if_larger" title="Uploading a file with the media browser" alt="Uploading a file with the media browser" width="300" height="302"/></a></div><div class="image-caption">Uploading a file with the media browser</div></div>
 
 The will insert the following code into your editor:
 <p class="indented"><code class="not-hl">[[file:gpl-3.0.pdf]]</code></p>
@@ -204,7 +216,12 @@ These kind of links are called "Interlinks". This section briefly explains the g
 
 One of the first things you may have notices is that Interlinks come with and without a <em>prefix</em>. A prefix is the word that is written before the color (<code class="not-hl">:</code>), like <code class="not-hl">file</code> or <code class="not-hl">category</code>. Examples:
 
-<ul><li class="first-item">Without prefix: <code class="not-hl">[[hello-world]]</code> or <code class="not-hl">[[about]]</code></li><li class="last-item"><p>With prefix: <code class="not-hl">[[category:Announcements]]</code> or <code class="not-hl">[[file:gpl-3.0.pdf]]</code></p></li></ul>This prefix obviously defines which kind of link you want to specify. The text after the colon (<code class="not-hl">:</code>) specifies the thing you want to link to.
+<ul>
+<li class="first-item">Without prefix: <code class="not-hl">[[hello-world]]</code> or <code class="not-hl">[[about]]</code></li>
+<li class="last-item"><p>With prefix: <code class="not-hl">[[category:Announcements]]</code> or <code class="not-hl">[[file:gpl-3.0.pdf]]</code></p></li>
+</ul>
+
+This prefix obviously defines which kind of link you want to specify. The text after the colon (<code class="not-hl">:</code>) specifies the thing you want to link to.
 
 The next thing you may have noticed is that you can specify a link's name by adding a <em>pipe</em> (<code class="not-hl">|</code>) followed by the link name to the Interlink.
 <p class="indented">For example, <code class="not-hl">[[file:gpl-3.0.pdf|a link to the GPLv3]]</code> will be rendered as <a class="attachment file-pdf" href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/gpl-3.0.pdf" target="_blank" rel="attachment">a link to the GPLv3</a>.</p>
@@ -253,7 +270,12 @@ So, the parameter <code class="not-hl">thumb</code> is equivalent to <code class
 <h3 id="image_size">Image Size <a class="heading-link" href="#image_size" title="Link to this section">¶</a></h3>
 As mentioned before, the size of an image is specified as parameter to the image Interlink. The size can be specified like so:
 
-<ul><li class="first-item"><em>Symbolic size:</em> <code class="not-hl">[[...|small|...]</code>, <code class="not-hl">[[...|medium|...]</code>, <code class="not-hl">[[...|large|...]</code> (or <code class="not-hl">[[...|big|...]</code> which is an alias for <code class="not-hl">large</code>).</li><li class="last-item"><p><em>Explicit size:</em> <code class="not-hl">[[...|250px|...]</code></p></li></ul>The "symbolic sizes" can be configured in the Media settings (under "Settings" --> "Media").
+<ul>
+<li class="first-item"><em>Symbolic size:</em> <code class="not-hl">[[...|small|...]</code>, <code class="not-hl">[[...|medium|...]</code>, <code class="not-hl">[[...|large|...]</code> (or <code class="not-hl">[[...|big|...]</code> which is an alias for <code class="not-hl">large</code>).</li>
+<li class="last-item"><p><em>Explicit size:</em> <code class="not-hl">[[...|250px|...]</code></p></li>
+</ul>
+
+The "symbolic sizes" can be configured in the Media settings (under "Settings" --> "Media").
 
 Note, however, that Wordpress themes can specify their <em>content width</em> (by using the global variable <code class="not-hl">$content_width</code>). This width is respected by BlogText. So, when you use a "symbolic size", it'll only be as wide as the theme's content width specifies. For example, if <code class="not-hl">large</code> is defined as "1024 pixels wide" but the theme's content width is only 600 pixels wide, adding an image with <code class="not-hl">[[...|large|...]]</code> will result in an image that is 600 pixels wide. (Note that setting <code class="not-hl">$content_width</code> to zero indicates that the content widht is not specified.)
 
@@ -324,7 +346,12 @@ The section describes all parameters and their values for images (<code class="n
 
 
 <em>Notes:</em> 
-<ul><li class="first-item">If the last parameter is not recognized by the image Interlink, it'll be used as caption for the image. This will also overwrite any caption that may have been specified in the image's media browser form.</li><li class="last-item"><p>You can't overwrite the link for an image that has the <code class="not-hl">thumb</code> parameter. It'll always link to the source image.</p></li></ul><h2 id="custom-interlinks">Custom Interlinks <a class="heading-link" href="#custom-interlinks" title="Link to this section">¶</a></h2>
+<ul>
+<li class="first-item">If the last parameter is not recognized by the image Interlink, it'll be used as caption for the image. This will also overwrite any caption that may have been specified in the image's media browser form.</li>
+<li class="last-item"><p>You can't overwrite the link for an image that has the <code class="not-hl">thumb</code> parameter. It'll always link to the source image.</p></li>
+</ul>
+
+<h2 id="custom-interlinks">Custom Interlinks <a class="heading-link" href="#custom-interlinks" title="Link to this section">¶</a></h2>
 If you use links to a certain website more often, you can create an Interlink prefix for this website yourself. In the BlogText settings you have a textfield to define Interlink prefixes together with their URL pattern.
 
 For example, say you often link to <a class="external external-http" href="http://www.wikipedia.org/" target="_blank">Wikipedia</a> articles. Of course, you could simply use the full link in your texts like this:
@@ -359,7 +386,19 @@ With BlogText you can specify two types of lists: ordered and unordered lists. O
 
 would render as:
 
-<ul><li class="first-item">item 1</li><li>item 2</li><li class="last-item"><p>item 3</p></li></ul><ol><li class="first-item">item 1</li><li>item 2</li><li class="last-item"><p>item 3</p></li></ol>Nested sublists can be created by combining the characters of the desired list types.
+<ul>
+<li class="first-item">item 1</li>
+<li>item 2</li>
+<li class="last-item"><p>item 3</p></li>
+</ul>
+
+<ol>
+<li class="first-item">item 1</li>
+<li>item 2</li>
+<li class="last-item"><p>item 3</p></li>
+</ol>
+
+Nested sublists can be created by combining the characters of the desired list types.
 
 <table>
 <tr>
@@ -373,7 +412,16 @@ would render as:
 * item 2</pre>
 </td>
 <td>
-<ul><li class="first-item"><p class="no-margin">item 1</p><ul><li>item 1.1</li></ul></li><li class="last-item">item 2</li></ul></td>
+<ul>
+<li class="first-item"><p class="no-margin">item 1</p><ul>
+<li>item 1.1</li>
+</ul>
+
+</li>
+<li class="last-item">item 2</li>
+</ul>
+
+</td>
 </tr>
 <tr>
 <td>
@@ -382,7 +430,16 @@ would render as:
 # item 2</pre>
 </td>
 <td>
-<ol><li class="first-item"><p class="no-margin">item 1</p><ol><li>item 1.1</li></ol></li><li class="last-item">item 2</li></ol></td>
+<ol>
+<li class="first-item"><p class="no-margin">item 1</p><ol>
+<li>item 1.1</li>
+</ol>
+
+</li>
+<li class="last-item">item 2</li>
+</ol>
+
+</td>
 </tr>
 <tr>
 <td>
@@ -391,7 +448,16 @@ would render as:
 * item 2</pre>
 </td>
 <td>
-<ul><li class="first-item"><p class="no-margin">item 1</p><ol><li>item 1.1</li></ol></li><li class="last-item">item 2</li></ul></td>
+<ul>
+<li class="first-item"><p class="no-margin">item 1</p><ol>
+<li>item 1.1</li>
+</ol>
+
+</li>
+<li class="last-item">item 2</li>
+</ul>
+
+</td>
 </tr>
 </table>
 
@@ -404,8 +470,13 @@ It's also possible to create paragraphs in list items, like this:
 
 This would render as:
 
-<ul><li class="first-item"><p>This is a line in the first paragraph.</p><p class="no-margin">
-This is a line in the second paragraph.</p></li><li class="last-item"><p>This is another item.</p></li></ul>Note that the second paragraph needs to be indented - like in the example. Otherwise it'll not associated with the list item.
+<ul>
+<li class="first-item"><p>This is a line in the first paragraph.</p><p class="no-margin">
+This is a line in the second paragraph.</p></li>
+<li class="last-item"><p>This is another item.</p></li>
+</ul>
+
+Note that the second paragraph needs to be indented - like in the example. Otherwise it'll not associated with the list item.
 
 <em>Limitations:</em> You can't insert tables created with the BlogText syntax in list items. If you really need to have a table in a list item, you need to create a table with HTML tags (ie. <code class="not-hl">&lt;table&gt;</code>, <code class="not-hl">&lt;tr&gt;</code>, <code class="not-hl">&lt;th&gt;</code>, and <code class="not-hl">&lt;td&gt;</code>).
 
@@ -419,7 +490,17 @@ You can also continue a list item after you've inserted a sub-list. Simply appen
 
 This would render as:
 
-<ol><li class="first-item"><p class="no-margin">this is item number 1</p><ul><li class="first-item">it contains a sublist with</li><li class="last-item">two items</li></ul><p class="no-margin">here goes more text for item number 1</p></li><li class="last-item"><p>and here comes item number 2</p></li></ol>Finally you can restart an (ordered) list by appending an exclamation mark (<code class="not-hl">!</code>) to the first list item definition. For example:
+<ol>
+<li class="first-item"><p class="no-margin">this is item number 1</p><ul>
+<li class="first-item">it contains a sublist with</li>
+<li class="last-item">two items</li>
+</ul>
+
+<p class="no-margin">here goes more text for item number 1</p></li>
+<li class="last-item"><p>and here comes item number 2</p></li>
+</ol>
+
+Finally you can restart an (ordered) list by appending an exclamation mark (<code class="not-hl">!</code>) to the first list item definition. For example:
 
 <pre class="code not-hl"># list 1, item 1
 # list 1, item 2
@@ -429,7 +510,17 @@ This would render as:
 
 which would render as:
 
-<ol><li class="first-item">list 1, item 1</li><li class="last-item"><p>list 1, item 2</p></li></ol><ol><li class="first-item">list 2, item 1</li><li class="last-item"><p>list 2, item 2</p></li></ol><em>Note:</em> If you're looking for definition lists, see <a class="section-link-below" href="#definition-lists">Definitions (Definition Lists)</a>.
+<ol>
+<li class="first-item">list 1, item 1</li>
+<li class="last-item"><p>list 1, item 2</p></li>
+</ol>
+
+<ol>
+<li class="first-item">list 2, item 1</li>
+<li class="last-item"><p>list 2, item 2</p></li>
+</ol>
+
+<em>Note:</em> If you're looking for definition lists, see <a class="section-link-below" href="#definition-lists">Definitions (Definition Lists)</a>.
 
 <h2 id="headings">Headings <a class="heading-link" href="#headings" title="Link to this section">¶</a></h2>
 If your post or page has gotten a little bit longer, it's a good advise to split the post or page into sections. Sections are created by inserting headings into the post or page. Headings are created like this:
@@ -591,7 +682,12 @@ will render as:
 <span class="co2">#endregion</span></pre></td></tr></tbody></table></div>
 
 <em>Notes:</em> 
-<ul><li class="first-item">You can also enable syntax highlighting for inline code snippets. For this, you need to use the curly braces syntax (<code class="not-hl">{{{ ... }}}</code>). For example this <code class="not-hl">{{{ lang=php function do_something($my_var) }}}</code> will render like this: <code class="hl hl-php"><span class="kw2">function</span> do_something<span class="br0">&#40;</span><span class="re0">$my_var</span><span class="br0">&#41;</span></code>.</li><li class="last-item"><p>You can also specify the language by the file extension associated with the language. Simply use a dot followed by the file extension. For example, this will result in Ada highlighting: <code class="not-hl">{{{ lang=.adb ... }}}</code>.</p></li></ul><h2 id="tables">Tables <a class="heading-link" href="#tables" title="Link to this section">¶</a></h2>
+<ul>
+<li class="first-item">You can also enable syntax highlighting for inline code snippets. For this, you need to use the curly braces syntax (<code class="not-hl">{{{ ... }}}</code>). For example this <code class="not-hl">{{{ lang=php function do_something($my_var) }}}</code> will render like this: <code class="hl hl-php"><span class="kw2">function</span> do_something<span class="br0">&#40;</span><span class="re0">$my_var</span><span class="br0">&#41;</span></code>.</li>
+<li class="last-item"><p>You can also specify the language by the file extension associated with the language. Simply use a dot followed by the file extension. For example, this will result in Ada highlighting: <code class="not-hl">{{{ lang=.adb ... }}}</code>.</p></li>
+</ul>
+
+<h2 id="tables">Tables <a class="heading-link" href="#tables" title="Link to this section">¶</a></h2>
 Since creating tables with HTML is quite lengthy and not that easy to read, BlogText provides easier syntax for specifying tables: a syntax for simple tables and one for more complex tables.
 
 <em>Limitations:</em> You can't specify BlogText lists in BlogText tables (since these tables don't allow line breaks). If you need a list within a table, you need either to create a HTML list (with <code class="not-hl">&lt;ul&gt;</code>, <code class="not-hl">&lt;ol&gt;</code>, and <code class="not-hl">&lt;li&gt;</code> tags) or create an HTML table (with <code class="not-hl">&lt;table&gt;</code>, <code class="not-hl">&lt;tr&gt;</code>, <code class="not-hl">&lt;th&gt;</code>, and <code class="not-hl">&lt;td&gt;</code> tags). <a class="section-link-above" href="#code_snippets_syntax">Code block</a> will work however.
@@ -850,14 +946,26 @@ BlogText provides a simple syntax to define one or more terms. The simpliest ver
 
 will render as:
 
-<dl><dt class="first-item">XML</dt><dd>eXtensible Markup Language</dd><dt>HTML</dt><dd class="last-item"><p>Hypertext Markup Language</p></dd></dl>If you need to specify the term and the definition on separate lines -- for example because the term is long or contains a colon (<code class="not-hl">:</code>) -- you can use an alternative syntax. For example:
+<dl>
+<dt class="first-item">XML</dt>
+<dd>eXtensible Markup Language</dd>
+<dt>HTML</dt>
+<dd class="last-item"><p>Hypertext Markup Language</p></dd>
+</dl>
+
+If you need to specify the term and the definition on separate lines -- for example because the term is long or contains a colon (<code class="not-hl">:</code>) -- you can use an alternative syntax. For example:
 
 <pre class="code not-hl">;! XML
 ;: eXtensible Markup Language</pre>
 
 will render as:
 
-<dl><dt class="first-item">XML</dt><dd class="last-item"><p>eXtensible Markup Language</p></dd></dl>You can also mix both syntaxes.
+<dl>
+<dt class="first-item">XML</dt>
+<dd class="last-item"><p>eXtensible Markup Language</p></dd>
+</dl>
+
+You can also mix both syntaxes.
 
 <h3 id="horizontal_lines">Horizontal Lines <a class="heading-link" href="#horizontal_lines" title="Link to this section">¶</a></h3>
 Though it's usually not recommended to use horizontal lines, you can insert them non the less. To specify a horizontal lines, write at least four dashes (<code class="not-hl">-</code>) in a separate line like so:

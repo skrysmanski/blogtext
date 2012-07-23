@@ -364,7 +364,7 @@ abstract class AbstractTextMarkup {
           // margin-top to achieve their margin.
           $cur_content = $item->contents[$i];
           if (is_string($cur_content) && is_string($item->contents[$i + 1])) {
-            // the user added a paragraph explicitely or the next content is text. add a paragraph
+            // the user added a paragraph explicitly or the next content is text. add a paragraph
             if (!empty($cur_content)) {
               // only add this string if it's not empty; we don't need the empty marker strings in our
               // prepared content
@@ -415,11 +415,11 @@ abstract class AbstractTextMarkup {
   protected function open_list($type, $css) {
     switch ($type) {
       case ATM_List::LIST_TYPE_UL:
-        return "<ul$css>";
+        return "<ul$css>\n";
       case ATM_List::LIST_TYPE_OL:
-        return "<ol$css>";
+        return "<ol$css>\n";
       case ATM_List::LIST_TYPE_DL:
-        return "<dl$css>";
+        return "<dl$css>\n";
     }
     throw new Exception();
   }
@@ -430,11 +430,11 @@ abstract class AbstractTextMarkup {
   protected function close_list($type) {
     switch ($type) {
       case ATM_List::LIST_TYPE_UL:
-        return '</ul>';
+        return "</ul>\n\n";
       case ATM_List::LIST_TYPE_OL:
-        return '</ol>';
+        return "</ol>\n\n";
       case ATM_List::LIST_TYPE_DL:
-        return '</dl>';
+        return "</dl>\n\n";
     }
     throw new Exception();
   }
@@ -460,11 +460,11 @@ abstract class AbstractTextMarkup {
   protected function close_list_item($type) {
     switch ($type) {
       case ATM_ListItem::LIST_ITEM_TYPE_LI:
-        return '</li>';
+        return "</li>\n";
       case ATM_ListItem::LIST_ITEM_TYPE_DT:
-        return '</dt>';
+        return "</dt>\n";
       case ATM_ListItem::LIST_ITEM_TYPE_DD:
-        return '</dd>';
+        return "</dd>\n";
     }
     throw new Exception();
   }
