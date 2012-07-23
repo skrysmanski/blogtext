@@ -121,7 +121,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   private $is_rss;
 
   /**
-   * This array contains the amount each id has occured in this posting. This is used to alter ids (by
+   * This array contains the amount each id has occurred in this posting. This is used to alter ids (by
    * appending a number) so that the remain unique. Eg. this will result in "my_id", "my_id_2", "my_id_3", ...
    */
   private $id_suffix = array();
