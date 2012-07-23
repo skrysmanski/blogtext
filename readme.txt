@@ -56,6 +56,7 @@ your webserver.
 * Double hash code sections (`##`) now work, when they're at the beginning of a line.
 * Fixed code blocks with syntax highlighting: No more additional empty lines between code lines (only happen when
   syntax highlighting was used but line numbering wasn't).
+* Fixed thumbnails that weren't displayed when PHP strict warning were enabled.
 
 = 0.9.3 =
 * "cat:" is now allowed as alternative to the "category:" Interlink prefix
