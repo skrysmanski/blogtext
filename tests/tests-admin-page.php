@@ -45,7 +45,8 @@ class BlogTextTestActionButtonsForm extends MSCL_ButtonsForm {
 
         BlogTextTests::run_tests($page_name, $keep_page);
       }
-      
+
+      set_transient('last_used_blogtext_test', $_REQUEST['test_type']);
       $this->add_settings_error('tests_executed', __("All tests have been run."), 'updated');
       return;
     }
@@ -53,17 +54,20 @@ class BlogTextTestActionButtonsForm extends MSCL_ButtonsForm {
 
   public function print_form_items() {
     MSCL_require_once('tests.php', __FILE__);
+
+    $selected_page_name = get_transient('last_used_blogtext_test');
+    if (!$selected_page_name) {
+      $selected_page_name = 'all';
+    }
 ?>
-  <input type="radio" name="test_type" value="all" checked="checked"> Run <b>all tests</b><br>
+  <input type="radio" name="test_type" value="all" <?php echo $selected_page_name == 'all' ? 'checked="checked"' : ''; ?>> Run <b>all tests</b><br>
   <?php
     foreach (BlogTextTests::get_test_pages() as $page_name):
   ?>
-  <input type="radio" name="test_type" value="<?php echo $page_name; ?>"> Only run test <b>"<?php echo $page_name; ?>"</b><br>
-  <input type="radio" name="test_type" value="<?php echo $page_name; ?>_keep"> Only run test <b>"<?php echo $page_name; ?>"</b> (keep generated page and media)<br>
+  <input type="radio" name="test_type" value="<?php echo $page_name; ?>" <?php echo $selected_page_name == $page_name ? 'checked="checked"' : ''; ?>> Only run test <b>"<?php echo $page_name; ?>"</b><br>
+  <input type="radio" name="test_type" value="<?php echo $page_name; ?>_keep" <?php echo $selected_page_name == $page_name.'_keep' ? 'checked="checked"' : ''; ?>> Only run test <b>"<?php echo $page_name; ?>"</b> (keep generated page and media)<br>
   <?php
     endforeach;
-  ?>
-<?php
   }
 }
 
