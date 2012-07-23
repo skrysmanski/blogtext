@@ -91,7 +91,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // Block quotes
     'blockquote' => '/\n>(.*?\n)(?!>)/s',
     // Indention (must be done AFTER lists)
-    'indention' => '/\n[ \t]{2,}(.*?\n)(?![ \t]{2})/s',
+    'indention' => '/\n((?:[ \t]{2,}.*?\n)+)/',
 
     // Horizontal lines
     'horizontal' => '/^----[\-]*[ \t]*$/m',
