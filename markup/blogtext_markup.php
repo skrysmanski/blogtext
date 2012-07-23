@@ -317,7 +317,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
              . '|((?<!\n)[ \t]+|(?<![\*;:#\n \t]))##([^\n]*?)##(?!#)'  # ## ... ## single line code - a little bit more complicated
              . '|(?<!\`)\`([^\n\`]*?)\`(?!\`)'  # ` ... ` single line code
              . '|\{\{!(!)?(.*?)!\}\}/si';  # {{! ... !}} and {{!! ... !}} - no markup
-    $markup_code = preg_replace_callback($pattern, array($this, 'encode_no_markup_blocks_callback'), $markup_code);
+    $markup_code = preg_replace_callback($pattern, array($this, 'mask_no_markup_section_callback'), $markup_code);
+
+    # Fix for single line code blocks (##) starting at the beginning of a line. If we still find another "##" in the
+    # same line (now that all other existing ## blocks have already been masked), assume it's a code block and not a
+    # two-level ordered list. We additionally don't allow a space after the "##" here to make it safer. If there is
+    # a space, it's going to be replaced as regular rule.
+    $pattern = '/##([^ ].*)##/U';
+    $markup_code = preg_replace_callback($pattern, array($this, 'mask_no_markup_section_callback2'), $markup_code);
 
     #
     # URLs in tag attributes
@@ -336,7 +343,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    *
    * @return string  the masked text
    */
-  private function encode_no_markup_blocks_callback($matches) {
+  private function mask_no_markup_section_callback($matches) {
     $preceding_text = '';
 
     // Depending on the last array key we can find out which type of block was escaped.
@@ -386,6 +393,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     }
 
     return $preceding_text.$this->registerMaskedText($value);
+  }
+
+  private function mask_no_markup_section_callback2($matches) {
+    $value = $this->format_no_markup_block('##', $matches[1], '');
+    return $this->registerMaskedText($value);
   }
 
   /**
