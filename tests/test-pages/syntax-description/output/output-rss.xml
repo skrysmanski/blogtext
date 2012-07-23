@@ -825,8 +825,8 @@ will render as:
 
 <dl><dt class="first-item">XML</dt><dd>eXtensible Markup Language</dd><dt>HTML</dt><dd class="last-item"><p>Hypertext Markup Language</p></dd></dl>If you need to specify the term and the definition on separate lines -- for example because the term is long or contains a colon (<code>:</code>) -- you can use an alternative syntax. For example:
 
-<pre class="code">;!XML
-;:eXtensible Markup Language</pre>
+<pre class="code">;! XML
+;: eXtensible Markup Language</pre>
 
 will render as:
 

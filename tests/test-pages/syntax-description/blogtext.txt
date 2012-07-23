@@ -772,14 +772,14 @@ will render as:
 If you need to specify the term and the definition on separate lines -- for example because the term is long or contains a colon (##:##) -- you can use an alternative syntax. For example:
 
 {{{
-;!XML
-;:eXtensible Markup Language
+;! XML
+;: eXtensible Markup Language
 }}}
 
 will render as:
 
-;!XML
-;:eXtensible Markup Language
+;! XML
+;: eXtensible Markup Language
 
 You can also mix both syntaxes.
 

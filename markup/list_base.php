@@ -44,7 +44,7 @@ class ATM_ListItem {
       }
       $content = trim($content);
     }
-    $this->contents[] = &$content;
+    $this->contents[] = $content;
   }
 }
 
@@ -85,7 +85,7 @@ class ATM_List {
         throw new Exception("Missing type: $this->list_type");
     }
 
-    $this->items[] = &$item;
+    $this->items[] = $item;
   }
 
   public function append_to_last_item(&$content) {
@@ -165,7 +165,7 @@ class ATM_ListStack {
 
   private function append(&$content) {
     if (count($this->list_stack) == 0) {
-      $this->root_items[] = &$content;
+      $this->root_items[] = $content;
     } else {
       $this->list_stack[count($this->list_stack) - 1][1]->append_to_last_item($content);
     }

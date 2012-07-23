@@ -84,14 +84,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     'simple_table' => '/\n(\|(?!\+)[^\|]+\|.+(?:\n\|(?!\+)[^\|]+\|.+)*)(?:\n\|\+(.+))?/',
     // Ordered (#) and unordered (*) lists; definition list(;)
     // NOTE: The user can't start a list with "**" (list with sublist).
-    // NOTE: Indentations in lists must be done with at least two spaces/tabs. Otherwise it's too easy to accidentially
+    // NOTE: Indentations in lists must be done with at least two spaces/tabs. Otherwise it's too easy to accidentally
     //   insert a space and thereby add a line to a list. This also "fixes" the problem of having a more-link directly
     //   after a list being placed inside the list.
     'list' => '/\n[\*#;][^\*#;].*?\n(?:(?:(?:[\*#]+[\^!]? |;|[ \t]{2,}).*?)?\n)*/',
     // Block quotes
     'blockquote' => '/\n>(.*?\n)(?!>)/s',
-    // Indention (must be done AFTER lists)
-    'indention' => '/\n((?:[ \t]{2,}.*?\n)+)/',
+    // Indentation (must be done AFTER lists)
+    'indentation' => '/\n((?:[ \t]{2,}.*?\n)+)/',
 
     // Horizontal lines
     'horizontal' => '/^----[\-]*[ \t]*$/m',
@@ -112,7 +112,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   );
 
   // Rules to remove white space at the beginning of line that don't expect this (headings, lists, quotes)
-  private static $TRIM_RULE = '/^[ \t]*(?=[=\*#:;>$])/m';
+  private static $TRIM_RULE = '/^[ \t]*(?=[=\*#:;>$])(?!\*\*|##)/m';
 
   private static $interlinks = array();
 
@@ -290,6 +290,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   private function execute_regex($regex_name, $value) {
+    if ($regex_name == 'indentation') {
+      log_info($value, 'before_indentation_code');
+    }
     return preg_replace_callback(self::$RULES[$regex_name], array($this, $regex_name.'_callback'), $value);
   }
 
@@ -532,7 +535,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return '<blockquote>'.str_replace("\n>", "\n", $matches[1]).'</blockquote>';
   }
 
-  private function indention_callback($matches) {
+  private function indentation_callback($matches) {
     return '<p class="indented">'.trim($matches[1]).'</p>';
   }
 
@@ -1192,43 +1195,52 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   private function list_callback($matches) {
     $list_stack = new ATM_ListStack();
 
-    preg_match_all('/^(?:(?:((?:\*|#|;[\:\!])+)(\^|;|\!|)[ \t]*|(;)(?![\:\!])|[ \t]+)(.*?)|)$/m',
-                   $matches[0], $list, PREG_SET_ORDER);
-    foreach ($list as $val) {
-      if (count($val) == 1) {
+    preg_match_all('/^(?:[ ]*((?:\*|#|;[\:\!])+)(\^|;|\!)?[ ]+|(;)(?![\:\!])|[ ]*)(.*)$/m',
+                   $matches[0], $listLineMatches, PREG_SET_ORDER);
+    foreach ($listLineMatches as $lineMatch) {
+      if (strlen(trim($lineMatch[0])) == 0) {
         // Add paragraph; useful to make list wider, like:
         //
         //  * item 1
         //
         //  * item 2
         //
-        // Though this isn't the best pratice, we still let the user decide whether he/she wants a dense or
+        // Though this isn't the best practice, we still let the user decide whether he/she wants a dense or
         // a wide list.
         $list_stack->append_para();
         continue;
       }
-      $text = $val[4];
+
+      $text = $lineMatch[4];
 
       // contains either:
       // * for example "**#" for a three level list
       // * is empty, if the line starts with spaces and/or tabs or in case of a inline definition
-      $new_list_stack_str = $val[1];
+      $new_list_stack_str = $lineMatch[1];
 
-      $inline_dl = ($val[2] == ';' || $val[3] == ';');
+      // Either "\n; def : exp" or "**; def : exp"
+      $inline_dl = ($lineMatch[2] == ';' || $lineMatch[3] == ';');
 
-      if (empty($new_list_stack_str) && !$inline_dl) {
-        // continue the previous list level
-        if (trim($text) == '') {
-          // empty line - see note above
-          $list_stack->append_para();
-        } else {
-          $list_stack->append_text("\n".$text);
+      if (strlen(trim($new_list_stack_str)) === 0 && !$inline_dl) {
+        if (strlen($new_list_stack_str) < 2) {
+          // unrecognized syntax. close current list.
+          $list_stack->append_text("\n".$new_list_stack_str.$text);
+        }
+        else {
+          // continue the previous list level
+          if (trim($text) == '') {
+            // empty line - see note above
+            $list_stack->append_para();
+          }
+          else {
+            $list_stack->append_text("\n".$text);
+          }
         }
         continue;
       }
 
-      $continue_list = ($val[2] == '^');
-      $restart_list = ($val[2] == '!');
+      $continue_list = ($lineMatch[2] == '^');
+      $restart_list = ($lineMatch[2] == '!');
 
       if ($restart_list && $list_stack->has_open_lists()) {
         // restart the list; useful only for ordered list in which the numbering starts again at 1
@@ -1255,11 +1267,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         array_pop($new_list_stack_types);
         $new_list_stack_types[] = ATM_ListStack::UNIQUE_ITEM_TYPE_DD;
         $list_stack->append_new_item($new_list_stack_types, false, $text);
-      } else {
+      }
+      else {
         $list_stack->append_new_item($new_list_stack_types, $continue_list, $text);
       }
-
-      $prev_was_empty_line = false;
     }
 
     //
