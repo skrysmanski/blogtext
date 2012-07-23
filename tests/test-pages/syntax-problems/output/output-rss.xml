@@ -1,7 +1,7 @@
 <!-- Generated "rss-item" item --><code>This is some code</code>
 <ol><li class="first-item"><p class="no-margin">This is a numbered item</p><ol><li>This is yet another numbered item</li></ol></li><li class="last-item"><p>Numbered</p></li></ol><code>This is also some code</code>
 
-## And this is also some code##
+<code> And this is also some code</code>
 
 Some text.
 

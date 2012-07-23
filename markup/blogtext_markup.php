@@ -106,6 +106,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     'strike_through' => '/(?<!~)~~(.+?)~~(?!~)/',
     'super_script' => '/(?<!\^)\^\^(.+?)\^\^(?!\^)/',
     'sub_script' => '/(?<!,),,(.+?),,(?!,)/',
+
+    # Handle all code sections not yet handled (due to inability of the parser)
+    'mask_remaining_no_markup_section' => '/##(.+)##/U',
   );
 
   // Rules to remove white space at the beginning of line that don't expect this (headings, lists, quotes)
@@ -324,7 +327,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     # two-level ordered list. We additionally don't allow a space after the "##" here to make it safer. If there is
     # a space, it's going to be replaced as regular rule.
     $pattern = '/##([^ ].*)##/U';
-    $markup_code = preg_replace_callback($pattern, array($this, 'mask_no_markup_section_callback2'), $markup_code);
+    $markup_code = preg_replace_callback($pattern, array($this, 'mask_remaining_no_markup_section_callback'), $markup_code);
 
     #
     # URLs in tag attributes
@@ -395,7 +398,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return $preceding_text.$this->registerMaskedText($value);
   }
 
-  private function mask_no_markup_section_callback2($matches) {
+  private function mask_remaining_no_markup_section_callback($matches) {
     $value = $this->format_no_markup_block('##', $matches[1], '');
     return $this->registerMaskedText($value);
   }
