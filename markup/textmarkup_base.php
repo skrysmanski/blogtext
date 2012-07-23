@@ -245,7 +245,8 @@ abstract class AbstractTextMarkup {
       $geshi->enable_classes();
       $geshi->enable_keyword_links(false);
 
-      if ($start_line && $is_multiline) {
+      $use_line_numbering = ($start_line && $is_multiline);
+      if ($use_line_numbering) {
         // Use table for line numbers. This allows for starting at a line > 1 (which would otherwise
         // break XHTML compliance); furthermore this allows to copy the code without getting the line
         // numbers in the copied text.
@@ -273,6 +274,13 @@ abstract class AbstractTextMarkup {
       }
 
       $code = $geshi->parse_code();
+      if ($is_highlighted && !$use_line_numbering) {
+        # Fix output screwed up by GeShi
+        # 1. <br/> tags per line (since this is a <pre> section, we don't need them)
+        # 2. <br/> inside a line (for example after highlighted line)
+        $code = str_replace("<br />\n", "\n", $code);
+        $code = str_replace('<br />', "\n", $code);
+      }
     } else {
       // Escape '<', '>', '"', '&'.
       $code = htmlspecialchars($code);
@@ -307,7 +315,6 @@ abstract class AbstractTextMarkup {
         return '<code'.$additional_html_attribs.'>'.$code.'</code>';
       }
     }
-
   }
 
   ////////////////////////////////////////////////////////////////////

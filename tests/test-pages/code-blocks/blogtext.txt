@@ -1,0 +1,25 @@
+{{{ lang=c#
+struct MyStruct {
+  int MyVar;
+}
+}}}
+
+{{{ lang=c# line=1
+struct MyStruct {
+  int MyVar;
+}
+}}}
+
+{{{ lang=c# highlight=2
+struct MyStruct {
+  int MyVar;
+}
+}}}
+
+{{{ lang=c# highlight=3
+struct MyStruct {
+
+  int MyVar;
+
+}
+}}}
