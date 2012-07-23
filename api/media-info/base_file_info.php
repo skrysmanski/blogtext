@@ -227,7 +227,7 @@ abstract class MSCL_AbstractFileInfo {
    * @return string
    */
   public static function get_file_contents($file_path) {
-    $is_remote = self::is_remote_file($file_path);
+    $is_remote = self::check_for_remote_file($file_path);
     if ($is_remote) {
       if (!self::is_remote_support_available()) {
         throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $file_path, true);
