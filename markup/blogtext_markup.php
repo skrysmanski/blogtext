@@ -87,7 +87,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // NOTE: Indentations in lists must be done with at least two spaces/tabs. Otherwise it's too easy to accidentially
     //   insert a space and thereby add a line to a list. This also "fixes" the problem of having a more-link directly
     //   after a list being placed inside the list.
-    'list' => '/\n[\*#;][^\*#;].*?\n(?:(?:(?:[\*#;]|[ \t]{2,}).*?)?\n)*/',
+    'list' => '/\n[\*#;][^\*#;].*?\n(?:(?:(?:[\*#]+[\^!]? |;|[ \t]{2,}).*?)?\n)*/',
     // Block quotes
     'blockquote' => '/\n>(.*?\n)(?!>)/s',
     // Indention (must be done AFTER lists)
