@@ -15,6 +15,15 @@ Some text2.
 
 ##This is some code2##
 
+  Some indented text.
+
 Some text3. ##This is some code3##
 
-##This is some code4##
+  ##This is some indented code4##
+
+* A list
+* 2nd item
+
+**Some bold text at the beginning of a line** directly after an unordered line
+
+  **And even some indented bold text.**
