@@ -28,8 +28,12 @@ class BlogTextTests {
     }
     return $test_names;
   }
-  
-  public static function run_tests($only_and_keep = '') {
+
+  public static function run_all_tests() {
+    self::run_tests('', false);
+  }
+
+  public static function run_tests($page_names, $keep_pages) {
     $log_file = dirname(__FILE__).'/log.txt';
     @unlink($log_file);
     MSCL_Logging::enable_file_logging($log_file);
@@ -50,10 +54,11 @@ class BlogTextTests {
       $old_content_width = $content_width;
       $content_width = 0;
 
-      if (empty($only_and_keep)) {
+      if (empty($page_names)) {
         $page_names = self::get_test_pages();
-      } else {
-        $page_names = array($only_and_keep);
+      }
+      else if (!is_array($page_names)) {
+        $page_names = array($page_names);
       }
 
       $uploads = wp_upload_dir();
@@ -80,7 +85,7 @@ class BlogTextTests {
 
         self::write_output($post_id, $page_name, $dummy_post_id);
 
-        if (empty($only_and_keep)) {
+        if (!$keep_pages) {
           # Don't delete the post when it has been requested.
           wp_delete_post($post_id, true);
           foreach ($added_attachment_ids as $attach_id) {
