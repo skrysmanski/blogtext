@@ -307,10 +307,10 @@ class MSCL_Thumbnail {
       }
       $this->load_token_file();
       // We need to redo the check here in case local and remote file reside in the same directory
-      $this->is_src_img_remote = MSCL_AbstractFileInfo::is_remote_file($this->img_src);
+      $this->is_src_img_remote = MSCL_AbstractFileInfo::check_for_remote_file($this->img_src);
     } else {
       $this->img_token = self::create_token($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
-      $this->is_src_img_remote = MSCL_AbstractFileInfo::is_remote_file($img_src); // required for getting the file path
+      $this->is_src_img_remote = MSCL_AbstractFileInfo::check_for_remote_file($img_src); // required for getting the file path
 
       if (file_exists($this->get_token_file_path())) {
         // reuse already existing data

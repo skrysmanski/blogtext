@@ -169,24 +169,28 @@ abstract class MSCL_AbstractFileInfo {
   }
 
   /**
-   * Returns whether the file is a remote file. This method can be called on an instance or statically. When
-   * called statically, the file must be specified as parameter.
+   * Returns whether the file is a remote file.
+   *
+   * @return bool
+   */
+  public function is_remote_file() {
+    return $this->is_remote_file;
+  }
+
+  /**
+   * Returns whether the specified file is a remote file.
    *
    * @param string $file_path the path to check or null, if called from an instance
    *
    * @return bool
    */
-  public function is_remote_file($file_path=null) {
-    if ($file_path === null) {
-      return $this->is_remote_file;
-    } else {
-      $found = preg_match('/^([a-zA-Z0-9\+\.\-]+)\:\/\/.+/', $file_path, $matches);
-      if (!$found) {
-        return false;
-      }
-
-      return ($matches[1] != 'file');
+  public static function check_for_remote_file($file_path) {
+    $found = preg_match('/^([a-zA-Z0-9\+\.\-]+)\:\/\/.+/', $file_path, $matches);
+    if (!$found) {
+      return false;
     }
+
+    return ($matches[1] != 'file');
   }
 
   /**
