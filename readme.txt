@@ -61,6 +61,7 @@ your webserver.
   syntax highlighting was used but line numbering wasn't).
 * Fixed thumbnails that weren't displayed when PHP strict warning were enabled.
 * Fix: Bold text can now be at the beginning of a line, even if indented.
+* Updated to newest GeSHi revision (svn: r2522, hg: b4dcf778dccf)
 
 = 0.9.3 =
 * "cat:" is now allowed as alternative to the "category:" Interlink prefix

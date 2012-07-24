@@ -1,25 +1,24 @@
 <?php
 /*************************************************************************************
- * chaiscript.php
- * --------------
- * Author: Jason Turner & Jonathan Turner
- * Copyright: (c) 2010 Jason Turner (lefticus@gmail.com),
- *            (c) 2009 Jonathan Turner,
- *            (c) 2004 Ben Keen (ben.keen@gmail.com), Benny Baumann (http://qbnz.com/highlighter)
+ * ada.php
+ * -------
+ * Author: Phil Thornley (tux@inmail.cz)
+ * Copyright: (c) 2004 Phil Thornley (http://www.sparksure.com)
  * Release Version: 1.0.8.10
- * Date Started: 2009/07/03
+ * Date Started: 2010/08/22
  *
- * ChaiScript language file for GeSHi.
+ * SPARK language file for GeSHi.
  *
- * Based on JavaScript by Ben Keen (ben.keen@gmail.com)
+ * Created by modifying Ada file version 1.0.2
+ * Words are from SciTe configuration file
  *
  * CHANGES
  * -------
- * 2010/03/30 (1.0.8.8)
- *  -  Updated to include more language features
- *  -  Removed left over pieces from JavaScript
- * 2009/07/03 (1.0.0)
- *  -  First Release
+ * 2010/08/28 (1.0.0)
+ *   -  First Release
+ *
+ * TODO (updated 2010/08/22)
+ * -------------------------
  *
  *************************************************************************************
  *
@@ -42,75 +41,74 @@
  ************************************************************************************/
 
 $language_data = array (
-    'LANG_NAME' => 'ChaiScript',
-    'COMMENT_SINGLE' => array(1 => '//'),
+    'LANG_NAME' => 'SPARK',
+    'COMMENT_SINGLE' => array(1 => '--', 2 => '--#'),
     'COMMENT_MULTI' => array('/*' => '*/'),
-    //Regular Expressions
-    'COMMENT_REGEXP' => array(2 => "/(?<=[\\s^])s\\/(?:\\\\.|(?!\n)[^\\/\\\\])+\\/(?:\\\\.|(?!\n)[^\\/\\\\])+\\/[gimsu]*(?=[\\s$\\.\\;])|(?<=[\\s^(=])m?\\/(?:\\\\.|(?!\n)[^\\/\\\\])+\\/[gimsu]*(?=[\\s$\\.\\,\\;\\)])/iU"),
     'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,
-    'QUOTEMARKS' => array("'", '"'),
+    'QUOTEMARKS' => array('"'),
     'ESCAPE_CHAR' => '\\',
     'KEYWORDS' => array(
         1 => array(
-            'break', 'else', 'elseif', 'eval', 'for', 'if', 'return', 'while', 'try', 'catch', 'finally',
+            'begin', 'declare', 'do', 'else', 'elsif', 'exception', 'for', 'if',
+            'is', 'loop', 'while', 'then', 'end', 'select', 'case', 'until',
+            'goto', 'return'
             ),
         2 => array(
-            'def', 'false', 'fun', 'true', 'var', 'attr',
+            'abs', 'and', 'at', 'mod', 'not', 'or', 'rem', 'xor'
             ),
         3 => array(
-            // built in functions
-            'throw',
+            'abort', 'abstract', 'accept', 'access', 'aliased', 'all', 'array',
+            'body', 'constant', 'delay', 'delta', 'digits', 'entry', 'exit',
+            'function', 'generic', 'in', 'interface', 'limited', 'new', 'null',
+            'of', 'others', 'out', 'overriding', 'package', 'pragma', 'private',
+            'procedure', 'protected', 'raise', 'range', 'record', 'renames',
+            'requeue', 'reverse', 'separate', 'subtype', 'synchronized',
+            'tagged', 'task', 'terminate', 'type', 'use', 'when', 'with'
             )
         ),
     'SYMBOLS' => array(
-        '(', ')', '[', ']', '{', '}',
-        '+', '-', '*', '/', '%',
-        '!', '@', '&', '|', '^',
-        '<', '>', '=',
-        ',', ';', '?', ':'
+        '(', ')'
         ),
     'CASE_SENSITIVE' => array(
         GESHI_COMMENTS => false,
         1 => false,
         2 => false,
-        3 => false
+        3 => false,
         ),
     'STYLES' => array(
         'KEYWORDS' => array(
-            1 => 'color: #000066; font-weight: bold;',
-            2 => 'color: #003366; font-weight: bold;',
-            3 => 'color: #000066;'
+            1 => 'color: #00007f;',
+            2 => 'color: #0000ff;',
+            3 => 'color: #46aa03; font-weight:bold;',
+            ),
+        'BRACKETS' => array(
+            0 => 'color: #66cc66;'
             ),
         'COMMENTS' => array(
-            1 => 'color: #006600; font-style: italic;',
-            2 => 'color: #009966; font-style: italic;',
-            'MULTI' => 'color: #006600; font-style: italic;'
+            1 => 'color: #adadad; font-style: italic;',
+            2 => 'color: #adadad; font-style: italic; font-weight: bold;'
             ),
         'ESCAPE_CHAR' => array(
             0 => 'color: #000099; font-weight: bold;'
             ),
         'BRACKETS' => array(
-            0 => 'color: #009900;'
+            0 => 'color: #66cc66;'
             ),
         'STRINGS' => array(
-            0 => 'color: #3366CC;'
+            0 => 'color: #7f007f;'
             ),
         'NUMBERS' => array(
-            0 => 'color: #CC0000;'
+            0 => 'color: #ff0000;'
             ),
         'METHODS' => array(
-            1 => 'color: #660066;'
+            1 => 'color: #202020;'
             ),
         'SYMBOLS' => array(
-            0 => 'color: #339933;'
+            0 => 'color: #66cc66;'
             ),
         'REGEXPS' => array(
             ),
         'SCRIPT' => array(
-            0 => '',
-            1 => '',
-            2 => '',
-            3 => ''
             )
         ),
     'URLS' => array(
@@ -124,16 +122,10 @@ $language_data = array (
         ),
     'REGEXPS' => array(
         ),
-    'STRICT_MODE_APPLIES' => GESHI_MAYBE,
+    'STRICT_MODE_APPLIES' => GESHI_NEVER,
     'SCRIPT_DELIMITERS' => array(
-        0 => array(
-            ),
-        1 => array(
-            )
         ),
     'HIGHLIGHT_STRICT_BLOCK' => array(
-        0 => true,
-        1 => true
         )
 );
 
