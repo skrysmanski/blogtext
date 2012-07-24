@@ -129,7 +129,7 @@ function blogtext_edInsertMultilineCode(myField) {
 }
 
 function blogtext_edLangLookup() {
-  window.open(blogTextPluginDir + '/editor/codeblock-lang/query.php', '_blank', 'width=320,toolbar=no,menubar=no,status=no,location=no,scrollbars=yes');
+  window.open(blogTextPluginDir + '/admin/editor/codeblock-lang/query.php', '_blank', 'width=320,toolbar=no,menubar=no,status=no,location=no,scrollbars=yes');
 }
 
 function blogtext_edShowButton(button, i) {
