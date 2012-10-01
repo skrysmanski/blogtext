@@ -3,7 +3,7 @@ Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
 Tested up to: 3.4.1
-Stable tag: 0.9.4
+Stable tag: 0.9.5
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
 good Wordpress editor integration.
@@ -47,6 +47,9 @@ your webserver.
 1. Start writing your posts
 
 == Changelog ==
+
+= 0.9.5 =
+* BlogText now works with PHP 5.4.0 (did not work due to an error in BlogText's option API).
 
 = 0.9.4 =
 * [Syntax Change] To add indented text to an open list, its items now need to be indented by at least two spaces;

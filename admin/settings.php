@@ -43,7 +43,7 @@ class BlogTextSettings {
   /**
    * Callback function.
    */
-  public static function check_top_level_heading_level(&$input) {
+  public static function check_top_level_heading_level($input) {
     return ($input >= 1 && $input <= 6);
   }
 
@@ -112,7 +112,7 @@ class BlogTextSettings {
   /**
    * Callback function.
    */
-  public static function check_content_width(&$input) {
+  public static function check_content_width($input) {
     return ($input >= 0);
   }
 

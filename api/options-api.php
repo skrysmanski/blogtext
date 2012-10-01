@@ -87,8 +87,8 @@ abstract class MSCL_Option {
     //   be stored. This is a problem, if the default value isn't "false"/0/... . In this case, the option
     //   would always be the default value.
     if ($this->check_value($input)) {
-      if ($this->custom_validator_func !== null) {
-        if (call_user_func($this->custom_validator_func, &$input)) {
+      if ($this->custom_validator_func != null) {
+        if (call_user_func($this->custom_validator_func, $input)) {
           return $this->convert_to_string($input);
         }
       } else {
