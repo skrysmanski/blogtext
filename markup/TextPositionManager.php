@@ -20,7 +20,7 @@ class TextPostionManager {
   }
 
   /**
-   * Requests that the position of the text passed to this method to be determined when {@link addTextPositionRequest()}
+   * Requests that the position of the text passed to this method to be determined when {@link determineTextPositions()}
    * is called. Only finds the first occurrence of this text.
    *
    * @param string $text  the text for which the text position is to be determined. Note: This text itself should not

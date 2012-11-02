@@ -39,15 +39,11 @@ class PlaceholderManager {
   private static $SECTION_MASKING_END_DELIM;
 
   /**
-   * @var TextPositionManager
-   */
-  private $m_textPositionManager;
-
-  /**
    *
    * @var mixed[]
    */
   private $m_placeholders = array();
+  private $m_nextId = 1;
 
   /**
    * Used to prevent the static constructor from running multiple times.
@@ -72,10 +68,8 @@ class PlaceholderManager {
     self::$IS_STATIC_INITIALIZED = true;
   }
 
-  public function __construct($textPositionManager) {
+  public function __construct() {
     self::static_constructor();
-
-    $this->m_textPositionManager = $textPositionManager;
   }
 
   public function reset() {
@@ -95,36 +89,35 @@ class PlaceholderManager {
    * Text needs to be masked when it contains (or may contain) characters that form BlogText markup. Usually this
    * applies to programming code and URL in HTML attributes.
    *
-   * @param string   $textToMask  the text to be masked
-   * @param string   $textId  the id of the text. Is passed to the post processing callback. This way the callback can
-   *   distinguish multiple occurrences of the same text ($textToMask).
+   * @param string $textToMask  the text to be masked
+   * @param bool $makePlaceholderUnique  specifies whether the placeholder returned by this function must be
+   *   distinguishable from other placeholders masking exactly the same text. Use this, if you need to determine the
+   *   position of the placeholder (for example with the {@see TextPositionManager}.
    * @param callback $textPostProcessingCallback  while unmasking this text, this callback function will be called to
    *   further process the text before putting it back in the whole text
-   * @param bool     $determineTextPos  if this is true, the text position of the placeholder text will be determined
-   *   and passed as second argument to the text post-processing callback. Has no effect, if no callback has been
-   *   defined. Defaults to false.
    *
-   * @return string  the placeholder text to replace the masked text until its unmasking
+   * @return string  the placeholder to replace the masked text. The placeholder doesn't contain any BlogText markup and
+   *   therefore can't be misinterpreted.
    *
    * @see unmaskAllTextSections()
    */
-  public function registerPlaceholder($textToMask, $textId = '', $textPostProcessingCallback=null,
-                                      $determineTextPos=false) {
-    if (empty($textId)) {
+  public function registerPlaceholder($textToMask, $makePlaceholderUnique=false, $textPostProcessingCallback=null) {
+    if ($makePlaceholderUnique) {
+      $textId = $textToMask.$this->m_nextId;
+      $this->m_nextId++;
+    }
+    else {
       $textId = $textToMask;
     }
+
     # Creating an MD5 hash from the text results in a unique textual representation of the masked text that doesn't
     # contain any BlogText markup.
     $placeholderId = md5($textId);
 
     # Register the masked text so that it can be unmasked later.
-    $this->m_placeholders[$placeholderId] = array($textToMask, $textPostProcessingCallback, $determineTextPos);
+    $this->m_placeholders[$placeholderId] = array($textToMask, $textPostProcessingCallback);
 
-    $placeholderText = self::createPlaceholderText($placeholderId);
-    if ($determineTextPos) {
-      $this->m_textPositionManager->addTextPositionRequest($placeholderText, $placeholderId);
-    }
-    return $placeholderText;
+    return self::createPlaceholderText($placeholderId);
   }
 
   /**
@@ -152,16 +145,12 @@ class PlaceholderManager {
    */
   private function unmaskTextSectionReplaceCallback($matches) {
     $placeholderId = $matches[1];
-    list($text, $textPostProcessingCallback, $determineTextPos) = $this->m_placeholders[$placeholderId];
+    list($maskedText, $textPostProcessingCallback) = $this->m_placeholders[$placeholderId];
     if ($textPostProcessingCallback !== null) {
-      if (!$determineTextPos) {
-        return call_user_func($textPostProcessingCallback, $text, $placeholderId);
-      } else {
-        return call_user_func($textPostProcessingCallback, $text, $placeholderId,
-                              $this->m_textPositionManager->getTextPosition($placeholderId));
-      }
-    } else {
-      return $text;
+      return call_user_func($textPostProcessingCallback, $maskedText, self::createPlaceholderText($placeholderId));
+    }
+    else {
+      return $maskedText;
     }
   }
 

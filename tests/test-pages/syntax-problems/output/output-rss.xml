@@ -36,3 +36,11 @@ Some text3. <code>This is some code3</code>
 <em>Stuff: <a href="http://mayastudios.com" target="_blank">mayastudios.com</a></em>
 
 <em>Stuff: <a href="http://mayastudios.com" target="_blank">mayastudios.com</a></em>
+
+
+Some text with a <a href="#some_id">link</a>
+
+<h2 id="some_id">Some Test</h2>
+Some id
+
+Some text with a <a href="#some_id">link2</a>

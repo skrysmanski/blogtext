@@ -35,3 +35,11 @@ Some text3. ##This is some code3##
 //Stuff: http://mayastudios.com//
 
 //Stuff: [[http://mayastudios.com]]//
+
+
+Some text with a [[#some_id|link]]
+
+== Some Test ==== #some_id
+Some id
+
+Some text with a [[#some_id|link2]]

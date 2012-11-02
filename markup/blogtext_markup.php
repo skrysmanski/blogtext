@@ -133,8 +133,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private $headings_title_map = array();
 
-  private $anchor_id_counter = 0;
-
   private $thumbs_used = array();
 
   /**
@@ -181,7 +179,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $this->id_suffix = array();
     $this->headings = array();
     $this->headings_title_map = array();
-    $this->anchor_id_counter = 0;
     $this->thumbs_used = array();
   }
 
@@ -746,7 +743,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     if ($is_attachment) {
       // Attachments are a special case.
       $css_classes = array('attachment' => true);
-    } else if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+    }
+    else if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
       // Link on the same page - add text position requests to determine whether the heading is above or
       // below the link's position.
       // NOTE: We can't check whether the heading already exists in our headings array to determine whether
@@ -757,27 +755,24 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         if ($this->needsHmlIdEscaping()) {
           # Ids and anchor names are prefixed with the post's id
           $escaped_anchor_name = $this->escapeHtmlId($anchor_name);
-          $this->add_text_position_request('="'.$escaped_anchor_name.'"', $anchor_name);
           $link = '#'.$escaped_anchor_name;
         }
-        else {
-          # Search for id or name attribute containing the anchor name
-          $this->add_text_position_request('="'.$anchor_name.'"', $anchor_name);
-        }
+
         # NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
         #   get the same position calculated.
-        $placeholderText = $this->registerMaskedText($anchor_name,
-                                                 'section-link'.$anchor_name.$this->anchor_id_counter,
-                                                 array($this, '_resolveHeadingRelativePos'), true);
-        $this->anchor_id_counter++;
+        $placeholderText = $this->registerMaskedText($anchor_name, true, array($this, '_resolveHeadingRelativePos'));
+        $this->add_text_position_request($placeholderText);
         $css_classes = array('section-link-'.$placeholderText => true);
-      } else {
+      }
+      else {
         $not_found_reason = 'not existing';
       }
-    } else {
+    }
+    else {
       if ($is_external) {
         $css_classes = array('external' => true);
-      } else {
+      }
+      else {
         $css_classes = array('internal' => true);
       }
 
@@ -952,16 +947,23 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   /**
    * This is a callback function. Don't call it directly.
+   *
+   * @param string $linkTargetId  the HTML id (from the "id" attribute) this link targets
+   * @param string $linkPlaceholderText  the placeholder text used to mask the link
+   *
+   * @return string the replacement text
    */
-  public function _resolveHeadingRelativePos($anchorName, $anchorId, $anchorPos) {
+  public function _resolveHeadingRelativePos($linkTargetId, $linkPlaceholderText) {
     # Retrieve the text position of the heading
-    $headingPos = $this->get_text_position($anchorName);
+    $headingPos = $this->get_text_position($linkTargetId);
     if ($headingPos == -1) {
       return 'not-existing';
     }
 
+    $linkPos = $this->get_text_position($linkPlaceholderText);
+
     # Compare the link's position with the heading's position
-    return ($headingPos < $anchorPos ? 'above' : 'below');
+    return ($headingPos < $linkPos ? 'above' : 'below');
   }
 
   /**
@@ -1050,20 +1052,33 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $this->headings_title_map[$pure_id] = $text;
 
     // Don't add anchor links (¶) to headings in the RSS feed. Usually doesn't look good.
-    return $this->format_heading($level, $text, $id, $permalink, !$this->is_rss);
+    list($code, $idPlaceholder) = $this->format_heading($level, $text, $id, $permalink, !$this->is_rss);
+
+    # Request text position for every heading. This way they can be referenced more easily by "resolve_link()".
+    $this->add_text_position_request($idPlaceholder, $pure_id);
+
+    return $code;
   }
 
   private function format_heading($level, $text, $id, $id_link='', $add_anchor=true) {
     if (empty($id_link)) {
       $id_link = '#'.$id;
     }
+
     if ($add_anchor) {
       $anchor = " <a class=\"heading-link\" href=\"$id_link\" title=\"Link to this section\">¶</a>";
+      # For escaping the anchor, see next comment.
+      $anchor = $this->registerMaskedText($anchor);
     } else {
       $anchor = '';
     }
 
-    return "<h$level id=\"$id\">$text$anchor</h$level>";
+    # Escape $id and $anchor. If the text of the heading contained a double space, it may have been
+    # converted into a double underscore in the id. Escaping the id (and $anchor, which references the id) prevents
+    # this double underscore from being recognized as underline token.
+    $id = $this->registerMaskedText($id);
+
+    return array("<h$level id=\"$id\">$text$anchor</h$level>", $id);
   }
 
   /**

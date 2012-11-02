@@ -55,6 +55,7 @@ your webserver.
   can now be disabled in BlogText's settings (closes/fixes #13).
 * Fix: Emphasis (`//`) can now surround an external link (fixes #12)
 * BlogText no longer creates thumbnails when the original image would work just fine.
+* A double space in a heading no longer breaks the parser (fixes #10).
 
 = 0.9.4 =
 * [Syntax Change] To add indented text to an open list, its items now need to be indented by at least two spaces;
