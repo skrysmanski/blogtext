@@ -43,3 +43,21 @@ Some text with a [[#some_id|link]]
 Some id
 
 Some text with a [[#some_id|link2]]
+
+
+Some links:
+
+ * http://www.manski.net.
+ * http://www.manski.net , more
+ * http://www.manski.net ; more
+ * http://www.manski.net .
+ * http://www.manski.net : more
+ * http://www.manski.net " more
+ * http://www.manski.net ' more
+ * http://www.manski.net ?
+ * http://www.manski.net !
+ * http://www.manski.net )
+ * http://www.manski.net ]
+ * http://www.manski.net }
+ * http://www.manski.net (test)
+ * http://www.manski.net  )

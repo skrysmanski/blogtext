@@ -74,7 +74,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     //   tags and then white space could no longer be used as sole delimter for URLs. On the
     //   other hand we can't use < and > as delimeter as this would interfere with URL interlinks.
     //   So plaintext urls need to be parsed before tables and lists.
-    'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[[:punct:]])?/',
+    'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[.,;:\?\!)\]}"\'])?/',
 
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
@@ -540,17 +540,21 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $protocol = $matches[2];
     $url = $matches[1];
     if (count($matches) == 5) {
-      // if punctuation is found, there may be a space added between the url and the punctionation;
-      // eg.: (my link: http://en.wikipedia.org/wiki/Portal_(Game) )
-      // so we remove the blank so that the result looks like expected. Note that this isn't true
-      // for dot, comma, semicolon, and colon.
-      // eg.: my link: http://en.wikipedia.org/wiki/Portal_(Game).
+      # There is some punctuation following the link. Both are separated by one or more spaces. For some selected
+      # punctuation (full stop, question mark, closing brackets, ...) the space is removed automatically, like in
+      # "(my link: http://en.wikipedia.org/wiki/Portal_(Game) )". If, however, the punctuation is separated from the
+      # link by more than one space, the punctuation isn't changed.
       $punctuation = ltrim($matches[4]);
-    } else {
+      if (strlen($punctuation) != strlen($matches[4]) - 1) {
+        # More than one space. Revert change.
+        $punctuation = $matches[4];
+      }
+    }
+    else {
       $punctuation = '';
     }
 
-    # Check for trailing // which should be interpreted as emphasis rather than part of the URL
+    # Check for trailing // in the URL which should be interpreted as emphasis rather than part of the URL
     if (substr($url, -2) == '//') {
       $url = substr($url, 0, -2);
       $punctuation = '//'.$punctuation;
@@ -560,7 +564,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     # Make sure the title isn't parsed (especially if it still contains '//')!
     $title = $this->registerMaskedText($title);
 
-    // Replace "+" and "." for the css name as they have special meaning in CSS.
+    # Replace "+" and "." for the css name as they have special meaning in CSS.
     $protocol_css_name = str_replace(array('+', '.'), '-', $protocol);
     return $this->generate_link_tag($url, $title,
                                     array('external', "external-$protocol_css_name", $protocol_css_name))
