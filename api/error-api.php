@@ -109,13 +109,15 @@ class MSCL_ErrorHandling {
     echo self::format_stacktrace(debug_backtrace(), 1);
   }
 
-  public static function format_stacktrace($stack_trace, $skip_frames = 0) {
+  public static function format_stacktrace($stack_trace, $skip_frames = 0, $text_only = false) {
     $admin_code = '';
 
     if (count($stack_trace) > $skip_frames) {
       // TODO: Make this stack trace as fancy as in Trac
-      $admin_code .= '<p><b>Stack Trace: </b></p>';
-      $admin_code .= '<pre class="stack-trace">'."\n";
+      if (!$text_only) {
+        $admin_code .= '<p><b>Stack Trace: </b></p>';
+        $admin_code .= '<pre class="stack-trace">'."\n";
+      }
       $frame_counter = 0;
 
       foreach ($stack_trace as $frame) {
@@ -165,7 +167,7 @@ class MSCL_ErrorHandling {
             $arg_str = htmlspecialchars(print_r($arg, true));
           }
 
-          if ($shortend) {
+          if ($shortend && !$text_only) {
             $arg_str = '<span title="'.htmlspecialchars(print_r($arg, true)).'">'.$arg_str.'</span>';
           }
           $args[] = $arg_str;
@@ -185,10 +187,19 @@ class MSCL_ErrorHandling {
           // not file information available; is be possible for callback functions
           $pos = 'at unknown position';
         }
-        $admin_code .= '<b>'.$func_name.'</b>('.  join(', ', $args).")\n"
-                    .  "  <span style=\"color:gray;\">$pos</span>\n";
+
+        if ($text_only) {
+          $admin_code .= $func_name.'('.join(', ', $args).") $pos\n";
+        }
+        else {
+          $admin_code .= '<b>'.$func_name.'</b>('.  join(', ', $args).")\n"
+                      .  "  <span style=\"color:gray;\">$pos</span>\n";
+        }
       }
-      $admin_code .= '</pre>';
+
+      if (!$text_only) {
+        $admin_code .= '</pre>';
+      }
     }
 
     return $admin_code;
