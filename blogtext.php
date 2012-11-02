@@ -3,14 +3,14 @@
 Plugin Name: BlogText for WordPress
 Plugin URI: http://wordpress.org/extend/plugins/blogtext/
 Description: Allows you to write your posts and pages with an alternative, easy-to-learn, and fast-to-type syntax
-Version: 0.9.4
+Version: 0.9.5
 Author: Sebastian Krysmanski
 Author URI: http://mayastudios.com
 */
 
 #########################################################################################
 #
-# Copyright 2010-2011  Maya Studios (http://www.mayastudios.com)
+# Copyright 2010-2012  Maya Studios (http://www.mayastudios.com)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ Author URI: http://mayastudios.com
 require_once(dirname(__FILE__).'/api/commons.php');
 
 require_once(dirname(__FILE__).'/util.php');
+require_once(dirname(__FILE__).'/upgrade.php');
 require_once(dirname(__FILE__).'/admin/settings.php');
 require_once(dirname(__FILE__).'/error-checking.php');
 require_once(dirname(__FILE__).'/admin/adminbar.php');
@@ -45,6 +46,8 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
   protected function __construct() {
     parent::__construct();
+
+    BlogTextUpgrader::run($this);
 
     // Create error notifier
     new BlogTextErrorNotifier();
@@ -177,4 +180,3 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
 // create plugin
 BlogTextPlugin::get_instance();
-?>

@@ -23,6 +23,7 @@ abstract class MSCL_AbstractPlugin {
   private $plugin_name;
   private $plugin_dir;
   private $plugin_dir_relative;
+  private $plugin_file;
   private $plugin_filename_relative;
   private $plugin_url;
 
@@ -36,11 +37,11 @@ abstract class MSCL_AbstractPlugin {
     $class_info = new ReflectionClass(get_class($this));
     // NOTE: At least on Windows, symlinks are resolved for "$plugin_file". So, if the plugin directory is a symlink,
     //   it is resolved and the real file path is returned.
-    $plugin_file = $class_info->getFileName();
+    $this->plugin_file = $class_info->getFileName();
 
-    $this->plugin_dir = dirname($plugin_file);
+    $this->plugin_dir = dirname($this->plugin_file);
     // Since the plugin directory may be symlinked, use the plugin file name instead of the directory.
-    $this->plugin_name = basename($plugin_file, '.php');
+    $this->plugin_name = basename($this->plugin_file, '.php');
 
     $this->was_wordpress_loaded = MSCL_is_wordpress_loaded();
     if ($this->was_wordpress_loaded) {
@@ -128,6 +129,14 @@ abstract class MSCL_AbstractPlugin {
   public function get_plugin_url() {
     $this->check_wordpress_was_loaded();
     return $this->plugin_url;
+  }
+
+  public function get_plugin_version() {
+    $this->check_wordpress_was_loaded();
+    if (!function_exists('get_plugins')) {
+      require_once(ABSPATH.'wp-admin/includes/plugin.php');
+    }
+    return get_plugin_data($this->plugin_file, false, false)['Version'];
   }
 
   /**
