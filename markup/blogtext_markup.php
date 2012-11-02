@@ -290,9 +290,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   private function execute_regex($regex_name, $value) {
-    if ($regex_name == 'indentation') {
-      log_info($value, 'before_indentation_code');
-    }
     return preg_replace_callback(self::$RULES[$regex_name], array($this, $regex_name.'_callback'), $value);
   }
 
