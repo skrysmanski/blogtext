@@ -19,7 +19,7 @@
 #########################################################################################
 
 class BlogTextUpgrader {
-  private static $OPTION_NAME = 'blogtext_version';
+  const OPTION_NAME = 'blogtext_version';
 
   private static $m_checked = false;
 
@@ -32,7 +32,7 @@ class BlogTextUpgrader {
       return;
     }
 
-    $oldVersion = get_option(self::$OPTION_NAME, '');
+    $oldVersion = get_option(self::OPTION_NAME, '');
     $curVersion = $plugin->get_plugin_version();
     if ($oldVersion == $curVersion) {
       self::$m_checked = true;
@@ -44,7 +44,7 @@ class BlogTextUpgrader {
       self::upgradeFromPre0_9_5();
     }*/
 
-    add_option(self::$OPTION_NAME, $curVersion);
+    add_option(self::OPTION_NAME, $curVersion);
   }
 
   private static function loadSettings() {
