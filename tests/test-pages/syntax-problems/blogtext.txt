@@ -1,3 +1,5 @@
+This post contains syntax problems that occurred at some point in the past.
+
 ##This is some code##
 # This is a numbered item
 ## This is yet another numbered item
