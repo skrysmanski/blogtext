@@ -66,14 +66,15 @@ Then for each new Wordpress installation, do:
   5.  General Setup:
       Use "Wordpress x.x" as title and fill the other stuff.
   6.  Set "define('WP_DEBUG', true);" in "wp-config.php". (define already exists at the end of the file)
-  7.  Install and activate BlogText plugin (under "InstallDir/wp-content/plugins")
+  7.  Also Add "error_reporting(E_ALL);" to the end(!) of "wp-config.php"
+  8.  Install and activate BlogText plugin (under "InstallDir/wp-content/plugins")
       a) either directly from the BitBucket repository
       b) or create a symlink (like described in the previous section)
-  8.  Activate BlogText
-  9.  Make sure that you use the "Default" permalink structure (.../?p=123)
+  9.  Activate BlogText
+  10. Make sure that you use the "Default" permalink structure (.../?p=123)
       under "Settings" -> "Permalinks"
-  10. Run the tests (under Tools/BlogTextTests).
-  11. Check whether the output files have changed.
+  11. Run the tests (under Tools/BlogTextTests).
+  12. Check whether the output files have changed.
       $ hg diff ...
 
 
