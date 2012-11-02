@@ -304,8 +304,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   /**
    * Masks text sections that are to be excluded from markup parsing. This includes code blocks (<code>, <pre> and
-   * {{{ ... }}}, `...`), and no-markup blocks ({{! ... !}}). Also masks tags containing URLs in their attributes
-   * (such as <a> or <img>), and removes end-of-line comments (%%).
+   * {{{ ... }}}, `...`), and no-markup blocks ({{! ... !}}). Also masks HTML attributes containing URLs (such as <a>
+   * or <img>), and removes end-of-line comments (%%).
    *
    * @param string $markup_code  the BlogText code
    *
@@ -333,7 +333,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $markup_code = preg_replace_callback($pattern, array($this, 'mask_remaining_no_markup_section_callback'), $markup_code);
 
     #
-    # URLs in tag attributes
+    # URLs in HTML attributes
     #
     $pattern = '/<[a-zA-Z]+[ \t]+[^>]*[a-zA-Z0-9\+\.\-]+\:\/\/[^>]*>/Us';
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_inner_tag_urls_callback'), $markup_code);
@@ -556,7 +556,15 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       $punctuation = '';
     }
 
+    # Check for trailing // which should be interpreted as emphasis rather than part of the URL
+    if (substr($url, -2) == '//') {
+      $url = substr($url, 0, -2);
+      $punctuation = '//'.$punctuation;
+    }
+
     $title = $this->get_plain_url_name($url);
+    # Make sure the title isn't parsed (especially if it still contains '//')!
+    $title = $this->registerMaskedText($title);
 
     // Replace "+" and "." for the css name as they have special meaning in CSS.
     $protocol_css_name = str_replace(array('+', '.'), '-', $protocol);
@@ -597,6 +605,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $target_attr = $new_window ? ' target="_blank"' : '';
     $target_attr .= $is_attachment ? ' rel="attachment"' : '';
     $css_classes = !empty($css_classes) ? ' class="'.$css_classes.'"' : '';
+
+    if (strpos($url, '//') !== false) {
+      # Mask URL if it contains a protocol as this will otherwise interfere with the emphasis markup
+      # (which is '//' too).
+      $url = $this->registerMaskedText($url);
+    }
+
     return '<a'.$css_classes.' href="'.$url.'"'.$target_attr.'>'.$name.'</a>';
   }
 

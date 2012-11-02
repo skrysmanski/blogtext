@@ -29,3 +29,9 @@ Some text3. ##This is some code3##
 **Some bold text at the beginning of a line** directly after an unordered line
 
   **And even some indented bold text.**
+
+//Source: [[wiki:en|MagSafe|Wikipedia]]//
+
+//Stuff: http://mayastudios.com//
+
+//Stuff: [[http://mayastudios.com]]//
