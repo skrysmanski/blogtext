@@ -148,10 +148,6 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
       $this->add_frontend_stylesheet('style/default.css');
     }
 
-    if (BlogTextSettings::use_default_filetype_icons()) {
-      $this->add_frontend_stylesheet('style/fileicons.css');
-    }
-
     $geshi_style = BlogTextSettings::get_geshi_theme();
     if ($geshi_style != BlogTextSettings::OWN_GESHI_STYLE) {
       $this->add_frontend_stylesheet("style/geshi-css/$geshi_style.css", 'geshi');
@@ -169,7 +165,45 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
       return;
     }
 
-    $custom_css = trim(BlogTextSettings::get_custom_css());
+    $custom_css = '';
+
+    $default_icon_classes = array();
+    if (BlogTextSettings::use_default_external_link_icon()) {
+      $default_icon_classes[] = 'a.external';
+      $custom_css .= 'a.external:before { content: \'\\1d30d\'; } ';
+    }
+    if (BlogTextSettings::use_default_https_link_icon()) {
+      $default_icon_classes[] = 'a.external-https';
+      $custom_css .= 'a.external-https:before { content: \'\\1f512\' !important; } ';
+    }
+    if (BlogTextSettings::use_default_attachment_link_icon()) {
+      $default_icon_classes[] = 'a.attachment';
+      $custom_css .= 'a.attachment:before { content: \'\\1f4ce\'; } ';
+    }
+    if (BlogTextSettings::use_default_updown_link_icon()) {
+      $default_icon_classes[] = 'a.section-link-above';
+      $custom_css .= 'a.section-link-above:before { content: \'\\2191\'; } ';
+      $default_icon_classes[] = 'a.section-link-below';
+      $custom_css .= 'a.section-link-below:before { content: \'\\2193\'; } ';
+    }
+
+    if (count($default_icon_classes) != 0) {
+      $custom_css .= implode(':before, ', $default_icon_classes).':before {'.<<<DOT
+  font-family: 'blogtexticons';
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: none;
+  margin-right: 0.2em;
+  text-align: center;
+  opacity: 0.7;
+  line-height: 1em;
+}
+DOT;
+    }
+
+    $custom_css .= "\n".trim(BlogTextSettings::get_custom_css());
     if (empty($custom_css)) {
       return;
     }

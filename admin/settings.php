@@ -142,13 +142,34 @@ class BlogTextSettings {
     return $get_option ? $option : $option->get_value();
   }
 
-  public static function use_default_filetype_icons($get_option=false) {
+  public static function use_default_external_link_icon($get_option=false) {
     static $option = null;
     if ($option == null) {
-      $option = new MSCL_BoolOption('blogtext_use_default_filetype_icons', 'Use default filetype icons', true,
-              'Specifies whether the .css file containing icons for several filetypes (such as PDFs or '
-              .'images) shall be included in the output. Without this, no file icons will be displayed on '
-              .'links unless the Wordpress theme provides its own.');
+      $option = new MSCL_BoolOption('blogtext_use_default_external_link_icon', 'Use default icon for external links', true);
+    }
+    return $get_option ? $option : $option->get_value();
+  }
+
+  public static function use_default_https_link_icon($get_option=false) {
+    static $option = null;
+    if ($option == null) {
+      $option = new MSCL_BoolOption('blogtext_use_default_https_link_icon', 'Use default icon for external HTTPS links', true);
+    }
+    return $get_option ? $option : $option->get_value();
+  }
+
+  public static function use_default_attachment_link_icon($get_option=false) {
+    static $option = null;
+    if ($option == null) {
+      $option = new MSCL_BoolOption('blogtext_use_default_attachment_link_icon', 'Use default icon for attachment links', true);
+    }
+    return $get_option ? $option : $option->get_value();
+  }
+
+  public static function use_default_updown_link_icon($get_option=false) {
+    static $option = null;
+    if ($option == null) {
+      $option = new MSCL_BoolOption('blogtext_use_default_updown_link_icon', 'Use default up/down icon for links to the same page', true);
     }
     return $get_option ? $option : $option->get_value();
   }

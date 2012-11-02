@@ -50,6 +50,9 @@ your webserver.
 
 = 0.9.5 =
 * BlogText now works with PHP 5.4.0 (did not work due to an error in BlogText's option API).
+* Removed all file type icons. Icons for links to external sites, attachments, and subsections in the same page remain.
+  The icons have been replaced by a web-font though (making them scale with the font size). Additionally each icon type
+  can now be disabled in BlogText's settings (closes/fixes #13).
 
 = 0.9.4 =
 * [Syntax Change] To add indented text to an open list, its items now need to be indented by at least two spaces;

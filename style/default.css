@@ -1,3 +1,17 @@
+/* Blog Text icons font
+   Entypo pictograms by Daniel Bruce — www.entypo.com
+*/
+@font-face {
+  font-family: 'blogtexticons';
+  src: url("font/blogtexticons.eot");
+  src: url("font/blogtexticons.eot?#iefix") format('embedded-opentype'),
+       url("font/blogtexticons.woff") format('woff'),
+       url("font/blogtexticons.ttf") format('truetype'),
+       url("font/blogtexticons.svg#blogtexticons") format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Represents list items the consists of text and block elements. It's necessary to
    wrap the texts in <p> tags but they should not have a bottom margin. */
 li p.no-margin, dd p.no-margin, dt p.no-margin {
@@ -26,46 +40,25 @@ p.indented {
 /*
  * Link icons
  */
-a.attachment {
-  background: url(common-icons/attachment.gif) no-repeat left center transparent;
-  padding-left: 19px;
-}
+a.not-found:before,
+a.section-link-not-existing:before {
+  font-family: 'blogtexticons';
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: none;
+  margin-right: 0.2em;
+  text-align: center;
+  opacity: 0.7;
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+  /* fix buttons height */
+  line-height: 1em;
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
 
-a.external-file {
-  background: url(fileicons/file.png) no-repeat left center transparent;
-  padding-left: 19px;
-}
-
-a.external {
-  background: url(common-icons/link-external.png) no-repeat left center transparent;
-  padding-left: 19px;
-}
-
-a.external-https {
-  background-image: url(common-icons/link-https.gif) !important;
-}
-
-a.external-wiki {
-  background-image: url(common-icons/wikipedia.png) !important;
-}
-
-a.external-search {
-  background-image: url(common-icons/search.png) !important;
-}
-
-a.not-found, a.section-link-not-existing {
-  background: url(common-icons/link-error.gif) no-repeat left center transparent !important;
-  padding-left: 19px;
-}
-
-a.section-link-above {
-  background: url(common-icons/section-above.png) no-repeat left center transparent !important;
-  padding-left: 11px;
-}
-
-a.section-link-below {
-  background: url(common-icons/section-below.png) no-repeat left center transparent !important;
-  padding-left: 11px;
+  content: '\26a0'; /* '⚠' */
 }
 
 /*

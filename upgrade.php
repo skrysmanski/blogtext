@@ -39,6 +39,7 @@ class BlogTextUpgrader {
       return;
     }
 
+    #version_compare()
     /*if ($oldVersion == '') {
       self::upgradeFromPre0_9_5();
     }*/
