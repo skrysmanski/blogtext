@@ -76,13 +76,30 @@ class BlogTextTests {
       // Unset the theme's content width as this may change from theme to theme. Will be reset at the end.
       global $content_width;
       $old_content_width = $content_width;
-      
+
       foreach ($page_names as $page_name) {
         list($post_id, $post_attach_ids) = self::create_test_post($page_name, $uploads_dir);
         $added_attachment_ids = array_merge($added_attachment_ids, $post_attach_ids);
 
         $content_width = 0;
+
+        $testDir = self::get_base_dir_for_page($page_name);
+        $functionsName = false;
+        if (file_exists($testDir.'/functions.php')) {
+          include_once($testDir.'/functions.php');
+          $functionsName = str_replace('-', '_', $page_name);
+        }
+
+        if ($functionsName && function_exists("before_$functionsName")) {
+          call_user_func("before_$functionsName");
+        }
+
         self::write_output($post_id, $page_name, $dummy_post_id);
+
+        if ($functionsName && function_exists("after_$functionsName")) {
+          call_user_func("after_$functionsName");
+        }
+
         $content_width = $old_content_width;
 
         if (!$keep_pages) {
