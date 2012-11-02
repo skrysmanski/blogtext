@@ -64,7 +64,7 @@ class MediaMacro implements IInterlinkMacro {
     $is_thumb = false;
     $alignment = '';
     $title = '';
-    $img_size = '';
+    $img_size_attr = '';
 
     if (!$generate_html) {
       if ($is_attachment) {
@@ -108,10 +108,10 @@ class MediaMacro implements IInterlinkMacro {
       } else if ($param == 'left' || $param == 'right' || $param == 'center') {
         $alignment = $param;
       } else if ($param == 'small' || $param == 'medium' || $param == 'large' || substr($param, -2) == 'px') {
-        $img_size = $param;
+        $img_size_attr = $param;
       } else if ($param == 'big') {
         # "big" is just an alias for "large"
-        $img_size = 'large';
+        $img_size_attr = 'large';
       } else {
         if ($key == count($params) - 1) {
           // if this is the last parameter and not one of the types above, assume it's the title
@@ -167,79 +167,65 @@ class MediaMacro implements IInterlinkMacro {
     //
     // size and alignment
     //
-    if ($is_thumb && empty($img_size)) {
+    if ($is_thumb && empty($img_size_attr)) {
       // Set default thumb size
       if ($alignment == 'center') {
         // Use "large" when the thumbnail is centered.
-        $img_size = 'large';
+        $img_size_attr = 'large';
       } else {
         // NOTE: We assume "small" here as this is what Wordpress calls "thumbnail" size.
-        $img_size = 'small';
+        $img_size_attr = 'small';
       }
     }
 
     if (empty($alignment) && ($is_thumb || $has_frame)) {
-      if ($img_size == 'small') {
+      if ($img_size_attr == 'small') {
         $alignment = BlogTextSettings::get_default_small_img_alignment();
-      } else if ($img_size == 'medium' || $img_size == 'large') {
+      } else if ($img_size_attr == 'medium' || $img_size_attr == 'large') {
         $alignment = 'center';
       }
       // Don't align images without a named size (like "200px" or no size at all).
     }
 
+    // Default values: If width/height is zero, it's omitted from the HTML code.
+    $img_width = 0;
+    $img_height = 0;
+
     try {
-      if (empty($img_size)) {
+      if (empty($img_size_attr)) {
         if ($is_attachment) {
           $img_url = wp_get_attachment_url($ref);
-        } else {
+        }
+        else {
           $img_url = $ref;
         }
 
         $content_width = MSCL_ThumbnailApi::get_content_width();
         if ($content_width != 0) {
-          // We "route" all images through thumbnails be have it easier to check whether they've changed.
-          $img_size = array($content_width, 0);
-        } else {
-          // content width isn't available. Make the size 0x0 so that its size isn't added to the HTML code.
-          // this way we don't need to check whether this image's size has changed (in order to check whether
-          // the cache HTML code can be used).
-          if ($has_frame && !empty($title)) {
-            // NOTE: For a frame together with a title we need at least the image's width (see below).
-            try {
-              if ($is_attachment) {
-                $img_path = get_attached_file($ref, true);
-              }
-              else {
-                $img_path = $img_url;
-              }
-              $info = MSCL_ImageInfo::get_instance($img_path);
-              $img_width = $info->get_width();
-              $img_height = $info->get_height();
-            }
-            catch (MSCL_MediaInfoException $e) {
-              // Media information not available; don't specify size
-              log_error($e->getMessage(), 'media info not available');
-              $img_width = 0;
-              $img_height = 0;
-            }
-          } else {
-            $img_width = 0;
-            $img_height = 0;
+          $img_size = self::getImageSize($is_attachment, $ref);
+          if ($img_size !== false && $img_size[0] > $content_width) {
+            # Image is larger then the content width. Create a "thumbnail" to limit its width.
+            list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref,
+                                                                             array($content_width, 0));
+          }
+        }
+        else if ($has_frame && !empty($title)) {
+          // NOTE: For a framed image with caption we need the image's width (see below).
+          $img_size = self::getImageSize($is_attachment, $ref);
+          if ($img_size !== false) {
+            $img_width = $img_size[0];
+            $img_height = $img_size[1];
           }
         }
       }
-
-      if (!empty($img_size)) {
+      else {
         // Width is specified.
-        if (!is_array($img_size) && substr($img_size, -2) == 'px') {
-          $img_size = array((int)substr($img_size, 0, -2), 0);
+        if (substr($img_size_attr, -2) == 'px') {
+          // Actual size - not a symbolic one.
+          $img_size_attr = array((int)substr($img_size_attr, 0, -2), 0);
         }
 
-        if ($is_attachment) {
-          list($img_url, $img_width, $img_height) = MSCL_ThumbnailApi::get_thumbnail_info_from_attachment($link_resolver, $ref, $img_size);
-        } else {
-          list($img_url, $img_width, $img_height) = MSCL_ThumbnailApi::get_thumbnail_info($link_resolver, $ref, $img_size);
-        }
+        list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref, $img_size_attr);
       }
     }
     catch (MSCL_MediaFileNotFoundException $e) {
@@ -315,6 +301,36 @@ class MediaMacro implements IInterlinkMacro {
       return MarkupUtil::is_attachment($ref) ? $ref : null;
     } else {
       return MarkupUtil::get_attachment_id($ref, $post_id);
+    }
+  }
+
+  private static function getImageSize($isAttachment, $ref) {
+    try {
+      $img_path = $isAttachment ? get_attached_file($ref, true) : $ref;
+
+      $info = MSCL_ImageInfo::get_instance($img_path);
+      return array($info->get_width(), $info->get_height());
+    }
+    catch (MSCL_MediaInfoException $e) {
+      // Media information not available; don't specify size
+      log_error($e->getMessage(), 'media info not available');
+      return false;
+    }
+  }
+
+  /**
+   * @param $linkResolver
+   * @param bool $isAttachment  whether the ref is an attachment or URL
+   * @param string|int $ref  the ref to the image
+   * @param array|string  $requestedSize  the maximum size for the image as array or one of the symbolic sizes ("large",
+   *   "small", ...) as string.
+   * @return array Returns the thumbnail info as array with ($img_url, $img_width, $img_height)
+   */
+  private static function getThumbnailInfo($linkResolver, $isAttachment, $ref, $requestedSize) {
+    if ($isAttachment) {
+      return MSCL_ThumbnailApi::get_thumbnail_info_from_attachment($linkResolver, $ref, $requestedSize);
+    } else {
+      return MSCL_ThumbnailApi::get_thumbnail_info($linkResolver, $ref, $requestedSize);
     }
   }
 }

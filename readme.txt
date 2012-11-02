@@ -54,6 +54,7 @@ your webserver.
   The icons have been replaced by a web-font though (making them scale with the font size). Additionally each icon type
   can now be disabled in BlogText's settings (closes/fixes #13).
 * Fix: Emphasis (`//`) can now surround an external link (fixes #12)
+* BlogText no longer creates thumbnails when the original image would work just fine.
 
 = 0.9.4 =
 * [Syntax Change] To add indented text to an open list, its items now need to be indented by at least two spaces;

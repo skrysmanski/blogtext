@@ -1,0 +1,7 @@
+Image wider than the content-width (300):
+
+[[image:insert-file.jpg]]
+
+Image smaller than the content-width (300):
+
+[[image:pagename.png]]
