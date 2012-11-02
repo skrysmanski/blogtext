@@ -96,8 +96,8 @@ class PlaceholderManager {
    * applies to programming code and URL in HTML attributes.
    *
    * @param string   $textToMask  the text to be masked
-   * @param string   $textId  the id of the text. The placeholder returned by this method is based on this value.
-   *   Defaults to the text itself. TODO: Why would we need this?
+   * @param string   $textId  the id of the text. Is passed to the post processing callback. This way the callback can
+   *   distinguish multiple occurrences of the same text ($textToMask).
    * @param callback $textPostProcessingCallback  while unmasking this text, this callback function will be called to
    *   further process the text before putting it back in the whole text
    * @param bool     $determineTextPos  if this is true, the text position of the placeholder text will be determined
