@@ -12,6 +12,7 @@ Debugging:
 
  * var_dump() : dumps the whole structure of the variable to the output
  * MSCL_ErrorHandling::print_stacktrace() : prints a brief stacktrace
+ * log_stacktrace() : log the current stacktrace
  * log_error(), log_warn(), log_info(), console() : logs to FireBug console
 
 

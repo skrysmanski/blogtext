@@ -1,3 +1,5 @@
+This post contains syntax problems that occurred at some point in the past.
+
 ##This is some code##
 # This is a numbered item
 ## This is yet another numbered item
@@ -27,3 +29,35 @@ Some text3. ##This is some code3##
 **Some bold text at the beginning of a line** directly after an unordered line
 
   **And even some indented bold text.**
+
+//Source: [[wiki:en|MagSafe|Wikipedia]]//
+
+//Stuff: http://mayastudios.com//
+
+//Stuff: [[http://mayastudios.com]]//
+
+
+Some text with a [[#some_id|link]]
+
+== Some Test ==== #some_id
+Some id
+
+Some text with a [[#some_id|link2]]
+
+
+Some links:
+
+ * http://www.manski.net.
+ * http://www.manski.net , more
+ * http://www.manski.net ; more
+ * http://www.manski.net .
+ * http://www.manski.net : more
+ * http://www.manski.net " more
+ * http://www.manski.net ' more
+ * http://www.manski.net ?
+ * http://www.manski.net !
+ * http://www.manski.net )
+ * http://www.manski.net ]
+ * http://www.manski.net }
+ * http://www.manski.net (test)
+ * http://www.manski.net  )

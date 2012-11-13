@@ -53,6 +53,12 @@ your webserver.
 * Removed all file type icons. Icons for links to external sites, attachments, and subsections in the same page remain.
   The icons have been replaced by a web-font though (making them scale with the font size). Additionally each icon type
   can now be disabled in BlogText's settings (closes/fixes #13).
+* Fix: Emphasis (`//`) can now surround an external link (fixes #12)
+* BlogText no longer creates thumbnails when the original image would work just fine.
+* A double space in a heading no longer breaks the parser (fixes #10).
+* Fix/Change: If punctuation is written after a plain-text URL separated by one or more spaces, now the space will be
+  removed only for certain punctuations. Especially, it won't be removed anymore for opening brackets. To force BlogText
+  to keep the spaces, simply use more than one.
 
 = 0.9.4 =
 * [Syntax Change] To add indented text to an open list, its items now need to be indented by at least two spaces;

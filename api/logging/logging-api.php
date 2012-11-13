@@ -103,3 +103,7 @@ function log_warn($obj, $label = null) {
 function log_info($obj, $label = null) {
   MSCL_Logging::get_instance()->info($obj, $label);
 }
+
+function log_stacktrace() {
+  log_info(MSCL_ErrorHandling::format_stacktrace(debug_backtrace(), 1, true));
+}

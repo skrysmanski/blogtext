@@ -20,13 +20,13 @@ class TextPostionManager {
   }
 
   /**
-   * Requests that the position of the text passed to this method to be determined when {@link addTextPositionRequest()}
+   * Requests that the position of the text passed to this method to be determined when {@link determineTextPositions()}
    * is called. Only finds the first occurrence of this text.
    *
    * @param string $text  the text for which the text position is to be determined. Note: This text itself should not
    *   be the id for another text; this way both the text and its id can be used for {@link getTextPosition()}.
-   * @param string $textId  optional id for the text; if this is "null" the text itself is used as id. The id is used to
-   *   retrieve the text position in {@link getTextPosition()}.
+   * @param string $textId  an alternative way to identify the specified text; use this if the alternative text is more
+   *   convenient than the actual text.
    */
   public function addTextPositionRequest($text, $textId = null) {
     $this->m_textPositions[$text] = -1;
@@ -54,19 +54,18 @@ class TextPostionManager {
    * Returns the text position for the specified text id. Only works after {@link determineTextPositions()} has been
    * called.
    *
-   * @param string $textId  the id of the text for which the position is to be returned. Note that this text can be
-   *   the text itself, or a text id associated with the text in {@link addTextPositionRequest()}. Note also that even
-   *   if an id has been associated with the text, you still can pass the text here directly - unless the text itself
-   *   is an id for another text.
+   * @param string $text  either the text for which the position was determined or text id, if it was registered in
+   *   {@link addTextPositionRequest()}. Note: Even if an id has been associated with the text, you still can pass the
+   *   text here directly - unless the text itself is an id for yet another text.
    *
    * @return int  the text position or -1, if the position is unknown or the text id isn't registered
    */
-  public function getTextPosition($textId) {
-    if (isset($this->m_textIds[$textId])) {
-      $text = $this->m_textIds[$textId];
+  public function getTextPosition($text) {
+    if (isset($this->m_textIds[$text])) {
+      $text = $this->m_textIds[$text];
     }
     else {
-      $text = $textId;
+      $text = $text;
     }
 
     if (isset($this->m_textPositions[$text])) {

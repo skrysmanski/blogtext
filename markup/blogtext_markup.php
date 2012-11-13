@@ -74,7 +74,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     //   tags and then white space could no longer be used as sole delimter for URLs. On the
     //   other hand we can't use < and > as delimeter as this would interfere with URL interlinks.
     //   So plaintext urls need to be parsed before tables and lists.
-    'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[[:punct:]])?/',
+    'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[.,;:\?\!)\]}"\'])?/',
 
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
@@ -133,8 +133,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private $headings_title_map = array();
 
-  private $anchor_id_counter = 0;
-
   private $thumbs_used = array();
 
   /**
@@ -181,7 +179,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $this->id_suffix = array();
     $this->headings = array();
     $this->headings_title_map = array();
-    $this->anchor_id_counter = 0;
     $this->thumbs_used = array();
   }
 
@@ -290,9 +287,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   private function execute_regex($regex_name, $value) {
-    if ($regex_name == 'indentation') {
-      log_info($value, 'before_indentation_code');
-    }
     return preg_replace_callback(self::$RULES[$regex_name], array($this, $regex_name.'_callback'), $value);
   }
 
@@ -304,8 +298,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   /**
    * Masks text sections that are to be excluded from markup parsing. This includes code blocks (<code>, <pre> and
-   * {{{ ... }}}, `...`), and no-markup blocks ({{! ... !}}). Also masks tags containing URLs in their attributes
-   * (such as <a> or <img>), and removes end-of-line comments (%%).
+   * {{{ ... }}}, `...`), and no-markup blocks ({{! ... !}}). Also masks HTML attributes containing URLs (such as <a>
+   * or <img>), and removes end-of-line comments (%%).
    *
    * @param string $markup_code  the BlogText code
    *
@@ -333,7 +327,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $markup_code = preg_replace_callback($pattern, array($this, 'mask_remaining_no_markup_section_callback'), $markup_code);
 
     #
-    # URLs in tag attributes
+    # URLs in HTML attributes
     #
     $pattern = '/<[a-zA-Z]+[ \t]+[^>]*[a-zA-Z0-9\+\.\-]+\:\/\/[^>]*>/Us';
     $markup_code = preg_replace_callback($pattern, array($this, 'encode_inner_tag_urls_callback'), $markup_code);
@@ -546,19 +540,31 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $protocol = $matches[2];
     $url = $matches[1];
     if (count($matches) == 5) {
-      // if punctuation is found, there may be a space added between the url and the punctionation;
-      // eg.: (my link: http://en.wikipedia.org/wiki/Portal_(Game) )
-      // so we remove the blank so that the result looks like expected. Note that this isn't true
-      // for dot, comma, semicolon, and colon.
-      // eg.: my link: http://en.wikipedia.org/wiki/Portal_(Game).
+      # There is some punctuation following the link. Both are separated by one or more spaces. For some selected
+      # punctuation (full stop, question mark, closing brackets, ...) the space is removed automatically, like in
+      # "(my link: http://en.wikipedia.org/wiki/Portal_(Game) )". If, however, the punctuation is separated from the
+      # link by more than one space, the punctuation isn't changed.
       $punctuation = ltrim($matches[4]);
-    } else {
+      if (strlen($punctuation) != strlen($matches[4]) - 1) {
+        # More than one space. Revert change.
+        $punctuation = $matches[4];
+      }
+    }
+    else {
       $punctuation = '';
     }
 
-    $title = $this->get_plain_url_name($url);
+    # Check for trailing // in the URL which should be interpreted as emphasis rather than part of the URL
+    if (substr($url, -2) == '//') {
+      $url = substr($url, 0, -2);
+      $punctuation = '//'.$punctuation;
+    }
 
-    // Replace "+" and "." for the css name as they have special meaning in CSS.
+    $title = $this->get_plain_url_name($url);
+    # Make sure the title isn't parsed (especially if it still contains '//')!
+    $title = $this->registerMaskedText($title);
+
+    # Replace "+" and "." for the css name as they have special meaning in CSS.
     $protocol_css_name = str_replace(array('+', '.'), '-', $protocol);
     return $this->generate_link_tag($url, $title,
                                     array('external', "external-$protocol_css_name", $protocol_css_name))
@@ -597,6 +603,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $target_attr = $new_window ? ' target="_blank"' : '';
     $target_attr .= $is_attachment ? ' rel="attachment"' : '';
     $css_classes = !empty($css_classes) ? ' class="'.$css_classes.'"' : '';
+
+    if (strpos($url, '//') !== false) {
+      # Mask URL if it contains a protocol as this will otherwise interfere with the emphasis markup
+      # (which is '//' too).
+      $url = $this->registerMaskedText($url);
+    }
+
     return '<a'.$css_classes.' href="'.$url.'"'.$target_attr.'>'.$name.'</a>';
   }
 
@@ -734,7 +747,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     if ($is_attachment) {
       // Attachments are a special case.
       $css_classes = array('attachment' => true);
-    } else if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+    }
+    else if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
       // Link on the same page - add text position requests to determine whether the heading is above or
       // below the link's position.
       // NOTE: We can't check whether the heading already exists in our headings array to determine whether
@@ -745,27 +759,24 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         if ($this->needsHmlIdEscaping()) {
           # Ids and anchor names are prefixed with the post's id
           $escaped_anchor_name = $this->escapeHtmlId($anchor_name);
-          $this->add_text_position_request('="'.$escaped_anchor_name.'"', $anchor_name);
           $link = '#'.$escaped_anchor_name;
         }
-        else {
-          # Search for id or name attribute containing the anchor name
-          $this->add_text_position_request('="'.$anchor_name.'"', $anchor_name);
-        }
+
         # NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
         #   get the same position calculated.
-        $placeholderText = $this->registerMaskedText($anchor_name,
-                                                 'section-link'.$anchor_name.$this->anchor_id_counter,
-                                                 array($this, '_resolveHeadingRelativePos'), true);
-        $this->anchor_id_counter++;
+        $placeholderText = $this->registerMaskedText($anchor_name, true, array($this, '_resolveHeadingRelativePos'));
+        $this->add_text_position_request($placeholderText);
         $css_classes = array('section-link-'.$placeholderText => true);
-      } else {
+      }
+      else {
         $not_found_reason = 'not existing';
       }
-    } else {
+    }
+    else {
       if ($is_external) {
         $css_classes = array('external' => true);
-      } else {
+      }
+      else {
         $css_classes = array('internal' => true);
       }
 
@@ -940,16 +951,23 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   /**
    * This is a callback function. Don't call it directly.
+   *
+   * @param string $linkTargetId  the HTML id (from the "id" attribute) this link targets
+   * @param string $linkPlaceholderText  the placeholder text used to mask the link
+   *
+   * @return string the replacement text
    */
-  public function _resolveHeadingRelativePos($anchorName, $anchorId, $anchorPos) {
+  public function _resolveHeadingRelativePos($linkTargetId, $linkPlaceholderText) {
     # Retrieve the text position of the heading
-    $headingPos = $this->get_text_position($anchorName);
+    $headingPos = $this->get_text_position($linkTargetId);
     if ($headingPos == -1) {
       return 'not-existing';
     }
 
+    $linkPos = $this->get_text_position($linkPlaceholderText);
+
     # Compare the link's position with the heading's position
-    return ($headingPos < $anchorPos ? 'above' : 'below');
+    return ($headingPos < $linkPos ? 'above' : 'below');
   }
 
   /**
@@ -1038,20 +1056,33 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $this->headings_title_map[$pure_id] = $text;
 
     // Don't add anchor links (¶) to headings in the RSS feed. Usually doesn't look good.
-    return $this->format_heading($level, $text, $id, $permalink, !$this->is_rss);
+    list($code, $idPlaceholder) = $this->format_heading($level, $text, $id, $permalink, !$this->is_rss);
+
+    # Request text position for every heading. This way they can be referenced more easily by "resolve_link()".
+    $this->add_text_position_request($idPlaceholder, $pure_id);
+
+    return $code;
   }
 
   private function format_heading($level, $text, $id, $id_link='', $add_anchor=true) {
     if (empty($id_link)) {
       $id_link = '#'.$id;
     }
+
     if ($add_anchor) {
       $anchor = " <a class=\"heading-link\" href=\"$id_link\" title=\"Link to this section\">¶</a>";
+      # For escaping the anchor, see next comment.
+      $anchor = $this->registerMaskedText($anchor);
     } else {
       $anchor = '';
     }
 
-    return "<h$level id=\"$id\">$text$anchor</h$level>";
+    # Escape $id and $anchor. If the text of the heading contained a double space, it may have been
+    # converted into a double underscore in the id. Escaping the id (and $anchor, which references the id) prevents
+    # this double underscore from being recognized as underline token.
+    $id = $this->registerMaskedText($id);
+
+    return array("<h$level id=\"$id\">$text$anchor</h$level>", $id);
   }
 
   /**

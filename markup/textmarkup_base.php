@@ -72,7 +72,7 @@ abstract class AbstractTextMarkup {
     self::static_constructor();
 
     $this->m_textPosManager = new TextPostionManager();
-    $this->m_placeholderManager = new PlaceholderManager($this->m_textPosManager);
+    $this->m_placeholderManager = new PlaceholderManager();
   }
 
   public static function generate_error_html($message, $additional_css='') {
@@ -94,10 +94,8 @@ abstract class AbstractTextMarkup {
   # region: Placeholder Management
   #
 
-  protected function registerMaskedText($textToMask, $textId = '', $textPostProcessingCallback=null,
-                                        $determineTextPos=false) {
-    return $this->m_placeholderManager->registerPlaceholder($textToMask, $textId, $textPostProcessingCallback,
-                                                            $determineTextPos);
+  protected function registerMaskedText($textToMask, $makePlaceholderUnique=false, $textPostProcessingCallback=null) {
+    return $this->m_placeholderManager->registerPlaceholder($textToMask, $makePlaceholderUnique, $textPostProcessingCallback);
   }
 
   protected function unmaskAllTextSections($markupText) {
