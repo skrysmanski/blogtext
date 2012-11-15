@@ -51,9 +51,10 @@ Only once do this:
     2. Go to "Privileges"
     3. "Add new user"
     4a. "User name": wordpress
-    4b. "Password" select "No password" from the dropdown menu (or choose one, if you wish)
-    4c. "Database for user": "Create database with same name and grant all privileges"
-    4d. Click "Create user"
+    4b. "Host": Local (NOTE: "Any host" does NOT include localhost)
+    4c. "Password" select "No password" from the dropdown menu (or choose one, if you wish)
+    4d. "Database for user": "Create database with same name and grant all privileges"
+    4e. Click "Add User"
 
 Then for each new Wordpress installation, do:
 
@@ -71,6 +72,7 @@ Then for each new Wordpress installation, do:
   8.  Install and activate BlogText plugin (under "InstallDir/wp-content/plugins")
       a) either directly from the BitBucket repository
       b) or create a symlink (like described in the previous section)
+         $ ln -s ../../../blogtext
   9.  Activate BlogText
   10. Make sure that you use the "Default" permalink structure (.../?p=123)
       under "Settings" -> "Permalinks"
