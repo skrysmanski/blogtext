@@ -133,10 +133,11 @@ abstract class MSCL_AbstractPlugin {
 
   public function get_plugin_version() {
     $this->check_wordpress_was_loaded();
-    if (!function_exists('get_plugins')) {
+    if (!function_exists('get_plugin_data')) {
       require_once(ABSPATH.'wp-admin/includes/plugin.php');
     }
-    return get_plugin_data($this->plugin_file, false, false)['Version'];
+    $plugin_data = get_plugin_data($this->plugin_file, false, false);
+    return $plugin_data['Version'];
   }
 
   /**
