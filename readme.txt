@@ -53,8 +53,9 @@ your webserver.
   requirement for ids (must not start with a digit).
 * Change: Auto-generated anchor links now use dash (`-`) instead of underscores (`_`).
 * Change: The icon for broken internal links can now be enabled or disabled as well.
-* Change: Change the style of how image captions are displayed. They no longer use a frame. Also added the CSS class
+* Change: Changed the style of how image captions are displayed. They no longer use a frame. Also added the CSS class
   "wp-post-image" to `<img>` elements.
+* Change: Changed the headings permalink icon from the paragraph to infinity.
 * Fix: Nested lists (e.g. `**` in `*`) didn't work when they were indented by a space.
 * Fix: Link icons are now displayed correctly even if BlogText's default style sheet isn't enable.
 * Fix: BlogText's settings link is displayed again in the plugin list.

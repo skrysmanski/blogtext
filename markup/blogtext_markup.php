@@ -1083,7 +1083,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     }
 
     if ($add_anchor) {
-      $anchor = " <a class=\"heading-link\" href=\"$id_link\" title=\"Link to this section\">¶</a>";
+      $anchor = " <a class=\"heading-link\" href=\"$id_link\" title=\"Link to this section\">&#8734;</a>";
       # For escaping the anchor, see next comment.
       $anchor = $this->registerMaskedText($anchor);
     } else {
