@@ -4,4 +4,4 @@
 
 Image smaller than the content-width (300):
 
-<img src="http://mydomain.com/wp-content/uploads/blogtexttests/content-width-test/pagename.png" title="pagename.png" alt="pagename.png"/>
+<img src="http://mydomain.com/wp-content/uploads/blogtexttests/content-width-test/pagename.png" title="pagename.png" alt="pagename.png" width="212" height="70"/>

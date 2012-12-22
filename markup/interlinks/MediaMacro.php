@@ -59,7 +59,7 @@ class MediaMacro implements IInterlinkMacro {
   private function generate_img_tag($link_resolver, $is_attachment, $ref, $params, $generate_html) {
     $link = '';
     $link_params = array();
-    $has_frame = false;
+    $display_caption = false;
     $no_caption = false;
     $is_thumb = false;
     $alignment = '';
@@ -102,7 +102,7 @@ class MediaMacro implements IInterlinkMacro {
         $is_thumb = true;
         $link = 'source';
       } else if ($param == 'caption') {
-        $has_frame = true;
+        $display_caption = true;
       } else if ($param == 'nocaption') {
         $no_caption = true;
       } else if ($param == 'left' || $param == 'right' || $param == 'center') {
@@ -126,7 +126,7 @@ class MediaMacro implements IInterlinkMacro {
 
     // display caption if the user specified one
     if (!empty($title) && BlogTextSettings::display_caption_if_provided() && !$no_caption) {
-      $has_frame = true;
+      $display_caption = true;
     }
 
     //
@@ -178,7 +178,7 @@ class MediaMacro implements IInterlinkMacro {
       }
     }
 
-    if (empty($alignment) && ($is_thumb || $has_frame)) {
+    if (empty($alignment) && ($is_thumb || $display_caption)) {
       if ($img_size_attr == 'small') {
         $alignment = BlogTextSettings::get_default_small_img_alignment();
       } else if ($img_size_attr == 'medium' || $img_size_attr == 'large') {
@@ -203,14 +203,22 @@ class MediaMacro implements IInterlinkMacro {
         $content_width = MSCL_ThumbnailApi::get_content_width();
         if ($content_width != 0) {
           $img_size = self::getImageSize($is_attachment, $ref);
-          if ($img_size !== false && $img_size[0] > $content_width) {
-            # Image is larger then the content width. Create a "thumbnail" to limit its width.
-            list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref,
-                                                                             array($content_width, 0));
+          if ($img_size !== false) {
+            if ($img_size[0] > $content_width) {
+              # Image is larger then the content width. Create a "thumbnail" to limit its width.
+              list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref,
+                                                                               array($content_width, 0));
+            }
+            else {
+              # If we've already determined the image's size, lets use it. Also required if we need to display the
+              # image's caption.
+              $img_width = $img_size[0];
+              $img_height = $img_size[1];
+            }
           }
         }
-        else if ($has_frame && !empty($title)) {
-          // NOTE: For a framed image with caption we need the image's width (see below).
+        else if ($display_caption && !empty($title)) {
+          # NOTE: If the image's caption is to be display, we need the image's width (see below).
           $img_size = self::getImageSize($is_attachment, $ref);
           if ($img_size !== false) {
             $img_width = $img_size[0];
@@ -260,8 +268,8 @@ class MediaMacro implements IInterlinkMacro {
             . '>'.$html.'</a>';
     }
 
-    // Surround with frame and set alignment
-    if ($has_frame && !empty($title)) {
+    # Display caption
+    if ($display_caption && !empty($title)) {
       $align_style = !empty($alignment) ? (' align-'.$alignment.' image-frame-align-'.$alignment) : '';
 
       // NOTE: We need to specify the width here so that long titles break properly.
