@@ -766,8 +766,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
           $link = '#'.$escaped_anchor_name;
         }
 
-        # NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
-        #   get the same position calculated.
+        # NOTE: Each anchor must be unique. Otherwise all links to the same anchor will get the same position calculated.
         $placeholderText = $this->registerMaskedText($anchor_name, true, array($this, '_resolveHeadingRelativePos'));
         $this->add_text_position_request($placeholderText);
         $css_classes = array('section-link-'.$placeholderText => true);
@@ -827,7 +826,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     if (empty($title)) {
       if (count($params) > 1) {
         // if there's more than one parameter, the last parameter is the link's name
-        // NOTE: For "[[wiki:Portal|en]]" this would create a link to the wikipedia articel "Portal" and at the
+        // NOTE: For "[[wiki:Portal|en]]" this would create a link to the Wikipedia article "Portal" and at the
         // same time name the link "Portal"; this is quite clever. If this interlink had only one parameter,
         // one would use "[[wiki:Portal|]]" (note the empty last param).
         $title = $params[count($params) - 1];
@@ -1016,7 +1015,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private function unescapeHtmlId($escapedHtmlId) {
     global $post;
-    $prefix = $post->ID.'_';
+    $prefix = 'post-'.$post->ID.'-';
     $prefix_len = strlen($prefix);
     if (!substr($escapedHtmlId, 0, $prefix_len)) {
       warn("Tried to unescape id '$escapedHtmlId' with prefix '$prefix'.");

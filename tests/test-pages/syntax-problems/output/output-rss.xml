@@ -120,3 +120,10 @@ Regarding shared connection vs. multiple connections:
 <li>If you do primarily writing, use a shared connection.</li>
 <li class="last-item"><p>If you do about the same amount of reading and writing, use multiple connections.</p></li>
 </ol>
+
+<hr/>
+
+For more information on inserting code snippets, see <a href="#code_snippets_syntax">Insertings Code Snippets</a> below.
+
+<h1 id="code_snippets_syntax">Insertings Code Snippets</h1>
+BlogText provides a convenient method to add code snippets to your post or page.

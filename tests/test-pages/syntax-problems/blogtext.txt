@@ -97,3 +97,10 @@ Regarding shared connection vs. multiple connections:
  ## ... and you have more threads than CPUs (cores): use shared connection
  # If you do primarily writing, use a shared connection.
  # If you do about the same amount of reading and writing, use multiple connections.
+
+----
+
+For more information on inserting code snippets, see [[#code_snippets_syntax]] below.
+
+= Insertings Code Snippets = #code_snippets_syntax
+BlogText provides a convenient method to add code snippets to your post or page.
