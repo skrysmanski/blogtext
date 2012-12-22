@@ -87,7 +87,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // NOTE: Indentations in lists must be done with at least two spaces/tabs. Otherwise it's too easy to accidentally
     //   insert a space and thereby add a line to a list. This also "fixes" the problem of having a more-link directly
     //   after a list being placed inside the list.
-    'list' => '/\n[\*#;][^\*#;].*?\n(?:(?:(?:[\*#]+[\^!]? |;|[ \t]{2,}).*?)?\n)*/',
+    'list' => '/\n[ \t]?[\*#;][^\*#;].*?\n(?:(?:(?:[ \t]?[\*#]+[\^!]? |[ \t]?;|[ \t]{2,}).*?)?\n)*/',
     // Block quotes
     'blockquote' => '/\n>(.*?\n)(?!>)/s',
     // Indentation (must be done AFTER lists)
@@ -116,6 +116,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private static $interlinks = array();
 
+  /**
+   * @var bool Indicates whether the current post is just an excerpt (i.e. containing a more link and is rendered for
+   *   multi post view).
+   */
   private $is_excerpt;
 
   private $is_rss;
@@ -222,7 +226,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // clean up line breaks - convert all to "\n"
     $ret = preg_replace('/\r\n|\r/', "\n", $markup_content);
     $ret = $this->maskNoParseTextSections($ret);
-    // remove trailing whitespace
+    // remove leading whitespace
     $ret = preg_replace(self::$TRIM_RULE, '', $ret);
 
     foreach (self::$RULES as $name => $unused) {
@@ -762,14 +766,21 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
           $link = '#'.$escaped_anchor_name;
         }
 
-        # NOTE: We need to append a counter to the anchor name as otherwise all links to the same anchor will
-        #   get the same position calculated.
+        # NOTE: Each anchor must be unique. Otherwise all links to the same anchor will get the same position calculated.
         $placeholderText = $this->registerMaskedText($anchor_name, true, array($this, '_resolveHeadingRelativePos'));
         $this->add_text_position_request($placeholderText);
         $css_classes = array('section-link-'.$placeholderText => true);
       }
       else {
-        $not_found_reason = 'not existing';
+        if ($this->is_excerpt) {
+          # This is just an excerpt. Assume that the link target is in the full text.
+          global $post;
+          $link = get_permalink($post->ID).'#'.$anchor_name;
+          $css_classes = array('section-link-below' => true);
+        }
+        else {
+          $not_found_reason = 'not existing';
+        }
       }
     }
     else {
@@ -815,7 +826,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     if (empty($title)) {
       if (count($params) > 1) {
         // if there's more than one parameter, the last parameter is the link's name
-        // NOTE: For "[[wiki:Portal|en]]" this would create a link to the wikipedia articel "Portal" and at the
+        // NOTE: For "[[wiki:Portal|en]]" this would create a link to the Wikipedia article "Portal" and at the
         // same time name the link "Portal"; this is quite clever. If this interlink had only one parameter,
         // one would use "[[wiki:Portal|]]" (note the empty last param).
         $title = $params[count($params) - 1];
@@ -982,7 +993,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     if (count($matches) == 4) {
       // Replace spaces and tabs in the anchor name. IMO this is the best way to deal with whitespace in
       // the anchor name (although it's not recommended).
-      $id = str_replace(array(' ', "\t"), '_', trim($matches[3]));
+      $id = str_replace(array(' ', "\t"), '-', trim($matches[3]));
     } else {
       $id = '';
     }
@@ -997,12 +1008,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private function escapeHtmlId($anchor_id) {
     global $post;
-    return $post->ID.'_'.$anchor_id;
+    # NOTE: In HTML 4, ids must not start with a digit but a character. So prepend the id with "post_".
+    #   See: http://www.w3.org/TR/html4/types.html#type-id
+    return 'post-'.$post->ID.'-'.$anchor_id;
   }
 
   private function unescapeHtmlId($escapedHtmlId) {
     global $post;
-    $prefix = $post->ID.'_';
+    $prefix = 'post-'.$post->ID.'-';
     $prefix_len = strlen($prefix);
     if (!substr($escapedHtmlId, 0, $prefix_len)) {
       warn("Tried to unescape id '$escapedHtmlId' with prefix '$prefix'.");
@@ -1070,7 +1083,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     }
 
     if ($add_anchor) {
-      $anchor = " <a class=\"heading-link\" href=\"$id_link\" title=\"Link to this section\">¶</a>";
+      $anchor = " <a class=\"heading-link\" href=\"$id_link\" title=\"Link to this section\">&#8734;</a>";
       # For escaping the anchor, see next comment.
       $anchor = $this->registerMaskedText($anchor);
     } else {
@@ -1105,7 +1118,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    * Convert illegal chars in an id (id attribute in a HTML tag).
    */
   private function sanitize_html_id($id) {
-    $ret = str_replace(' ', '_', strtolower($id));
+    $ret = str_replace(array(' ', '\t'), '-', strtolower($id));
     return str_replace('%', '.', rawurlencode($ret));
   }
 

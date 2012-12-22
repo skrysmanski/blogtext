@@ -54,7 +54,7 @@ abstract class MSCL_AbstractPlugin {
 
       // Use defaults in any case (i.e. regardless of whether the plugin directory could be found).
       $this->plugin_dir_relative = $this->plugin_name;
-      $this->plugin_filename_relative = $this->plugin_name.'/'.$this->plugin_name.'php';
+      $this->plugin_filename_relative = $this->plugin_name.'/'.$this->plugin_name.'.php';
       $this->plugin_url = plugins_url($this->plugin_dir_relative);
 
       add_action('init', array($this, 'wordpress_initialize'));

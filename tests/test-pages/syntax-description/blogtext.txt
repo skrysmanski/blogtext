@@ -33,7 +33,7 @@ will look like this (which is exactly like the original code):
 For more information on inserting code snippets, see [[#code_snippets_syntax]] below.
 
 //Limitations://
-* You can't start an [[#indenting_text|indention]] with a bold word using the ##**...**## syntax. Use ##<b>...</b>## instead.
+* You can't start an [[#indenting-text|indention]] with a bold word using the ##**...**## syntax. Use ##<b>...</b>## instead.
 * You can't start a new line with a bold word using the ##**...**## syntax directly after an [[#lists|unordered list]].
 * You can't start a line with a `##` code snippet. Simply use one of the other syntaxes (ie. ##`...`## or ##{{{...}}}##).
 
@@ -239,7 +239,7 @@ For example, say you often link to [[http://www.wikipedia.org/|Wikipedia]] artic
 
   ##[[http://en.wikipedia.org/wiki/Portal_%28video_game%29|Portal]]##
 
-Quity lengthy. You can now define your own Interlink - with prefix ##wiki## - like this:
+Quite lengthy. You can now define your own Interlink - with prefix ##wiki## - like this:
 
   ##wiki = http://en.wikipedia.org/wiki/$1##
 
@@ -432,15 +432,17 @@ Normally BlogText will generate anchor names for each heading automatically depe
 [[image:heading-paragraph-hover.jpg|center|Hovering over a section's permalink]]
 [[image:anchor-name-statusbar.jpg|center|A section's anchor name displayed in the browser's status bar while hovering over the section's permalink.]]
 
-However, if you want to link to a certain section, you should provide your own anchor name. This way the anchor name won't change if the heading's text changes. A custom anchor name for a heading is specified like this (with "my_custom_anchor" being the anchor's name):
+However, if you want to link to a certain section, you should provide your own anchor name. This way the anchor name won't change if the heading's text changes. A custom anchor name for a heading is specified like this (with "my-custom-anchor" being the anchor's name):
 
 {{{
-== My Heading == #my_custom_anchor
+== My Heading == #my-custom-anchor
 }}}
 
 Note that you need to separate the anchor name from the heading's text by at least one equal sign (as shown in the example).
 
-For your anchor name, you shouldn't use fancy characters like spaces, tabulators, or umlauts. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (##_##), and dashes (##-##).
+For your anchor name, you shouldn't use fancy characters like spaces, tabulators, or umlauts. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (##_##), and dashes (##-##). In fact, a valid HTML (4) id must only use the previously mentioned characters and must start with a letter. 
+
+//Recommendation:// To separate words in your ids, use dashes (##-##) instead of underscores (##_##). This has some subtle advantages for SEO and editors as the dash is usually interpreted as punctuation whereas the underscore is not.
 
 = Insertings Code Snippets = #code_snippets_syntax
 BlogText provides a convenient method to add code snippets to your post or page.

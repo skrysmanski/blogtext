@@ -13,8 +13,8 @@
  */
 
 /*
-* Global geshi styles
-**********************/
+ * Global geshi styles
+ **********************/
 .code, code {
   background: #E8EDF4 !important;
 }
@@ -35,13 +35,16 @@
   color: #000 !important;
 }
 
-
-
 /* Line highlights */
-.li1 {
-	background: #E4E8EF;
+.ln-xtra {
+  background: #ceff84;
+  display: block;
 }
 
+
+/*
+ * GeSHi syntax elements
+ **************************/
 
 /* comments */
 .co1,

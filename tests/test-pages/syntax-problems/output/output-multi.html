@@ -46,12 +46,12 @@ Some text3. <code class="not-hl">This is some code3</code>
 <em>Stuff: <a class="external external-http" href="http://mayastudios.com" target="_blank">mayastudios.com</a></em>
 
 
-Some text with a <a class="section-link-below" href="#XXX_some_id">link</a>
+Some text with a <a class="section-link-below" href="#post-XXX-some_id">link</a>
 
-<h3 id="XXX_some_id">Some Test <a class="heading-link" href="http://mydomain.com/?p=XXX#some_id" title="Link to this section">¶</a></h3>
+<h3 id="post-XXX-some_id">Some Test <a class="heading-link" href="http://mydomain.com/?p=XXX#some_id" title="Link to this section">&#8734;</a></h3>
 Some id
 
-Some text with a <a class="section-link-above" href="#XXX_some_id">link2</a>
+Some text with a <a class="section-link-above" href="#post-XXX-some_id">link2</a>
 
 
 Some links:
@@ -72,6 +72,69 @@ Some links:
 <li><a class="external external-http http" href="http://www.manski.net" target="_blank">www.manski.net</a> (test)</li>
 <li class="last-item"><p><a class="external external-http http" href="http://www.manski.net" target="_blank">www.manski.net</a>  )</p></li>
 </ul>
+
+Regarding shared connection vs. multiple connections:
+
+<ul>
+<li class="first-item">If you only have one thread, it doesn't matter (obviously).</li>
+<li><p class="no-margin">If you do primarily reading...</p><ul>
+<li class="first-item">... and the thread count is <= the CPU (core) count: use multiple connections</li>
+<li class="last-item">... and you have more threads than CPUs (cores): use shared connection</li>
+</ul>
+
+</li>
+<li>If you do primarily writing, use a shared connection.</li>
+<li class="last-item"><p>If you do about the same amount of reading and writing, use multiple connections.</p></li>
+</ul>
+
+<hr/>
+
+<ul>
+<li class="first-item">If you only have one thread, it doesn't matter (obviously).</li>
+<li><p class="no-margin">If you do primarily reading...</p><ul>
+<li class="first-item">... and the thread count is <= the CPU (core) count: use multiple connections</li>
+<li class="last-item">... and you have more threads than CPUs (cores): use shared connection</li>
+</ul>
+
+</li>
+<li>If you do primarily writing, use a shared connection.</li>
+<li class="last-item"><p>If you do about the same amount of reading and writing, use multiple connections.</p></li>
+</ul>
+
+<hr/>
+
+<ol>
+<li class="first-item">If you only have one thread, it doesn't matter (obviously).</li>
+<li><p class="no-margin">If you do primarily reading...</p><ol>
+<li class="first-item">... and the thread count is <= the CPU (core) count: use multiple connections</li>
+<li class="last-item">... and you have more threads than CPUs (cores): use shared connection</li>
+</ol>
+
+</li>
+<li>If you do primarily writing, use a shared connection.</li>
+<li class="last-item"><p>If you do about the same amount of reading and writing, use multiple connections.</p></li>
+</ol>
+
+<hr/>
+
+<ol>
+<li class="first-item">If you only have one thread, it doesn't matter (obviously).</li>
+<li><p class="no-margin">If you do primarily reading...</p><ol>
+<li class="first-item">... and the thread count is <= the CPU (core) count: use multiple connections</li>
+<li class="last-item">... and you have more threads than CPUs (cores): use shared connection</li>
+</ol>
+
+</li>
+<li>If you do primarily writing, use a shared connection.</li>
+<li class="last-item"><p>If you do about the same amount of reading and writing, use multiple connections.</p></li>
+</ol>
+
+<hr/>
+
+For more information on inserting code snippets, see <a class="section-link-below" href="#post-XXX-code_snippets_syntax">Insertings Code Snippets</a> below.
+
+<h2 id="post-XXX-code_snippets_syntax">Insertings Code Snippets <a class="heading-link" href="http://mydomain.com/?p=XXX#code_snippets_syntax" title="Link to this section">&#8734;</a></h2>
+BlogText provides a convenient method to add code snippets to your post or page.
     </div>
   </body>
 </html>

@@ -3,7 +3,7 @@
 Plugin Name: BlogText for WordPress
 Plugin URI: http://wordpress.org/extend/plugins/blogtext/
 Description: Allows you to write your posts and pages with an alternative, easy-to-learn, and fast-to-type syntax
-Version: 0.9.5.1
+Version: 0.9.6
 Author: Sebastian Krysmanski
 Author URI: http://mayastudios.com
 */
@@ -170,25 +170,46 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
     $default_icon_classes = array();
     if (BlogTextSettings::use_default_external_link_icon()) {
       $default_icon_classes[] = 'a.external';
-      $custom_css .= 'a.external:before { content: \'\\1d30d\'; } ';
+      $custom_css .= "a.external:before { content: '\\1d30d'; }\n";
     }
     if (BlogTextSettings::use_default_https_link_icon()) {
       $default_icon_classes[] = 'a.external-https';
-      $custom_css .= 'a.external-https:before { content: \'\\1f512\' !important; } ';
+      $custom_css .= "a.external-https:before { content: '\\1f512' !important; }\n";
     }
     if (BlogTextSettings::use_default_attachment_link_icon()) {
       $default_icon_classes[] = 'a.attachment';
-      $custom_css .= 'a.attachment:before { content: \'\\1f4ce\'; } ';
+      $custom_css .= "a.attachment:before { content: '\\1f4ce'; }\n";
     }
     if (BlogTextSettings::use_default_updown_link_icon()) {
       $default_icon_classes[] = 'a.section-link-above';
-      $custom_css .= 'a.section-link-above:before { content: \'\\2191\'; } ';
+      $custom_css .= "a.section-link-above:before { content: '\\2191'; }\n";
       $default_icon_classes[] = 'a.section-link-below';
-      $custom_css .= 'a.section-link-below:before { content: \'\\2193\'; } ';
+      $custom_css .= "a.section-link-below:before { content: '\\2193'; }\n";
+    }
+    if (BlogTextSettings::use_default_broken_link_icon()) {
+      $default_icon_classes[] = 'a.not-found';
+      $default_icon_classes[] = 'a.section-link-not-existing';
+      $custom_css .= "a.not-found:before, a.section-link-not-existing:before  { content: '\\26a0'; }\n";
     }
 
     if (count($default_icon_classes) != 0) {
-      $custom_css .= implode(':before, ', $default_icon_classes).':before {'.<<<DOT
+      $font_prefix = $this->get_plugin_url().'/style/font/blogtexticons';
+      $custom_css = <<<DOT
+@font-face {
+  font-family: 'blogtexticons';
+  src: url("$font_prefix.eot");
+  src: url("$font_prefix.eot?#iefix") format('embedded-opentype'),
+       url("$font_prefix.woff") format('woff'),
+       url("$font_prefix.ttf") format('truetype'),
+       url("$font_prefix.svg#blogtexticons") format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+$custom_css
+
+DOT;
+      $custom_css .= implode(":before,\n", $default_icon_classes).':before {'.<<<DOT
   font-family: 'blogtexticons';
   font-style: normal;
   font-weight: normal;

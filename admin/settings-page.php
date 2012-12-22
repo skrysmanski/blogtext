@@ -48,6 +48,7 @@ class BlogTextSettingsMainForm extends MSCL_OptionsForm {
     $section->add_option(BlogTextSettings::use_default_https_link_icon(true));
     $section->add_option(BlogTextSettings::use_default_attachment_link_icon(true));
     $section->add_option(BlogTextSettings::use_default_updown_link_icon(true));
+    $section->add_option(BlogTextSettings::use_default_broken_link_icon(true));
     $section->add_option(BlogTextSettings::get_geshi_theme(true));
     $section->add_option(BlogTextSettings::get_custom_css(true));
     $this->add_section($section);

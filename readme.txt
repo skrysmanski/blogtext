@@ -3,7 +3,7 @@ Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
 Tested up to: 3.4.2
-Stable tag: 0.9.5.1
+Stable tag: 0.9.6
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
 good Wordpress editor integration.
@@ -47,6 +47,23 @@ your webserver.
 1. Start writing your posts
 
 == Changelog ==
+
+= 0.9.6 =
+* Change: link anchors in TOC links in list view are now prepended with "post-" to meet the (arguably ancient) HTML 4
+  requirement for ids (must not start with a digit).
+* Change: Auto-generated anchor links now use dash (`-`) instead of underscores (`_`).
+* Change: The icon for broken internal links can now be enabled or disabled as well.
+* Change: Changed the style of how image captions are displayed. They no longer use a frame. Also added the CSS class
+  "wp-post-image" to `<img>` elements.
+* Change: Changed the headings permalink icon from the paragraph to infinity.
+* Fix: Nested lists (e.g. `**` in `*`) didn't work when they were indented by a space.
+* Fix: Link icons are now displayed correctly even if BlogText's default style sheet isn't enable.
+* Fix: BlogText's settings link is displayed again in the plugin list.
+* Fix: Linking from a section above a more tag to a heading below the more tag no longer results in a "not found" link.
+* Fix: Captions for images now display correctly when the blog's theme has `$content_width` defined.
+* Fix: TOCs now display correctly again with Wordpress 3.5's default theme.
+* Fix: Highlighting code blocks now works for all built-in themes. Also the text coloring isn't lost for the highlighted
+  line.
 
 = 0.9.5.1 =
 * Fixed PHP parser error present only in PHP < 5.4
