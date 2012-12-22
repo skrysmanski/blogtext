@@ -87,7 +87,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // NOTE: Indentations in lists must be done with at least two spaces/tabs. Otherwise it's too easy to accidentally
     //   insert a space and thereby add a line to a list. This also "fixes" the problem of having a more-link directly
     //   after a list being placed inside the list.
-    'list' => '/\n[\*#;][^\*#;].*?\n(?:(?:(?:[\*#]+[\^!]? |;|[ \t]{2,}).*?)?\n)*/',
+    'list' => '/\n[ \t]?[\*#;][^\*#;].*?\n(?:(?:(?:[ \t]?[\*#]+[\^!]? |[ \t]?;|[ \t]{2,}).*?)?\n)*/',
     // Block quotes
     'blockquote' => '/\n>(.*?\n)(?!>)/s',
     // Indentation (must be done AFTER lists)
@@ -222,8 +222,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // clean up line breaks - convert all to "\n"
     $ret = preg_replace('/\r\n|\r/', "\n", $markup_content);
     $ret = $this->maskNoParseTextSections($ret);
-    // remove trailing whitespace
+    // remove leading whitespace
     $ret = preg_replace(self::$TRIM_RULE, '', $ret);
+
+    log_info($ret);
 
     foreach (self::$RULES as $name => $unused) {
       $ret = $this->execute_regex($name, $ret);

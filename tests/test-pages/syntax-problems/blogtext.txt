@@ -64,9 +64,36 @@ Some links:
 
 Regarding shared connection vs. multiple connections:
 
+* If you only have one thread, it doesn't matter (obviously).
+* If you do primarily reading...
+** ... and the thread count is <= the CPU (core) count: use multiple connections
+** ... and you have more threads than CPUs (cores): use shared connection
+* If you do primarily writing, use a shared connection.
+* If you do about the same amount of reading and writing, use multiple connections.
+
+----
+
  * If you only have one thread, it doesn't matter (obviously).
  * If you do primarily reading...
  ** ... and the thread count is <= the CPU (core) count: use multiple connections
  ** ... and you have more threads than CPUs (cores): use shared connection
  * If you do primarily writing, use a shared connection.
  * If you do about the same amount of reading and writing, use multiple connections.
+
+----
+
+# If you only have one thread, it doesn't matter (obviously).
+# If you do primarily reading...
+## ... and the thread count is <= the CPU (core) count: use multiple connections
+## ... and you have more threads than CPUs (cores): use shared connection
+# If you do primarily writing, use a shared connection.
+# If you do about the same amount of reading and writing, use multiple connections.
+
+----
+
+ # If you only have one thread, it doesn't matter (obviously).
+ # If you do primarily reading...
+ ## ... and the thread count is <= the CPU (core) count: use multiple connections
+ ## ... and you have more threads than CPUs (cores): use shared connection
+ # If you do primarily writing, use a shared connection.
+ # If you do about the same amount of reading and writing, use multiple connections.
