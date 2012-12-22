@@ -225,8 +225,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // remove leading whitespace
     $ret = preg_replace(self::$TRIM_RULE, '', $ret);
 
-    log_info($ret);
-
     foreach (self::$RULES as $name => $unused) {
       $ret = $this->execute_regex($name, $ret);
     }
