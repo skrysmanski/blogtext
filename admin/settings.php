@@ -174,6 +174,14 @@ class BlogTextSettings {
     return $get_option ? $option : $option->get_value();
   }
 
+  public static function use_default_broken_link_icon($get_option=false) {
+    static $option = null;
+    if ($option == null) {
+      $option = new MSCL_BoolOption('blogtext_use_default_broken_link_icon', 'Use default icon for broken internal links', true);
+    }
+    return $get_option ? $option : $option->get_value();
+  }
+
   public static function use_default_css($get_option=false) {
     static $option = null;
     if ($option == null) {

@@ -165,22 +165,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
       return;
     }
 
-    # NOTE: We always insert the font here as its icons may be used even if BlogText's default style isn't used.
-    $font_prefix = $this->get_plugin_url().'/style/font/blogtexticons';
-    $custom_css = <<<DOT
-@font-face {
-  font-family: 'blogtexticons';
-  src: url("$font_prefix.eot");
-  src: url("$font_prefix.eot?#iefix") format('embedded-opentype'),
-       url("$font_prefix.woff") format('woff'),
-       url("$font_prefix.ttf") format('truetype'),
-       url("$font_prefix.svg#blogtexticons") format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
-
-DOT;
+    $custom_css = '';
 
     $default_icon_classes = array();
     if (BlogTextSettings::use_default_external_link_icon()) {
@@ -201,9 +186,30 @@ DOT;
       $default_icon_classes[] = 'a.section-link-below';
       $custom_css .= "a.section-link-below:before { content: '\\2193'; }\n";
     }
+    if (BlogTextSettings::use_default_broken_link_icon()) {
+      $default_icon_classes[] = 'a.not-found';
+      $default_icon_classes[] = 'a.section-link-not-existing';
+      $custom_css .= "a.not-found:before, a.section-link-not-existing:before  { content: '\\26a0'; }\n";
+    }
 
     if (count($default_icon_classes) != 0) {
-      $custom_css .= "\n".implode(":before,\n", $default_icon_classes).':before {'.<<<DOT
+      $font_prefix = $this->get_plugin_url().'/style/font/blogtexticons';
+      $custom_css = <<<DOT
+@font-face {
+  font-family: 'blogtexticons';
+  src: url("$font_prefix.eot");
+  src: url("$font_prefix.eot?#iefix") format('embedded-opentype'),
+       url("$font_prefix.woff") format('woff'),
+       url("$font_prefix.ttf") format('truetype'),
+       url("$font_prefix.svg#blogtexticons") format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+$custom_css
+
+DOT;
+      $custom_css .= implode(":before,\n", $default_icon_classes).':before {'.<<<DOT
   font-family: 'blogtexticons';
   font-style: normal;
   font-weight: normal;
