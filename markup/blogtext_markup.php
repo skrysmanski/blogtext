@@ -116,6 +116,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private static $interlinks = array();
 
+  /**
+   * @var bool Indicates whether the current post is just an excerpt (i.e. containing a more link and is rendered for
+   *   multi post view).
+   */
   private $is_excerpt;
 
   private $is_rss;
@@ -769,7 +773,15 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         $css_classes = array('section-link-'.$placeholderText => true);
       }
       else {
-        $not_found_reason = 'not existing';
+        if ($this->is_excerpt) {
+          # This is just an excerpt. Assume that the link target is in the full text.
+          global $post;
+          $link = get_permalink($post->ID).'#'.$anchor_name;
+          $css_classes = array('section-link-below' => true);
+        }
+        else {
+          $not_found_reason = 'not existing';
+        }
       }
     }
     else {

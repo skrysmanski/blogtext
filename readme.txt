@@ -56,6 +56,7 @@ your webserver.
 * Fix: Nested lists (e.g. `**` in `*`) didn't work when they were indented by a space.
 * Fix: Link icons are now displayed correctly even if BlogText's default style sheet isn't enable.
 * Fix: BlogText's settings link is displayed again in the plugin list.
+* Fix: Linking from a section above a more tag to a heading below the more tag no longer results in a "not found" link.
 
 = 0.9.5.1 =
 * Fixed PHP parser error present only in PHP < 5.4
