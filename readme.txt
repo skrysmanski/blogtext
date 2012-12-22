@@ -60,6 +60,7 @@ your webserver.
 * Fix: BlogText's settings link is displayed again in the plugin list.
 * Fix: Linking from a section above a more tag to a heading below the more tag no longer results in a "not found" link.
 * Fix: Captions for images now display correctly when the blog's theme has `$content_width` defined.
+* Fix: TOCs now display correctly again with Wordpress 3.5's default theme.
 
 = 0.9.5.1 =
 * Fixed PHP parser error present only in PHP < 5.4

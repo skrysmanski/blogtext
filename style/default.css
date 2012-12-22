@@ -100,8 +100,12 @@ div.image-frame .image-caption {
 	text-align: left;
 }
 
+.toc ul li {
+  margin-left: 0;
+}
+
 .toc ul ul {
-	margin: 0 0 0 1.5em;
+	margin: 0 0 0 1.5em !important;
 }
 
 /*
