@@ -982,7 +982,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     if (count($matches) == 4) {
       // Replace spaces and tabs in the anchor name. IMO this is the best way to deal with whitespace in
       // the anchor name (although it's not recommended).
-      $id = str_replace(array(' ', "\t"), '_', trim($matches[3]));
+      $id = str_replace(array(' ', "\t"), '-', trim($matches[3]));
     } else {
       $id = '';
     }
@@ -1107,7 +1107,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    * Convert illegal chars in an id (id attribute in a HTML tag).
    */
   private function sanitize_html_id($id) {
-    $ret = str_replace(' ', '_', strtolower($id));
+    $ret = str_replace(array(' ', '\t'), '-', strtolower($id));
     return str_replace('%', '.', rawurlencode($ret));
   }
 

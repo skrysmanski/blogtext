@@ -1,23 +1,23 @@
 <!-- Generated "rss-item" item --><div class="toc">
 <div class="toc-title">Table of Contents <span class="toc-toggle">[<a id="_toctoggle_XXX" href="javascript:toggle_toc(XXX);">hide</a>]</span></div>
 <div id="_toclist_XXX"><ul>
-<li class="toclevel-1"><a href="#paragraphs_and_line_breaks"><span class="tocnumber">1</span> <span class="toctext">Paragraphs and Line Breaks</span></a></li>
+<li class="toclevel-1"><a href="#paragraphs-and-line-breaks"><span class="tocnumber">1</span> <span class="toctext">Paragraphs and Line Breaks</span></a></li>
 <li class="toclevel-1"><a href="#basic-inline-format"><span class="tocnumber">2</span> <span class="toctext">Basic Inline Formatting</span></a></li>
 <li class="toclevel-1"><a href="#links"><span class="tocnumber">3</span> <span class="toctext">Links</span></a><ul>
-<li class="toclevel-2"><a href="#plain-text_links"><span class="tocnumber">3.1</span> <span class="toctext">Plain-Text Links</span></a></li>
-<li class="toclevel-2"><a href="#external_links_with_a_custom_name"><span class="tocnumber">3.2</span> <span class="toctext">External Links with a Custom Name</span></a></li>
+<li class="toclevel-2"><a href="#plain-text-links"><span class="tocnumber">3.1</span> <span class="toctext">Plain-Text Links</span></a></li>
+<li class="toclevel-2"><a href="#external-links-with-a-custom-name"><span class="tocnumber">3.2</span> <span class="toctext">External Links with a Custom Name</span></a></li>
 <li class="toclevel-2"><a href="#internal-links"><span class="tocnumber">3.3</span> <span class="toctext">Internal Links</span></a></li>
 <li class="toclevel-2"><a href="#inserting-attachments"><span class="tocnumber">3.4</span> <span class="toctext">Links to Media/Attachments</span></a></li>
 <li class="toclevel-2"><a href="#interlinks-in-general"><span class="tocnumber">3.5</span> <span class="toctext">Interlinks (Generalization of the above)</span></a></li>
 </ul></li>
 <li class="toclevel-1"><a href="#images"><span class="tocnumber">4</span> <span class="toctext">Images</span></a><ul>
-<li class="toclevel-2"><a href="#image_size"><span class="tocnumber">4.1</span> <span class="toctext">Image Size</span></a></li>
+<li class="toclevel-2"><a href="#image-size"><span class="tocnumber">4.1</span> <span class="toctext">Image Size</span></a></li>
 <li class="toclevel-2"><a href="#image-param-ref"><span class="tocnumber">4.2</span> <span class="toctext">Image Parameter Reference</span></a></li>
 </ul></li>
 <li class="toclevel-1"><a href="#custom-interlinks"><span class="tocnumber">5</span> <span class="toctext">Custom Interlinks</span></a></li>
 <li class="toclevel-1"><a href="#lists"><span class="tocnumber">6</span> <span class="toctext">Lists</span></a></li>
 <li class="toclevel-1"><a href="#headings"><span class="tocnumber">7</span> <span class="toctext">Headings</span></a><ul>
-<li class="toclevel-2"><a href="#table_of_contents_.28toc.29"><span class="tocnumber">7.1</span> <span class="toctext">Table of Contents (TOC)</span></a></li>
+<li class="toclevel-2"><a href="#table-of-contents-.28toc.29"><span class="tocnumber">7.1</span> <span class="toctext">Table of Contents (TOC)</span></a></li>
 <li class="toclevel-2"><a href="#anchor-names"><span class="tocnumber">7.2</span> <span class="toctext">Anchor names for sections</span></a></li>
 </ul></li>
 <li class="toclevel-1"><a href="#code_snippets_syntax"><span class="tocnumber">8</span> <span class="toctext">Insertings Code Snippets</span></a></li>
@@ -25,13 +25,13 @@
 <li class="toclevel-2"><a href="#simple-table-syntax"><span class="tocnumber">9.1</span> <span class="toctext">Simple Tables (Creole Syntax)</span></a></li>
 <li class="toclevel-2"><a href="#complex-table-syntax"><span class="tocnumber">9.2</span> <span class="toctext">Complex Tables (Mediawiki Syntax)</span></a></li>
 </ul></li>
-<li class="toclevel-1"><a href="#using_html_in_blogtext"><span class="tocnumber">10</span> <span class="toctext">Using HTML in BlogText</span></a></li>
-<li class="toclevel-1"><a href="#miscellaneous_things"><span class="tocnumber">11</span> <span class="toctext">Miscellaneous Things</span></a><ul>
-<li class="toclevel-2"><a href="#block_quotation"><span class="tocnumber">11.1</span> <span class="toctext">Block Quotation</span></a></li>
-<li class="toclevel-2"><a href="#indenting_text"><span class="tocnumber">11.2</span> <span class="toctext">Indenting Text</span></a></li>
+<li class="toclevel-1"><a href="#using-html-in-blogtext"><span class="tocnumber">10</span> <span class="toctext">Using HTML in BlogText</span></a></li>
+<li class="toclevel-1"><a href="#miscellaneous-things"><span class="tocnumber">11</span> <span class="toctext">Miscellaneous Things</span></a><ul>
+<li class="toclevel-2"><a href="#block-quotation"><span class="tocnumber">11.1</span> <span class="toctext">Block Quotation</span></a></li>
+<li class="toclevel-2"><a href="#indenting-text"><span class="tocnumber">11.2</span> <span class="toctext">Indenting Text</span></a></li>
 <li class="toclevel-2"><a href="#definition-lists"><span class="tocnumber">11.3</span> <span class="toctext">Definitions (Definition Lists)</span></a></li>
-<li class="toclevel-2"><a href="#horizontal_lines"><span class="tocnumber">11.4</span> <span class="toctext">Horizontal Lines</span></a></li>
-<li class="toclevel-2"><a href="#special_characters"><span class="tocnumber">11.5</span> <span class="toctext">Special Characters</span></a></li>
+<li class="toclevel-2"><a href="#horizontal-lines"><span class="tocnumber">11.4</span> <span class="toctext">Horizontal Lines</span></a></li>
+<li class="toclevel-2"><a href="#special-characters"><span class="tocnumber">11.5</span> <span class="toctext">Special Characters</span></a></li>
 <li class="toclevel-2"><a href="#no-parse"><span class="tocnumber">11.6</span> <span class="toctext">No-Parse Text</span></a></li>
 <li class="toclevel-2"><a href="#comments"><span class="tocnumber">11.7</span> <span class="toctext">Comments</span></a></li>
 </ul>
@@ -43,7 +43,7 @@ This page describes the complete BlogText syntax (which is mostly based on the <
 
 <em>Note:</em> How a certain code is rendered depends on the Wordpress Theme you're using. Results may look different on your Wordpress Theme than they look here.
 
-<h1 id="paragraphs_and_line_breaks">Paragraphs and Line Breaks</h1>
+<h1 id="paragraphs-and-line-breaks">Paragraphs and Line Breaks</h1>
 Paragraphs are created simply by separating them by a blank line, like so:
 <p class="indented">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p><p class="indented">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
 Simple line breaks are respected. For example this code:
@@ -105,7 +105,7 @@ For more information on inserting code snippets, see <a href="#code_snippets_syn
 
 <em>Limitations:</em>
 <ul>
-<li class="first-item">You can't start an <a href="#indenting_text">indention</a> with a bold word using the <code>**...**</code> syntax. Use <code>&lt;b&gt;...&lt;/b&gt;</code> instead.</li>
+<li class="first-item">You can't start an <a href="#indenting_text">indention[not existing]</a> with a bold word using the <code>**...**</code> syntax. Use <code>&lt;b&gt;...&lt;/b&gt;</code> instead.</li>
 <li>You can't start a new line with a bold word using the <code>**...**</code> syntax directly after an <a href="#lists">unordered list</a>.</li>
 <li class="last-item"><p>You can't start a line with a <code>##</code> code snippet. Simply use one of the other syntaxes (ie. <code>`...`</code> or <code>{{{...}}}</code>).</p></li>
 </ul>
@@ -113,7 +113,7 @@ For more information on inserting code snippets, see <a href="#code_snippets_syn
 <h1 id="links">Links</h1>
 BlogText provides some constructs for creating links.
 
-<h2 id="plain-text_links">Plain-Text Links</h2>
+<h2 id="plain-text-links">Plain-Text Links</h2>
 External links are links to other website. The easiest way is to simply write an URL in your text, like so:
 <p class="indented">This is a text containing an URL to http://www.mayastudios.com.
 (I like this: http://en.wikipedia.org/wiki/Portal_(Game) )</p>
@@ -125,7 +125,7 @@ Note that there is a space between the right round bracket and ".com". This prev
 Note also that the URLs are shortend, though this can be disabled in the BlogText settings.
 
 
-<h2 id="external_links_with_a_custom_name">External Links with a Custom Name</h2>
+<h2 id="external-links-with-a-custom-name">External Links with a Custom Name</h2>
 Often you want to create a link with a custom name. To do this use a code like this:
 <p class="indented">This is a [[http://www.mayastudios.com|link with name]].</p>
 This will look like this:
@@ -259,7 +259,7 @@ This code would be rendered as this.
 
 So, the parameter <code>thumb</code> is equivalent to <code>small|link=source</code>. Note that the image is cropped into a square and that it's right aligned. Both of these properties can be changed in the settings (the Media settings and the BlogText settings respectively).
 
-<h2 id="image_size">Image Size</h2>
+<h2 id="image-size">Image Size</h2>
 As mentioned before, the size of an image is specified as parameter to the image Interlink. The size can be specified like so:
 
 <ul>
@@ -531,7 +531,7 @@ The number of equal sign (=) at the beginning determine the heading level. The e
 
 <em>Note:</em> You can always use level 1 heading (single = sign) for your top-level heading. The HTML heading level produced from the top-level heading can be set in the settings (eg. <code>= test =</code> can produce <code>&lt;h2&gt;test&lt;/h2&gt;</code>). 
 
-<h2 id="table_of_contents_.28toc.29">Table of Contents (TOC)</h2>
+<h2 id="table-of-contents-.28toc.29">Table of Contents (TOC)</h2>
 If you have created a longer post or page with a lot of heading (like this page), you may want to add a table of contents (TOC) to the post or page. You can do this by simply adding the following line to your code (preferrably at the beginning):
 <p class="indented"><code>[[[TOC]]]</code></p>
 This will generate a TOC for you at the specified location.
@@ -875,16 +875,16 @@ This will render as:
 </table>
 
 
-<h1 id="using_html_in_blogtext">Using HTML in BlogText</h1>
+<h1 id="using-html-in-blogtext">Using HTML in BlogText</h1>
 You can use HTML freely within your BlogText code. For example you can enclose a certain section of your text in a <code>&lt;div&gt;</code> or <code>&lt;span&gt;</code> section to provide special CSS styles for this section:
 <p class="indented"><code>This is **some &lt;span style=&quot;background: red&quot;&gt;special content&lt;/span&gt; formatting**.</code></p>
 This will render as:
 <p class="indented">This is <strong>some <span style="background: red">special content</span> formatting</strong>.</p>
 
-<h1 id="miscellaneous_things">Miscellaneous Things</h1>
+<h1 id="miscellaneous-things">Miscellaneous Things</h1>
 This section contains miscellaneous syntax constructs that don't fit in any of the other sections and are less commonly used.
 
-<h2 id="block_quotation">Block Quotation</h2><blockquote>A <strong>block quotation</strong> (also known as a <strong>long quotation</strong> or <strong>extract</strong>) is a quotation in a written document, that set off from the main text as a paragraph, or <strong>block</strong> of text, and typically distinguished visually using indentation and a different typeface or smaller size quotation. (This is in contrast to a setting it off with quotation marks in a <em>run-in quote</em>.) <strong>Block quotations</strong> are used for the long quotation. The Chicago Manual of Style recommends using a block quotation when extracted text is 100 words or more, or at least eight lines.
+<h2 id="block-quotation">Block Quotation</h2><blockquote>A <strong>block quotation</strong> (also known as a <strong>long quotation</strong> or <strong>extract</strong>) is a quotation in a written document, that set off from the main text as a paragraph, or <strong>block</strong> of text, and typically distinguished visually using indentation and a different typeface or smaller size quotation. (This is in contrast to a setting it off with quotation marks in a <em>run-in quote</em>.) <strong>Block quotations</strong> are used for the long quotation. The Chicago Manual of Style recommends using a block quotation when extracted text is 100 words or more, or at least eight lines.
 Source: <a href="http://en.wikipedia.org/wiki/Block quotation" target="_blank">Wikipedia</a>
 </blockquote>
 This was a block quation. Lines for a block quotation start with a <code>&gt;</code>. The code for the quotation above is:
@@ -892,7 +892,7 @@ This was a block quation. Lines for a block quotation start with a <code>&gt;</c
 <pre class="code">&gt;A **block quotation** (also known as a **long quotation** or **extract**) is a quotation in a written document, that set off from the main text as a paragraph, or **block** of text, and typically distinguished visually using indentation and a different typeface or smaller size quotation. (This is in contrast to a setting it off with quotation marks in a //run-in quote//.) **Block quotations** are used for the long quotation. The Chicago Manual of Style recommends using a block quotation when extracted text is 100 words or more, or at least eight lines.
 &gt;Source: [[wiki:en|Block quotation|Wikipedia]]</pre>
 
-<h2 id="indenting_text">Indenting Text</h2>
+<h2 id="indenting-text">Indenting Text</h2>
 To indent a piece of text, simple indent it by at least two spaces, like so:
 
 <pre class="code">This is some text.
@@ -940,14 +940,14 @@ will render as:
 
 You can also mix both syntaxes.
 
-<h2 id="horizontal_lines">Horizontal Lines</h2>
+<h2 id="horizontal-lines">Horizontal Lines</h2>
 Though it's usually not recommended to use horizontal lines, you can insert them non the less. To specify a horizontal lines, write at least four dashes (<code>-</code>) in a separate line like so:
 <p class="indented"><code>----</code></p>
 This will be rendered as:
 
 <hr/>
 
-<h2 id="special_characters">Special Characters</h2>
+<h2 id="special-characters">Special Characters</h2>
 You can use certain special characters in BlogText text. This section lists the most important ones:
 
 <table>
