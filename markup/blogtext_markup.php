@@ -997,7 +997,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private function escapeHtmlId($anchor_id) {
     global $post;
-    return $post->ID.'_'.$anchor_id;
+    # NOTE: In HTML 4, ids must not start with a digit but a character. So prepend the id with "post_".
+    #   See: http://www.w3.org/TR/html4/types.html#type-id
+    return 'post-'.$post->ID.'-'.$anchor_id;
   }
 
   private function unescapeHtmlId($escapedHtmlId) {

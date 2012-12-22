@@ -49,6 +49,8 @@ your webserver.
 == Changelog ==
 
 = 0.9.6 =
+* Change: link anchors in TOC links in list view are now prepended with "post-" to meet the (arguably ancient) HTML 4
+  requirement for ids (must not start with a digit).
 * Fix: Nested lists (e.g. `**` in `*`) didn't work when they were indented by a space.
 * Fix: Link icons are now displayed correctly even if BlogText's default style sheet isn't enable.
 * Fix: BlogText's settings link is displayed again in the plugin list.

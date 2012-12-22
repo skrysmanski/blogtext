@@ -353,8 +353,8 @@ class BlogTextTests {
                            'http://mydomain.com/?\1=XXX', $output);
     
     # Mask anchor/id names in multi post views
-    # NOTE: Ids don't start with a hash sign (like in <img id="429_my_id">).
-    $output = str_replace("${post_id}_", 'XXX_', $output);
+    # NOTE: Ids don't start with a hash sign (like in <img id="post-429_my_id">).
+    $output = str_replace("post-${post_id}-", 'post-XXX-', $output);
     
     # Mask creation date
     $output = preg_replace('#^\s*<\!-- Generated "(.+)" item at .+ -->#iU',
