@@ -246,10 +246,10 @@ class MediaMacro implements IInterlinkMacro {
       return self::generate_error_html($e->getMessage());
     }
 
-    //
-    // Generate HTML code
-    //
-    $html = '<img src="'.$img_url.'" title="'.$title.'" alt="'.$alt_text.'"';
+    #
+    # Generate HTML code
+    #
+    $html = '<img class="wp-post-image" src="'.$img_url.'" title="'.$title.'" alt="'.$alt_text.'"';
     // image width and height may be "null" for remote images for performance reasons. We let the browser
     // determine their size.
     if ($img_width > 0) {
@@ -272,10 +272,9 @@ class MediaMacro implements IInterlinkMacro {
     if ($display_caption && !empty($title)) {
       $align_style = !empty($alignment) ? (' align-'.$alignment.' image-frame-align-'.$alignment) : '';
 
-      // NOTE: We need to specify the width here so that long titles break properly.
-      // NOTE 2: We must define the width for the "image-frame" element. It's not sufficient to specify it
-      //   on the "image-caption" element.
-      $html = '<div class="image-frame'.$align_style.'" style="width: '.$img_width.'px;">'
+      # NOTE: We need to specify the width here so that long titles break properly. Note also that the width needs
+      #   to be specified on the container (image-frame) to prevent it from expanding to the full page width.
+      $html = '<div class="image-frame'.$align_style.'" style="width:'.$img_width.'px;">'
             . '<div class="image">'.$html.'</div>'
             . '<div class="image-caption">'.$title.'</div>'
             . '</div>';

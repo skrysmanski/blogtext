@@ -1,7 +1,7 @@
 <!-- Generated "rss-item" item -->Image wider than the content-width (300):
 
-<img src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x0_resize_if_larger" title="insert-file.jpg" alt="insert-file.jpg" width="300" height="302"/>
+<img class="wp-post-image" src="http://mydomain.com/wp-content/plugins/blogtext/api/thumbnail/do.php?id=XXX_300x0_resize_if_larger" title="insert-file.jpg" alt="insert-file.jpg" width="300" height="302"/>
 
 Image smaller than the content-width (300):
 
-<img src="http://mydomain.com/wp-content/uploads/blogtexttests/content-width-test/pagename.png" title="pagename.png" alt="pagename.png" width="212" height="70"/>
+<img class="wp-post-image" src="http://mydomain.com/wp-content/uploads/blogtexttests/content-width-test/pagename.png" title="pagename.png" alt="pagename.png" width="212" height="70"/>

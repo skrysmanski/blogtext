@@ -48,31 +48,18 @@ p.indented {
   }
 
 /*
- * Image frame
+ * Image frame (image with caption)
  */
-div.image-frame {
-  -moz-box-shadow: 0 1px 2px #999;
-  border: 1px solid #aaa;
-  background-color: #ddd;
+div.image-frame .image-caption {
+  margin: 0;
+  padding: 0.05em 0.5em 0.3em 0.5em;
+
+  font-size: 85%;
+  line-height: 120%;
+  color: #999;
+  font-style: italic;
+  text-align: center;
 }
-
-  div.image-frame .image img {
-    -moz-box-shadow: 0 1px 2px #999;
-  }
-
-  /* Prevent margins/paddings/border from screwing the layout */
-  div.image-frame .image, div.image-frame .image img {
-    margin: 0 !important;
-    padding: 0 !important;
-    border-width: 0 !important;
-  }
-
-  div.image-frame .image-caption {
-    margin: 0;
-    padding: 0.05em 0.5em 0.3em 0.5em;
-    font-size: 80%;
-    line-height: 110%;
-  }
 
 /*
  * TOC
