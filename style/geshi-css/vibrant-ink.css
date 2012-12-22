@@ -13,8 +13,8 @@
  */
 
 /*
-* Global geshi styles
-**********************/
+ * Global geshi styles
+ **********************/
 .code, code {
   background: #000 !important;
 }
@@ -31,12 +31,16 @@
   color: #F26100 !important;
 }
 
-
 /* Line highlights */
-.li1 {
-	background: #030303;
+.ln-xtra {
+  background: #3b5956;
+  display: block;
 }
 
+
+/*
+ * GeSHi syntax elements
+ **************************/
 
 /* comments */
 .co1,
@@ -48,10 +52,10 @@
 	color:#fff;
 }
 .me0 {
-
+  color:#fff;
 }
 .me2 {
-	color:#000;
+	color:#fff;
 }
 
 /* brackets */

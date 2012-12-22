@@ -35,11 +35,16 @@
   color: #fff !important;
 }
 
+/* Line highlights */
+.ln-xtra {
+  background: #3b5956;
+  display: block;
+}
+
 
 /*
  * GeSHi syntax elements
  **************************/
-
 
 /* comments */
 .co1,
@@ -102,15 +107,4 @@
 /* vars */
 .re0 {
 	color: #059532;
-}
-
-
-/* Line highlights */
-.ln-xtra {
-	background: #2e4340;
-  display: block;
-}
-
-.ln-xtra, .ln-xtra * {
-  color: #ccdc90 !important;
 }

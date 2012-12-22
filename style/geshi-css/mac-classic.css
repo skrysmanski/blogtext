@@ -13,8 +13,8 @@
  */
 
 /*
-* Global geshi styles
-**********************/
+ * Global geshi styles
+ **********************/
 .code, code {
   background: #eae9e5 !important;
 }
@@ -35,21 +35,21 @@
   color: #000 !important;
 }
 
+/* Line highlights */
+.ln-xtra {
+  background: #f2f2f2;
+  display: block;
+}
 
+
+/*
+ * GeSHi syntax elements
+ **************************/
 
 /* php */
 .highlighted-php ol div {
 	color:#fd1435;
 }
-/* Line highlights */
-.li1 {
-	background: #f2f2f2;
-}
-/* Line highlights */
-.li1 {
-	background: #f2f2f2;
-}
-
 /* comments */
 .co1,
 .coMULTI {
