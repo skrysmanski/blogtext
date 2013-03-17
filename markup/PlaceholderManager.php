@@ -57,13 +57,14 @@ class PlaceholderManager {
       return;
     }
 
-    # Adding some characters (here: "@@") to the delimiters gives us the ability to distinguish them both in the markup
+    # Adding some characters (here: "§§") to the delimiters gives us the ability to distinguish them both in the markup
     # text and also prevents the misinterpretation of real MD5 hashes that might be contained in the markup text.
     #
-    # NOTE: The additional character(s) (@) must neither have a meaning in BlogText (so that it's not parsed by
-    #   accident) nor must it have a meaning in a regular expression (again so that it's not parsed by accident).
-    self::$SECTION_MASKING_START_DELIM = '@@'.md5('%%%');
-    self::$SECTION_MASKING_END_DELIM = md5('%%%').'@@';
+    # NOTE: The additional character(s) ('§' in this case) must neither have a meaning in BlogText (so that it's not
+    #   parsed by accident) nor must it have a meaning in a regular expression (again so that it's not parsed by
+    #   accident).
+    self::$SECTION_MASKING_START_DELIM = '§§'.md5('%%%');
+    self::$SECTION_MASKING_END_DELIM = md5('%%%').'§§';
 
     self::$IS_STATIC_INITIALIZED = true;
   }
