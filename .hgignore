@@ -4,3 +4,4 @@ syntax: glob
 .idea/workspace.xml
 .idea/.name
 tests/log.txt
+.DS_Store
