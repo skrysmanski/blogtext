@@ -53,6 +53,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   // * Modifiers: http://php.net/manual/de/reference.pcre.pattern.modifiers.php
   //
   // NOTE: This list is ordered and the order is important.
+  //
+  // REMARKS: For each entry there must be a callback function called "<key_name>_callback($matches)".
   private static $RULES = array(
     // heading with optional anchor names
     // NOTE: This syntax must also allow for # in the heading (like in "C# overview")
@@ -75,6 +77,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     //   other hand we can't use < and > as delimeter as this would interfere with URL interlinks.
     //   So plaintext urls need to be parsed before tables and lists.
     'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[.,;:\?\!)\]}"\'])?/',
+
+    'plain_text_email' => '/(?<=\s)[^\s]+@[^\s.]+(?:\.[^\s.]+)+(?=\s)/U',
 
     // complex tables (possibly contained in a list) - MediaWiki syntax
     'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
@@ -595,6 +599,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
     // Only shorten URLs that don't have a path (or any other URL parts)
     return $url_info['host'];
+  }
+
+  private function plain_text_email_callback($matches) {
+    return $this->generate_link_tag('mailto:'.$matches[0], $matches[0], array('mailto'), false);
   }
 
   private function generate_link_tag($url, $name, $css_classes, $new_window=true, $is_attachment=false) {
