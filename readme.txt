@@ -49,7 +49,7 @@ your webserver.
 == Changelog ==
 
 = 0.9.7 =
-*
+* Added support for email addresses (plain text as well as interlink ones).
 
 = 0.9.6 =
 * Change: link anchors in TOC links in list view are now prepended with "post-" to meet the (arguably ancient) HTML 4

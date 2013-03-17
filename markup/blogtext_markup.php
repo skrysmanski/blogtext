@@ -616,10 +616,15 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $target_attr .= $is_attachment ? ' rel="attachment"' : '';
     $css_classes = !empty($css_classes) ? ' class="'.$css_classes.'"' : '';
 
-    if (strpos($url, '//') !== false) {
+    if (strpos($url, '//') !== false || strpos($url, '@') !== false) {
       # Mask URL if it contains a protocol as this will otherwise interfere with the emphasis markup
-      # (which is '//' too).
+      # (which is '//' too). Also mask "@" so that it wont be recognized as plain-text email address.
       $url = $this->registerMaskedText($url);
+    }
+
+    if (strpos($name, '@') !== false) {
+      # Mask name if it contains an @, so that it wont be recognized as plain-text email address.
+      $name = $this->registerMaskedText($name);
     }
 
     return '<a'.$css_classes.' href="'.$url.'"'.$target_attr.'>'.$name.'</a>';
@@ -704,11 +709,13 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         try {
           list($link, $title, $is_external, $link_type) = $prefix_handler->resolve_link($post_id, $prefix_lowercase, $params);
           $is_attachment = ($link_type == IInterlinkLinkResolver::TYPE_ATTACHMENT);
-        } catch (LinkTargetNotFoundException $e) {
+        }
+        catch (LinkTargetNotFoundException $e) {
           $not_found_reason = $e->get_reason();
           $title = $e->get_link_name();
         }
-      } else if (is_array($prefix_handler)) {
+      }
+      else if (is_array($prefix_handler)) {
         // Simple text replacement
         // Unfortunately as a hack we need to store the current params in a member variable. This is necessary
         // because we can't pass them directly to the callback method, nested functions can't be used as
@@ -717,17 +724,20 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         $link = preg_replace_callback('/\$(\d+)/', array($this, 'interlink_params_callback'),
                                       self::$interlinks[$prefix_lowercase]['pattern']);
         $is_external = self::$interlinks[$prefix_lowercase]['external'];
-      } else {
+      }
+      else {
         throw new Exception("Invalid prefix handler: ".gettype($prefix_handler));
       }
-    } else {
+    }
+    else {
       // Unknown prefix; in most cases this is a url like "http://www.lordb.de" where "http" is the prefix
       // and "//www.lordb.de" is the first parameter.
       if (empty($prefix)) {
         // Special case: if the user (for some reasons) has removed the interlink handler for the empty
         // prefix.
         $not_found_reason = LinkTargetNotFoundException::REASON_DONT_EXIST;
-      } else {
+      }
+      else {
         if (substr($params[0], 0, 2) == '//') {
           // URL
           $link = $prefix.':'.$params[0];
@@ -735,7 +745,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
           if (count($params) == 1 && substr($params[0], 0, 2) == '//') {
             $title = $this->get_plain_url_name($link);
           }
-        } else {
+        }
+        else {
           // not an url - assume wrong prefix
           $not_found_reason = 'unknown prefix';
           if (count($params) == 1) {
