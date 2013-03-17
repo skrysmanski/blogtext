@@ -90,7 +90,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
       if (count($params) == 1) {
         $title = $link;
       }
-      return array('mailto:'.$link, $title, false, null);
+      return array('mailto:'.$link, $title, false, self::TYPE_EMAIL_ADDRESS);
     }
 
     $ref_parts = explode('#', $params[0], 2);

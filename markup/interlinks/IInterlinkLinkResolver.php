@@ -47,6 +47,10 @@ interface IInterlinkLinkResolver {
    * Anchor to a section heading in the current page.
    */
   const TYPE_SAME_PAGE_ANCHOR = 'same-page-anchor';
+  /**
+   * Email address
+   */
+  const TYPE_EMAIL_ADDRESS = 'email-address';
 
   /**
    * Returns the names of all prefixes handled by this resolver.

@@ -771,6 +771,9 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       // Attachments are a special case.
       $css_classes = array('attachment' => true);
     }
+    else if ($link_type == IInterlinkLinkResolver::TYPE_EMAIL_ADDRESS) {
+      $css_classes = array('mailto' => true);
+    }
     else if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
       // Link on the same page - add text position requests to determine whether the heading is above or
       // below the link's position.
