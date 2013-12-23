@@ -33,6 +33,8 @@ If, on the other hand, you want to develop against multiple Wordpress version, u
      +- wp-content/plugins/blogtext  <-- symlink to /BlogText
   ...
 
+When using PhpStorm, use the "BlogText" directory as project path.
+
 On Windows, you can use the "Link Shell Extension" (http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html)
 to create "Symbolic Links" (Windows Vista and higher) or "Junctions" (Windows XP and lower).
 
