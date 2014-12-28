@@ -298,29 +298,42 @@ class MSCL_Thumbnail {
   public function  __construct($img_src, $requested_thumb_width, $requested_thumb_height,
                                $mode, $do_remote_check=false) {
     $img_src = trim($img_src);
-    if (is_null($requested_thumb_width)) {
+    
+    if (is_null($requested_thumb_width))
+    {
       $this->img_token = $img_src;
-      // we need to figure out whether the image is a remote image. just check where the file exists
-      $this->is_src_img_remote = false;
-      if (!file_exists($this->get_token_file_path())) {
+
+      // We need to figure out whether the image is a remote image. Just check whether the file exists.
+      if (!file_exists(self::create_token_file_path($img_src, false)))
+      {
         $this->is_src_img_remote = true;
       }
+      else
+      {
+        $this->is_src_img_remote = false;
+      }
+
       $this->load_token_file();
       // We need to redo the check here in case local and remote file reside in the same directory
       $this->is_src_img_remote = MSCL_AbstractFileInfo::check_for_remote_file($this->img_src);
-    } else {
+    }
+    else
+    {
       $this->img_token = self::create_token($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
       $this->is_src_img_remote = MSCL_AbstractFileInfo::check_for_remote_file($img_src); // required for getting the file path
 
       if (file_exists($this->get_token_file_path())) {
         // reuse already existing data
         $this->load_token_file();
-      } else {
+      }
+      else
+      {
         $this->img_src = $img_src;
         $this->requested_thumb_width = max(0, intval($requested_thumb_width));
         $this->requested_thumb_height = max(0, intval($requested_thumb_height));
 
-        switch ($mode) {
+        switch ($mode)
+        {
           case self::MODE_ALWAYS_RESIZE:
           case self::MODE_RESIZE_IF_LARGER:
           case self::MODE_FILL_RESIZE:
@@ -332,7 +345,8 @@ class MSCL_Thumbnail {
             throw new Exception("Invalid mode: ".$mode);
         }
 
-        if ($this->requested_thumb_width == 0 && $this->requested_thumb_height == 0) {
+        if ($this->requested_thumb_width == 0 && $this->requested_thumb_height == 0)
+        {
           throw new Exception("At least one dimension must be specified.");
         }
 
@@ -341,7 +355,8 @@ class MSCL_Thumbnail {
       }
     }
 
-    if (!$this->is_src_img_remote || $do_remote_check) {
+    if (!$this->is_src_img_remote || $do_remote_check)
+    {
       $this->check_for_modifications();
     }
   }
