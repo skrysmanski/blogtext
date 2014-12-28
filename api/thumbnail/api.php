@@ -173,7 +173,7 @@ class MSCL_ThumbnailApi {
       list($requested_width, $requested_height) = self::get_max_size($size);
     }
 
-    $token = MSCL_Thumbnail::create_token($img_src, $requested_width, $requested_height, $mode);
+    $token = MSCL_Thumbnail::createThumbnailCacheId($img_src, $requested_width, $requested_height, $mode);
     $thumb = self::get_thumbnail_from_token($token, false);
     if ($thumb === null) {
       $thumb = new MSCL_Thumbnail($img_src, $requested_width, $requested_height,
@@ -253,8 +253,12 @@ class MSCL_Thumbnail {
    */
   const MODE_CROP_AND_RESIZE = 'crop_resize';
 
-  private $img_token;
-  
+  /**
+   * The thumbnail cache id of this thumbnail.
+   * @var string
+   */
+  private $cache_id;
+
   /**
    * The absolute path to the source image of this thumbnail. Can either be a local or a remote image.
    * @var string
@@ -303,7 +307,7 @@ class MSCL_Thumbnail {
 
     if (is_null($requested_thumb_width))
     {
-      $this->img_token = $img_src;
+      $this->cache_id = $img_src;
 
       // We need to figure out whether the image is a remote image. Just check whether the file exists.
       if (!file_exists(self::create_token_file_path($img_src, false)))
@@ -321,7 +325,7 @@ class MSCL_Thumbnail {
     }
     else
     {
-      $this->img_token = self::create_token($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
+      $this->cache_id = self::createThumbnailCacheId($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
       $this->is_src_img_remote = MSCL_AbstractFileInfo::check_for_remote_file($img_src); // required for getting the file path
 
       if (file_exists($this->get_token_file_path())) {
@@ -364,19 +368,21 @@ class MSCL_Thumbnail {
   }
 
   /**
-   * Constructs a thumbnail token from the specified information.
-   * @param <type> $img_src
-   * @param <type> $requested_thumb_width
-   * @param <type> $requested_thumb_height
-   * @param <type> $mode
+   * Constructs a thumbnail cache id for the specified information.
+   *
+   * @param string $srcImagePath  the absolute path to the source image (local or remote)
+   * @param int $thumbWidth  the width of the thumbnail (or 0, if the original width is to be used)
+   * @param int $thumbHeight  the height of the thumbnail (or 0, if the original height is to be used)
+   * @param string $resizeMode  how to resize the image if it's too large
+   *
    * @return string
    */
-  public static function create_token($img_src, $requested_thumb_width, $requested_thumb_height, $mode) {
+  public static function createThumbnailCacheId($srcImagePath, $thumbWidth, $thumbHeight, $resizeMode) {
     // NOTE: The token must only contain a-z,0-9, "_", "-", and ".". This way it can be used directly as
     //  an URL parameter and doesn't produce an invalid file name on the local file system.
-    return sha1($img_src)
-         . '_'.intval($requested_thumb_width).'x'.intval($requested_thumb_height)
-         . '_'.$mode;
+    return sha1($srcImagePath)
+         . '_'.intval($thumbWidth).'x'.intval($thumbHeight)
+         . '_'.$resizeMode;
   }
 
   public static function does_token_file_exists($token, $is_remote=null) {
@@ -400,12 +406,12 @@ class MSCL_Thumbnail {
   }
 
   public function get_token_file_path() {
-    return self::create_token_file_path($this->img_token, $this->is_src_img_remote);
+    return self::create_token_file_path($this->cache_id, $this->is_src_img_remote);
   }
 
   public function get_thumb_image_path() {
     // NOTE: Don't use "get_thumb_image_type()" as extension as this tends to produce endless recursions.
-    return self::get_cache_dir($this->is_src_img_remote).'/'.$this->img_token.'.img';
+    return self::get_cache_dir($this->is_src_img_remote).'/'.$this->cache_id.'.img';
   }
 
   public function get_thumb_image_url() {
@@ -424,7 +430,7 @@ class MSCL_Thumbnail {
     //     he/she instead wanted to have a link to an thumbnail that's always up-to-date.
     //  3. The load on "do.php" is not that big since the browser's cache is used.
     // NOTE: "$img_token" doesn't need to run through "urlencode()". See definition above.
-    return $script_do_php_url.'id='.$this->img_token;
+    return $script_do_php_url.'id='.$this->cache_id;
   }
 
   private static function create_token_glob($cache_dir, $token) {
@@ -550,7 +556,7 @@ class MSCL_Thumbnail {
   }
 
   public function get_token() {
-    return $this->img_token;
+    return $this->cache_id;
   }
 
   /**
