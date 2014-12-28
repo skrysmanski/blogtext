@@ -176,7 +176,7 @@ class MSCL_ThumbnailApi {
     $token = MSCL_Thumbnail::create_token($img_src, $requested_width, $requested_height, $mode);
     $thumb = self::get_thumbnail_from_token($token, false);
     if ($thumb === null) {
-      $thumb = new MSCL_Thumbnail($img_src, $requested_width, $requested_height, 
+      $thumb = new MSCL_Thumbnail($img_src, $requested_width, $requested_height,
                                   self::check_mode($size, $mode), true);
       $instance = self::get_instance();
       $instance->thumbnails[$token] = $thumb;
@@ -202,7 +202,7 @@ class MSCL_ThumbnailApi {
     }
     return $thumb;
   }
-  
+
   /**
    * Removes the thumbnail to which the token belongs from the cache directory. Do this, if the thumbnail
    * is not longer needed.
@@ -228,7 +228,7 @@ interface IThumbnailContainer {
 class MSCL_Thumbnail {
   /**
    * Resizes the image so that it matches the specified size, even if the original image is smaller than the
-   * spezified size. Aspect ratio is kept so one dimension (width or height) may not match the specified
+   * specified size. Aspect ratio is kept so one dimension (width or height) may not match the specified
    * size (but the other will).
    */
   const MODE_ALWAYS_RESIZE = 'always_resize';
@@ -238,7 +238,7 @@ class MSCL_Thumbnail {
    */
   const MODE_RESIZE_IF_LARGER = 'resize_if_larger';
   /**
-   * Always resizes the source image so that it matches the specified size. Doesn't keep the aspect ratio 
+   * Always resizes the source image so that it matches the specified size. Doesn't keep the aspect ratio
    * meaning that the image may look stretched in one dimension.
    */
   const MODE_FILL_RESIZE = 'fill_resize';
@@ -295,7 +295,7 @@ class MSCL_Thumbnail {
   private $cache_date = null;
   private $is_uptodate = null;
 
-  public function  __construct($img_src, $requested_thumb_width, $requested_thumb_height, 
+  public function  __construct($img_src, $requested_thumb_width, $requested_thumb_height,
                                $mode, $do_remote_check=false) {
     $img_src = trim($img_src);
     if (is_null($requested_thumb_width)) {
@@ -336,7 +336,7 @@ class MSCL_Thumbnail {
           throw new Exception("At least one dimension must be specified.");
         }
 
-        // Since this seems to be a newly created thumbnai, we need to store its token file.
+        // Since this seems to be a newly created thumbnail, we need to store its token file.
         $this->store_token_file();
       }
     }
@@ -449,7 +449,7 @@ class MSCL_Thumbnail {
     // NOTE: We use a glob to find all related files.
     //   This also handles the case where, for example, the token file has already been deleted but the
     //   thumbnail hasn't (shouldn't happen, however).
-    
+
     // local files
     $files = self::create_token_glob(self::get_cache_dir(false), $token);
     if ($files === false) {
@@ -491,7 +491,7 @@ class MSCL_Thumbnail {
     $this->mode = $data['mode'];
 
     // NOTE: This field describes the "version" of the source image. It's required for two tasks:
-    //  1. This date is sent to the server to check whether the file has been modified (ie. if the 
+    //  1. This date is sent to the server to check whether the file has been modified (ie. if the
     //     modification date of the source image is later than this cache date, the file has been modified).
     //  2. This date is also used to check whether the thumbnail (on the local file system) is up-to-date.
     //     This check is done by comparing the thumbnail's last modification date with the cache date.
@@ -648,7 +648,7 @@ class MSCL_Thumbnail {
       // We're already up-to-date.
       return;
     }
-    
+
     $is_uptodate = null;
     if ($this->can_check_for_modifications($force_update)) {
       try {
@@ -783,7 +783,7 @@ class MSCL_Thumbnail {
     }
 
     $aspect_ratio = $orig_w / $orig_h;
-    
+
     if ($this->mode == self::MODE_CROP || $this->mode == self::MODE_CROP_AND_RESIZE) {
       //
       // crop the largest possible portion of the original image that we can size to $dest_w x $dest_h
@@ -933,7 +933,7 @@ class MSCL_Thumbnail {
     }
 
     rename($tmp_name, $this->get_thumb_image_path());
-    
+
     flock($lock_file, LOCK_UN); // release the lock
     fclose($lock_file);
   }
