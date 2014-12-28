@@ -298,7 +298,7 @@ class MSCL_Thumbnail {
   public function  __construct($img_src, $requested_thumb_width, $requested_thumb_height,
                                $mode, $do_remote_check=false) {
     $img_src = trim($img_src);
-    
+
     if (is_null($requested_thumb_width))
     {
       $this->img_token = $img_src;
@@ -658,32 +658,44 @@ class MSCL_Thumbnail {
     return (time() > $this->last_remote_update_check + REMOTE_IMAGE_TIMEOUT);
   }
 
-  public function check_for_modifications($force_update=false) {
-    if ($this->is_uptodate !== null && $force_update == false) {
+  public function check_for_modifications($force_update = false)
+  {
+    if ($this->is_uptodate !== null && $force_update == false)
+    {
       // We're already up-to-date.
       return;
     }
 
     $is_uptodate = null;
-    if ($this->can_check_for_modifications($force_update)) {
-      try {
-        // Check for source file modifications
 
+    if ($this->can_check_for_modifications($force_update))
+    {
+      try
+      {
+        //
+        // Check for source file modifications
+        //
         $info = MSCL_ImageInfo::get_instance($this->img_src, $this->cache_date);
         $this->src_img_width = $info->get_width();
         $this->src_img_height = $info->get_height();
         $this->src_img_type = $info->get_type();
         $this->cache_date = $info->get_last_modified_date();
-        if ($this->cache_date == null) {
+
+        if ($this->cache_date == null)
+        {
           // if the last modified date isn't available.
           $this->cache_date = time();
         }
+
         $this->last_remote_update_check = time();
         $this->store_token_file();
         $is_uptodate = false;
-      } catch (MSCL_NotModifiedNotification $e) {
+      }
+      catch (MSCL_NotModifiedNotification $e)
+      {
         // Source image hasn't been changed.
-        if (REMOTE_IMAGE_TIMEOUT > 0) {
+        if (REMOTE_IMAGE_TIMEOUT > 0)
+        {
           // only update the last remote check if this is really necessary.
           $this->last_remote_update_check = time();
           $this->store_token_file();
@@ -691,13 +703,15 @@ class MSCL_Thumbnail {
       }
     }
 
-    if ($is_uptodate === null) {
+    if ($is_uptodate === null)
+    {
       // Check whether thumbnail file needs to be updated. This happens if the source image was modified but
       // not the thumbnail image.
       $is_uptodate = ($this->is_in_cache() && filemtime($this->get_thumb_image_path()) >= $this->cache_date);
     }
 
-    if ($is_uptodate !== $this->is_uptodate) {
+    if ($is_uptodate !== $this->is_uptodate)
+    {
       $this->is_uptodate = $is_uptodate;
       $this->update_thumbnail_size_from_src();
     }
