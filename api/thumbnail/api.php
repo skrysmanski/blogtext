@@ -254,10 +254,12 @@ class MSCL_Thumbnail {
   const MODE_CROP_AND_RESIZE = 'crop_resize';
 
   private $img_token;
+  
   /**
-   * @var string the source image for this thumbnail. Can be a local or a remote image.
+   * The absolute path to the source image of this thumbnail. Can either be a local or a remote image.
+   * @var string
    */
-  private $img_src;
+  private $src_img_full_path;
   private $is_src_img_remote;
   private $src_img_width;
   private $src_img_height;
@@ -265,7 +267,7 @@ class MSCL_Thumbnail {
 
   /**
    * The timestamp when the remote image was last time check for modifications. Only available when
-   * REMOTE_IMAGE_TIMEOUT > 0.
+   * {@link REMOTE_IMAGE_TIMEOUT} > 0.
    */
   private $last_remote_update_check = null;
 
@@ -315,7 +317,7 @@ class MSCL_Thumbnail {
 
       $this->load_token_file();
       // We need to redo the check here in case local and remote file reside in the same directory
-      $this->is_src_img_remote = MSCL_AbstractFileInfo::check_for_remote_file($this->img_src);
+      $this->is_src_img_remote = MSCL_AbstractFileInfo::check_for_remote_file($this->src_img_full_path);
     }
     else
     {
@@ -328,7 +330,7 @@ class MSCL_Thumbnail {
       }
       else
       {
-        $this->img_src = $img_src;
+        $this->src_img_full_path = $img_src;
         $this->requested_thumb_width = max(0, intval($requested_thumb_width));
         $this->requested_thumb_height = max(0, intval($requested_thumb_height));
 
@@ -499,7 +501,7 @@ class MSCL_Thumbnail {
 
     $data = unserialize($contents);
 
-    $this->img_src = $data['img_src'];
+    $this->src_img_full_path = $data['img_src'];
     $this->src_img_width = $data['src_img_width'];
     $this->src_img_height = $data['src_img_height'];
     $this->src_img_type = $data['src_img_type'];
@@ -528,7 +530,7 @@ class MSCL_Thumbnail {
     // Store data
     $data = array
     (
-      'img_src' => $this->img_src,
+      'img_src' => $this->src_img_full_path,
       'src_img_width' => $this->src_img_width,
       'src_img_height' => $this->src_img_height,
       'src_img_type' => $this->src_img_type,
@@ -674,14 +676,14 @@ class MSCL_Thumbnail {
 
     $is_uptodate = null;
 
-    if ($this->should_check_for_modifications($force_update))
+    if ($force_update || $this->should_check_for_modifications())
     {
       try
       {
         //
         // Check for source file modifications
         //
-        $info = MSCL_ImageInfo::get_instance($this->img_src, $this->cache_date);
+        $info = MSCL_ImageInfo::get_instance($this->src_img_full_path, $this->cache_date);
         $this->src_img_width = $info->get_width();
         $this->src_img_height = $info->get_height();
         $this->src_img_type = $info->get_type();
@@ -814,7 +816,7 @@ class MSCL_Thumbnail {
     $dest_h = $this->requested_thumb_height;
 
     if ($orig_w <= 0 || $orig_h <= 0) {
-      throw new Exception("Image has invalid size: ".$this->img_src);
+      throw new Exception("Image has invalid size: ".$this->src_img_full_path);
     }
 
     $aspect_ratio = $orig_w / $orig_h;
@@ -899,19 +901,19 @@ class MSCL_Thumbnail {
     if ($this->is_use_original_image()) {
       // same size; don't resize - use original image so that we don't lose image quality or gif animations
       // NOTE: this situation always happens when the src image is smaller than the requested thumbnail
-      file_put_contents($this->get_thumb_image_path(), MSCL_AbstractFileInfo::get_file_contents($this->img_src));
+      file_put_contents($this->get_thumb_image_path(), MSCL_AbstractFileInfo::get_file_contents($this->src_img_full_path));
       return;
     }
 
     switch ($this->src_img_type) {
       case MSCL_ImageInfo::TYPE_JPEG:
-        $src_image = imagecreatefromjpeg($this->img_src);
+        $src_image = imagecreatefromjpeg($this->src_img_full_path);
         break;
       case MSCL_ImageInfo::TYPE_PNG:
-        $src_image = imagecreatefrompng($this->img_src);
+        $src_image = imagecreatefrompng($this->src_img_full_path);
         break;
       case MSCL_ImageInfo::TYPE_GIF:
-        $src_image = imagecreatefromgif($this->img_src);
+        $src_image = imagecreatefromgif($this->src_img_full_path);
         break;
       default:
         throw new MSCL_ThumbnailException("Unsupported mimetype: ".MSCL_ImageInfo::convert_to_mime_type($this->src_img_type));
