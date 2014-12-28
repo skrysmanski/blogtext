@@ -174,7 +174,7 @@ class MSCL_ThumbnailApi {
     }
 
     $token = MSCL_Thumbnail::createThumbnailCacheId($img_src, $requested_width, $requested_height, $mode);
-    $thumb = self::get_thumbnail_from_token($token, false);
+    $thumb = self::getThumbnailFromCacheId($token, false);
     if ($thumb === null) {
       $thumb = new MSCL_Thumbnail($img_src, $requested_width, $requested_height,
                                   self::check_mode($size, $mode), true);
@@ -190,11 +190,12 @@ class MSCL_ThumbnailApi {
     return array($thumb->get_thumb_image_url(), $thumb->get_thumb_width(), $thumb->get_thumb_height());
   }
 
-  public static function does_token_file_exists($token, $is_remote=null) {
-    return MSCL_Thumbnail::does_token_file_exists($token, $is_remote);
+  public static function doesThumbnailInfoFileExist($cacheId, $isRemote=null)
+  {
+    return MSCL_Thumbnail::doesThumbnailInfoFileExist($cacheId, $isRemote);
   }
 
-  public static function get_thumbnail_from_token($token, $create_if_necessary=true) {
+  public static function getThumbnailFromCacheId($token, $create_if_necessary=true) {
     $instance = self::get_instance();
     $thumb = @$instance->thumbnails[$token];
     if ($thumb === null && $create_if_necessary) {
@@ -326,7 +327,7 @@ class MSCL_Thumbnail {
       $this->cacheId = $img_src;
 
       // We need to figure out whether the image is a remote image. Just check whether the file exists.
-      if (!file_exists(self::create_token_file_path($img_src, false)))
+      if (!file_exists(self::createThumbnailInfoFilePath($img_src, false)))
       {
         $this->isSrcImgRemote = true;
       }
@@ -344,7 +345,7 @@ class MSCL_Thumbnail {
       $this->cacheId = self::createThumbnailCacheId($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
       $this->isSrcImgRemote = MSCL_AbstractFileInfo::check_for_remote_file($img_src); // required for getting the file path
 
-      if (file_exists($this->get_token_file_path())) {
+      if (file_exists($this->getThumbnailInfoFilePath())) {
         // reuse already existing data
         $this->load_token_file();
       }
@@ -393,7 +394,8 @@ class MSCL_Thumbnail {
    *
    * @return string
    */
-  public static function createThumbnailCacheId($srcImagePath, $thumbWidth, $thumbHeight, $resizeMode) {
+  public static function createThumbnailCacheId($srcImagePath, $thumbWidth, $thumbHeight, $resizeMode)
+  {
     // NOTE: The token must only contain a-z,0-9, "_", "-", and ".". This way it can be used directly as
     //  an URL parameter and doesn't produce an invalid file name on the local file system.
     return sha1($srcImagePath)
@@ -401,33 +403,40 @@ class MSCL_Thumbnail {
          . '_'.$resizeMode;
   }
 
-  public static function does_token_file_exists($token, $is_remote=null) {
-    if ($is_remote === null) {
-      if (file_exists(self::create_token_file_path($token, false))) {
+  public static function doesThumbnailInfoFileExist($cacheId, $isRemote=null)
+  {
+    if ($isRemote === null)
+    {
+      if (file_exists(self::createThumbnailInfoFilePath($cacheId, false)))
+      {
         return true;
       }
-      $is_remote = true;
+      $isRemote = true;
     }
 
-    return file_exists(self::create_token_file_path($token, $is_remote));
+    return file_exists(self::createThumbnailInfoFilePath($cacheId, $isRemote));
   }
 
-  private static function get_cache_dir($is_remote) {
+  private static function getThumbnailCacheDir($is_remote)
+  {
     return ($is_remote ? MSCL_ThumbnailCache::get_remote_file_cache_dir()
                        : MSCL_ThumbnailCache::get_local_file_cache_dir());
   }
 
-  public static function create_token_file_path($token, $is_remote) {
-    return self::get_cache_dir($is_remote).'/'.$token.'.info.txt';
+  private static function createThumbnailInfoFilePath($cacheId, $isRemote)
+  {
+    return self::getThumbnailCacheDir($isRemote).'/'.$cacheId.'.info.txt';
   }
 
-  public function get_token_file_path() {
-    return self::create_token_file_path($this->cacheId, $this->isSrcImgRemote);
+  public function getThumbnailInfoFilePath()
+  {
+    return self::createThumbnailInfoFilePath($this->cacheId, $this->isSrcImgRemote);
   }
 
-  public function get_thumb_image_path() {
+  public function get_thumb_image_path()
+  {
     // NOTE: Don't use "get_thumb_image_type()" as extension as this tends to produce endless recursions.
-    return self::get_cache_dir($this->isSrcImgRemote).'/'.$this->cacheId.'.img';
+    return self::getThumbnailCacheDir($this->isSrcImgRemote).'/'.$this->cacheId.'.img';
   }
 
   public function get_thumb_image_url() {
@@ -490,9 +499,9 @@ class MSCL_Thumbnail {
     //   thumbnail hasn't (shouldn't happen, however).
 
     // local files
-    $files = self::create_token_glob(self::get_cache_dir(false), $token);
+    $files = self::create_token_glob(self::getThumbnailCacheDir(false), $token);
     if ($files === false) {
-      log_error("Listing files for '".self::get_cache_dir(false)."' (local files cache) failed.");
+      log_error("Listing files for '".self::getThumbnailCacheDir(false)."' (local files cache) failed.");
     } else {
       foreach ($files as $filename) {
         unlink($filename);
@@ -500,9 +509,9 @@ class MSCL_Thumbnail {
     }
 
     // remote  files
-    $files = self::create_token_glob(self::get_cache_dir(true), $token);
+    $files = self::create_token_glob(self::getThumbnailCacheDir(true), $token);
     if ($files === false) {
-      log_error("Listing files for '".self::get_cache_dir(true)."' (remote files cache) failed.");
+      log_error("Listing files for '".self::getThumbnailCacheDir(true)."' (remote files cache) failed.");
     } else {
       foreach ($files as $filename) {
         unlink($filename);
@@ -514,7 +523,7 @@ class MSCL_Thumbnail {
 
   private function load_token_file()
   {
-    $token_file = $this->get_token_file_path();
+    $token_file = $this->getThumbnailInfoFilePath();
     $contents = @file_get_contents($token_file);
     if ($contents === false)
     {
@@ -548,7 +557,7 @@ class MSCL_Thumbnail {
   }
 
   private function store_token_file() {
-    $filename = $this->get_token_file_path();
+    $filename = $this->getThumbnailInfoFilePath();
     // Store data
     $data = array
     (
@@ -980,7 +989,7 @@ class MSCL_Thumbnail {
     }
 
     // Lock the token file to simulate a lock on the thumbnail file.
-    $lock_file = fopen($this->get_token_file_path(), 'r+');
+    $lock_file = fopen($this->getThumbnailInfoFilePath(), 'r+');
     if ($lock_file == false) {
       throw new Exception("Token file doesn't exist although it should.");
     }

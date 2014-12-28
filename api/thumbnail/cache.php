@@ -203,13 +203,13 @@ class MSCL_ThumbnailCache {
         continue;
       }
 
-      if (!MSCL_ThumbnailApi::does_token_file_exists($thumb_id))
+      if (!MSCL_ThumbnailApi::doesThumbnailInfoFileExist($thumb_id))
       {
         // Happens if the thumbnail cache has been cleared.
         return false;
       }
 
-      $thumb = MSCL_ThumbnailApi::get_thumbnail_from_token($thumb_id);
+      $thumb = MSCL_ThumbnailApi::getThumbnailFromCacheId($thumb_id);
       if ($thumb->is_remote_image() && !$do_remote_check)
       {
         // Ignore remote images, as they have not put their size into the HTML code.
