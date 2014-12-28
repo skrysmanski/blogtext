@@ -215,7 +215,7 @@ class MSCL_ThumbnailCache {
         // Ignore remote images, as they have not put their size into the HTML code.
         continue;
       }
-      
+
       if (!$thumb->is_uptodate())
       {
         return false;

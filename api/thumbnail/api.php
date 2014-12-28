@@ -627,34 +627,37 @@ class MSCL_Thumbnail {
   }
 
   /**
-   * Checks whether we should tr
+   * Returns whether an is-up-to-date-check should be performed or not.
+   * @return bool
    */
-  private function can_check_for_modifications($force_update) {
-    if ($force_update) {
+  private function should_check_for_modifications()
+  {
+    if (!$this->is_src_img_remote)
+    {
+      // Local images can always be checked; it's cheap.
       return true;
     }
 
-    if (!$this->is_src_img_remote) {
-      // local image can always be checked; it's cheap
+    if ($this->src_img_width == null)
+    {
+      // The source image has never been "analyzed". We need to do this at least once.
       return true;
     }
 
-    if ($this->src_img_width == null) {
-      // the source image has never been "analyzed". at least one time it's necessary.
-      return true;
-    }
-
-    if (REMOTE_IMAGE_TIMEOUT < 0) {
-      // Manual update only; use "$force_update".
+    if (REMOTE_IMAGE_TIMEOUT < 0)
+    {
+      // Manual update only.
       return false;
     }
-
-    if (REMOTE_IMAGE_TIMEOUT == 0) {
+    else if (REMOTE_IMAGE_TIMEOUT == 0)
+    {
       // Always check for modifications
       return true;
     }
 
-    if ($this->last_remote_update_check === null) {
+    if ($this->last_remote_update_check === null)
+    {
+      // Remote image was never checked.
       return true;
     }
 
@@ -671,7 +674,7 @@ class MSCL_Thumbnail {
 
     $is_uptodate = null;
 
-    if ($this->can_check_for_modifications($force_update))
+    if ($this->should_check_for_modifications($force_update))
     {
       try
       {
