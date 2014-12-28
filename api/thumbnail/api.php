@@ -488,12 +488,15 @@ class MSCL_Thumbnail {
     log_info("Thumbnail for id '$token' has been deleted.");
   }
 
-  private function load_token_file() {
+  private function load_token_file()
+  {
     $token_file = $this->get_token_file_path();
     $contents = @file_get_contents($token_file);
-    if ($contents === false) {
+    if ($contents === false)
+    {
       throw new Exception("Could not read specified token file.");
     }
+
     $data = unserialize($contents);
 
     $this->img_src = $data['img_src'];
