@@ -227,6 +227,7 @@ interface IThumbnailContainer {
  * Represents a single thumbnail image.
  */
 class MSCL_Thumbnail {
+  // TODO: Move these constants to its own class (enum)
   /**
    * Resizes the image so that it matches the specified size, even if the original image is smaller than the
    * specified size. Aspect ratio is kept so one dimension (width or height) may not match the specified
@@ -336,7 +337,8 @@ class MSCL_Thumbnail {
         $this->isSrcImgRemote = false;
       }
 
-      $this->load_token_file();
+      $this->loadDataFromThumbnailInfoFile();
+
       // We need to redo the check here in case local and remote file reside in the same directory
       $this->isSrcImgRemote = MSCL_AbstractFileInfo::check_for_remote_file($this->srcImgFullPath);
     }
@@ -347,7 +349,7 @@ class MSCL_Thumbnail {
 
       if (file_exists($this->getThumbnailInfoFilePath())) {
         // reuse already existing data
-        $this->load_token_file();
+        $this->loadDataFromThumbnailInfoFile();
       }
       else
       {
@@ -374,7 +376,7 @@ class MSCL_Thumbnail {
         }
 
         // Since this seems to be a newly created thumbnail, we need to store its token file.
-        $this->store_token_file();
+        $this->storeDataInThumbnailInfoFile();
       }
     }
 
@@ -521,7 +523,7 @@ class MSCL_Thumbnail {
     log_info("Thumbnail for id '$token' has been deleted.");
   }
 
-  private function load_token_file()
+  private function loadDataFromThumbnailInfoFile()
   {
     $token_file = $this->getThumbnailInfoFilePath();
     $contents = @file_get_contents($token_file);
@@ -556,7 +558,7 @@ class MSCL_Thumbnail {
     $this->last_remote_update_check = $data['last_remote_update_check'];
   }
 
-  private function store_token_file() {
+  private function storeDataInThumbnailInfoFile() {
     $filename = $this->getThumbnailInfoFilePath();
     // Store data
     $data = array
@@ -714,6 +716,13 @@ class MSCL_Thumbnail {
         //
         // Check for source file modifications
         //
+        if (!file_exists($this->srcImgFullPath))
+        {
+          // May happen if the information of this thumbnail were loaded from the thumbnail info file
+          // but the source image has moved.
+          // TODO: What to do in this case????
+        }
+
         $info = MSCL_ImageInfo::get_instance($this->srcImgFullPath, $this->cache_date);
         $this->srcImgWidth = $info->get_width();
         $this->srcImgHeight = $info->get_height();
@@ -727,7 +736,7 @@ class MSCL_Thumbnail {
         }
 
         $this->last_remote_update_check = time();
-        $this->store_token_file();
+        $this->storeDataInThumbnailInfoFile();
         $is_uptodate = false;
       }
       catch (MSCL_NotModifiedNotification $e)
@@ -737,7 +746,7 @@ class MSCL_Thumbnail {
         {
           // only update the last remote check if this is really necessary.
           $this->last_remote_update_check = time();
-          $this->store_token_file();
+          $this->storeDataInThumbnailInfoFile();
         }
       }
     }
