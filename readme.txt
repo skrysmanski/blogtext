@@ -2,7 +2,7 @@
 Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
-Tested up to: 3.8.0
+Tested up to: 4.1.0
 Stable tag: 0.9.7
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
@@ -49,7 +49,9 @@ your webserver.
 == Changelog ==
 
 = 0.9.7 =
-* Added support for email addresses (plain text as well as interlink ones).
+* Feature: Added support for email addresses (plain text as well as interlink ones).
+* Change: Exceptions thrown while converting a post from BlogText to HTML no longer stops the whole PHP script (i.e.
+  content coming after the affected post is now rendered).
 
 = 0.9.6 =
 * Change: link anchors in TOC links in list view are now prepended with "post-" to meet the (arguably ancient) HTML 4

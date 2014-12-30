@@ -144,9 +144,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
     }
     catch (Exception $e)
     {
-      print MSCL_ErrorHandling::format_exception($e);
-      // exit here as the exception may come from some static constructor that is only executed once
-      exit;
+      return MSCL_ErrorHandling::format_exception($e);
     }
   }
 
