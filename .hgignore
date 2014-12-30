@@ -5,3 +5,4 @@ syntax: glob
 .idea/.name
 tests/log.txt
 .DS_Store
+dist
