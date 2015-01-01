@@ -30,9 +30,9 @@ if (!defined('REMOTE_IMAGE_TIMEOUT'))
    * Specifies the number of seconds after which a remote image should be checked for changes again. Before this
    * timeout expires, the remote image is considered unchanged. The following values are possible:
    *
-   * * value > 0: works as specified above
+   * * value &gt; 0: works as specified above
    * * value = 0: the remote image is checked every time
-   * * value < 0: update checks are triggered manually, for example when publishing/updating a post
+   * * value &lt; 0: update checks are triggered manually, for example when publishing/updating a post
    */
   define('REMOTE_IMAGE_TIMEOUT', -1);
 }

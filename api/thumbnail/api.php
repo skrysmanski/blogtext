@@ -744,7 +744,8 @@ class MSCL_Thumbnail {
         // Source image hasn't been changed.
         if (REMOTE_IMAGE_TIMEOUT > 0)
         {
-          // only update the last remote check if this is really necessary.
+          // Only update the last remote check if this is really necessary (i.e.
+          // when auto-checking is enabled).
           $this->last_remote_update_check = time();
           $this->storeDataInThumbnailInfoFile();
         }
