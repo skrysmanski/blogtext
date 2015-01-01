@@ -54,13 +54,13 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
     parent::__construct($filePath, $cacheDate);
   }
 
-  protected function finish_initialization() {
+  protected function finishInitialization() {
     if ($this->type === null) {
-      throw new MSCL_MediaFileFormatException("Could not determine image type.", $this->get_file_path(), $this->is_remote_file());
+      throw new MSCL_MediaFileFormatException("Could not determine image type.", $this->getFilePath(), $this->isRemoteFile());
     }
 
     if ($this->width === null) {
-      throw new MSCL_MediaFileFormatException("Could not determine image size.", $this->get_file_path(), $this->is_remote_file());
+      throw new MSCL_MediaFileFormatException("Could not determine image size.", $this->getFilePath(), $this->isRemoteFile());
     }
   }
 
@@ -73,7 +73,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
    * @return MSCL_ImageInfo|null
    */
   public static function get_instance($file_path, $cache_date=null) {
-    $info = self::get_cached_remote_file_info($file_path, self::name);
+    $info = self::getCachedRemoteFileInfo($file_path, self::name);
     if ($info === null) {
       $info = new MSCL_ImageInfo($file_path, $cache_date);
     }
@@ -109,7 +109,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
     return $this->height;
   }
 
-  protected function handle_data($data) {
+  protected function processHeaderData($data) {
     if ($this->type === null) {
       // image type not yet determined
       if (!$this->find_data_type($data)) {
@@ -175,14 +175,14 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
     }
 
     if ($types_checked >= self::$SUPPORTED_FORMAT_COUNT) {
-      throw new MSCL_MediaFileFormatException("Could not determine image type.", $this->get_file_path(), $this->is_remote_file());
+      throw new MSCL_MediaFileFormatException("Could not determine image type.", $this->getFilePath(), $this->isRemoteFile());
     }
 
     return false;
   }
 
   private function is_jpg($data) {
-    return self::starts_with($data, self::$JPEG_HEADER);
+    return self::startsWith($data, self::$JPEG_HEADER);
   }
 
   private function check_jpg_data($data) {
@@ -191,13 +191,13 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
     // * Regular JPEG: http://www.videotechnology.com/jpeg/j1.html
     // * EXIF: http://www.media.mit.edu/pia/Research/deepview/exif.html
     //
-    if (self::starts_with($data, "\xFF\xE0", 2) && self::starts_with($data, "JFIF\0", 6)) {
+    if (self::startsWith($data, "\xFF\xE0", 2) && self::startsWith($data, "JFIF\0", 6)) {
       // Regular JPEG
-    } else if (self::starts_with($data, "\xFF\xE1", 2) && self::starts_with($data, "Exif\0", 6)) {
+    } else if (self::startsWith($data, "\xFF\xE1", 2) && self::startsWith($data, "Exif\0", 6)) {
       // Exif JPEG
     } else {
       throw new MSCL_MediaFileFormatException(sprintf("Unsupported jpeg image (with marker: %X%X).", ord($data[2]), ord($data[3])),
-        $this->get_file_path(), $this->is_remote_file());
+        $this->getFilePath(), $this->isRemoteFile());
     }
 
     // NOTE: We can't use the density (bytes 14-17) as even for units "0" the Xdensity and Ydensity
@@ -211,7 +211,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
     $pos = 4;
     $len = strlen($data);
     while ($pos + 2 < $len) {
-      $block_size = self::unpack_short($data, $pos);
+      $block_size = self::deserializeInt16($data, $pos);
       $pos += $block_size;
       if ($pos + 2 >= $len) {
         // reached end of currently available data
@@ -219,7 +219,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
       }
       // NOTE: (int)$data parses the character while ord($data) converts it.
       if (ord($data[$pos]) != 0xFF) {
-        throw new MSCL_MediaFileFormatException("Malformed jpeg image [2].", $this->get_file_path(), $this->is_remote_file());
+        throw new MSCL_MediaFileFormatException("Malformed jpeg image [2].", $this->getFilePath(), $this->isRemoteFile());
       }
       $header_byte = ord($data[$pos+1]);
       if ($header_byte >= 0xC0 && $header_byte <= 0xC3 && $pos + 9 < $len) {
@@ -230,13 +230,13 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
         //  * C2 : Progressive DCT (common)
         //  * C3 : Lossless
         // Note that height and width are "exchanged" (ie. they don't come as "width", "height")
-        $height = self::unpack_short($data, $pos + 5);
-        $width  = self::unpack_short($data, $pos + 7);
+        $height = self::deserializeInt16($data, $pos + 5);
+        $width  = self::deserializeInt16($data, $pos + 7);
         return array($width, $height);
       } else if ($header_byte == 0xFA) {
         // We've reached the image data. No more headers will follow; so, also no
         // image dimension information can't be found anymore.
-        throw new MSCL_MediaFileFormatException("Malformed jpeg image [3].", $this->get_file_path(), $this->is_remote_file());
+        throw new MSCL_MediaFileFormatException("Malformed jpeg image [3].", $this->getFilePath(), $this->isRemoteFile());
       }
       $pos += 2;
     }
@@ -245,25 +245,25 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
   }
 
   private function is_png($data) {
-    return self::starts_with($data, self::$PNG_HEADER);
+    return self::startsWith($data, self::$PNG_HEADER);
   }
 
   private function check_png_data($data) {
-    if (!self::starts_with($data, 'IHDR', 12)) {
-      throw new MSCL_MediaFileFormatException("Malformed png image.", $this->get_file_path(), $this->is_remote_file());
+    if (!self::startsWith($data, 'IHDR', 12)) {
+      throw new MSCL_MediaFileFormatException("Malformed png image.", $this->getFilePath(), $this->isRemoteFile());
     }
-    $width  = self::unpack_int($data, 16);
-    $height = self::unpack_int($data, 20);
+    $width  = self::deserializeInt32($data, 16);
+    $height = self::deserializeInt32($data, 20);
     return array($width, $height);
   }
 
   private function is_gif($data) {
-    return self::starts_with($data, self::$GIF_HEADER_v89) || self::starts_with($data, self::$GIF_HEADER_v87);
+    return self::startsWith($data, self::$GIF_HEADER_v89) || self::startsWith($data, self::$GIF_HEADER_v87);
   }
 
   private function check_gif_data($data) {
-    $width  = self::unpack_short($data, 6, false);
-    $height = self::unpack_short($data, 8, false);
+    $width  = self::deserializeInt16($data, 6, false);
+    $height = self::deserializeInt16($data, 8, false);
     return array($width, $height);
   }
 }

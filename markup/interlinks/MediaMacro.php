@@ -75,9 +75,9 @@ class MediaMacro implements IInterlinkMacro {
     }
 
     if (   !$is_attachment
-        && MSCL_AbstractFileInfo::isRemoteFile($ref)
-        && MSCL_AbstractFileInfo::is_remote_support_available()
-        && !MSCL_AbstractFileInfo::is_protocol_supported($ref)) {
+        && MSCL_AbstractFileInfo::isRemoteFileStatic($ref)
+        && MSCL_AbstractFileInfo::isRemoteFileSupportAvailable()
+        && !MSCL_AbstractFileInfo::isUrlProtocolSupported($ref)) {
       // Remote image whose protocol isn't supported. Create a good looking error message here.
       return self::generate_error_html("The protocol for remote file '".$ref."' isn't supported.");
     }
