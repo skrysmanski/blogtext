@@ -620,6 +620,7 @@ abstract class MSCL_AbstractFileInfo {
   // Helper functions
   //
 
+    // TODO: Replace with "string_starts_with()"
   /**
    * Whether $str starts with $with.
    *

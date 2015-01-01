@@ -1,7 +1,7 @@
 <?php
 #########################################################################################
 #
-# Copyright 2010-2011  Maya Studios (http://www.mayastudios.com)
+# Copyright 2010-2015  Maya Studios (http://www.mayastudios.com)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +20,14 @@
 
 
 /*
- * Loads commonly used apis.
+ * Loads commonly used APIs.
  */
+
+require_once(dirname(__FILE__).'/base-type-extensions.php');
+
+require_once(dirname(__FILE__).'/ClassLoader.php');
+
+\MSCL\ClassLoader::register('\\MSCL', dirname(__FILE__));
 
 /**
  * The root directory of this plugin.
@@ -110,7 +116,6 @@ function MSCL_require_once($relative_required_file, $base_file) {
     $base_dir = dirname($base_file).'/';
     $base_files[$base_file] = $base_dir;
   }
-  
+
   require_once($base_dir.$relative_required_file);
 }
-

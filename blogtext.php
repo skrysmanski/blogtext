@@ -52,7 +52,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
     // Create error notifier
     new BlogTextErrorNotifier();
 
-    // Create adminbar menu
+    // Create admin bar menu
     // NOTE: Must run after the "init" action
     new BlogTextAdminBarMenu();
 

@@ -36,7 +36,7 @@ For more information, see BlogText's feature list at: http://blogtext.mayastudio
 == Installation ==
 Installing BlogText is pretty much straight forward.
 
-You need **Wordpress 3.0 or higher** to install BlogText. You also need **PHP 5.0 or higher** installed on
+You need **Wordpress 3.0 or higher** to install BlogText. You also need **PHP 5.3 or higher** installed on
 your webserver.
 
 1. Simply download the BlogText .zip file.
@@ -49,6 +49,7 @@ your webserver.
 == Changelog ==
 
 = 0.9.7 =
+* Breaking change: BlogText now requires at least PHP 5.3!
 * Feature: Added support for email addresses (plain text as well as interlink ones).
 * Change: Exceptions thrown while converting a post from BlogText to HTML no longer stops the whole PHP script (i.e.
   content coming after the affected post is now rendered).
