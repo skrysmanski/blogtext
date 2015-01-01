@@ -216,7 +216,7 @@ class MSCL_ThumbnailCache {
         continue;
       }
 
-      if (!$thumb->is_uptodate())
+      if (!$thumb->isUpToDate())
       {
         return false;
       }
