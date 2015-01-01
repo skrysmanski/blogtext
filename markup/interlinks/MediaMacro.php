@@ -75,7 +75,7 @@ class MediaMacro implements IInterlinkMacro {
     }
 
     if (   !$is_attachment
-        && MSCL_AbstractFileInfo::check_for_remote_file($ref)
+        && MSCL_AbstractFileInfo::isRemoteFile($ref)
         && MSCL_AbstractFileInfo::is_remote_support_available()
         && !MSCL_AbstractFileInfo::is_protocol_supported($ref)) {
       // Remote image whose protocol isn't supported. Create a good looking error message here.
@@ -237,7 +237,7 @@ class MediaMacro implements IInterlinkMacro {
       }
     }
     catch (MSCL_MediaFileNotFoundException $e) {
-      return self::generate_error_html($e->get_file_path(), true);
+      return self::generate_error_html($e->getFilePath(), true);
     }
     catch (MSCL_MediaInfoException $e) {
       return self::generate_error_html($e->getMessage());

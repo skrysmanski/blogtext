@@ -22,13 +22,25 @@
 require_once(dirname(__FILE__).'/../commons.php');
 MSCL_require_once('exceptions.php', __FILE__);
 
+/**
+ * Represents information about a file.
+ */
 abstract class MSCL_AbstractFileInfo {
   const name = 'MSCL_AbstractFileInfo';
 
   private static $cached_remote_file_info = array();
 
-  private $file_path;
-  private $is_remote_file;
+  /**
+   * The path/URL of this file.
+   * @var string
+   */
+  private $m_filePath;
+
+  /**
+   * Whether this file is a remote file (true) or a local file (false).
+   * @var bool
+   */
+  private $m_isRemoteFile;
   private $file_size = null;
   private $last_modified_date;
 
@@ -38,20 +50,23 @@ abstract class MSCL_AbstractFileInfo {
   private $http_status_code = null;
   private $done = false;
 
-  protected function __construct($file_path, $cache_date=null) {
-    $this->file_path = $file_path;
-    $this->is_remote_file = $this->is_remote_file($file_path);
-    if ($this->is_remote_file) {
+  protected function __construct($filePath, $cacheDate=null) {
+    $this->m_filePath = $filePath;
+    $this->m_isRemoteFile = self::isRemoteFile($filePath);
+
+    if ($this->m_isRemoteFile)
+    {
       // remote file
-      if (!self::is_remote_support_available()) {
-        throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $file_path, true);
+      if (!self::is_remote_support_available())
+      {
+        throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $filePath, true);
       }
-      $this->open_remote_file($cache_date);
+      $this->open_remote_file($cacheDate);
     } else {
-      if (!file_exists($file_path)) {
-        throw new MSCL_MediaFileNotFoundException($file_path, false);
+      if (!file_exists($filePath)) {
+        throw new MSCL_MediaFileNotFoundException($filePath, false);
       }
-      $this->open_local_file($cache_date);
+      $this->open_local_file($cacheDate);
     }
 
     $this->finish_initialization();
@@ -59,10 +74,10 @@ abstract class MSCL_AbstractFileInfo {
     // Everything worked out. Store this information.
     // IMPORTANT: We need to pass "$this" as otherwise the name will always be 'MSCL_AbstractFileInfo'.
     $class_name = get_class($this);
-    if (array_key_exists($file_path, self::$cached_remote_file_info)) {
-      self::$cached_remote_file_info[$file_path][$class_name] =& $this;
+    if (array_key_exists($filePath, self::$cached_remote_file_info)) {
+      self::$cached_remote_file_info[$filePath][$class_name] =& $this;
     } else {
-      self::$cached_remote_file_info[$file_path] = array($class_name => &$this);
+      self::$cached_remote_file_info[$filePath] = array($class_name => &$this);
     }
   }
 
@@ -97,7 +112,7 @@ abstract class MSCL_AbstractFileInfo {
     } else {
       $protocol = $url;
     }
-    
+
     if ($protocol == 'file') {
       return true;
     }
@@ -153,7 +168,7 @@ abstract class MSCL_AbstractFileInfo {
     }
 
     $file_info = &self::$cached_remote_file_info[$file_path];
-    
+
     if (!array_key_exists($class_name, $file_info)) {
       return null;
     }
@@ -165,7 +180,7 @@ abstract class MSCL_AbstractFileInfo {
    * Returns the path to the image (either an url or a file path).
    */
   public function get_file_path() {
-    return $this->file_path;
+    return $this->m_filePath;
   }
 
   /**
@@ -174,17 +189,17 @@ abstract class MSCL_AbstractFileInfo {
    * @return bool
    */
   public function is_remote_file() {
-    return $this->is_remote_file;
+    return $this->m_isRemoteFile;
   }
 
   /**
-   * Returns whether the specified file is a remote file.
+   * Checks whether the specified file path represents a remote file.
    *
-   * @param string $file_path the path to check or null, if called from an instance
+   * @param string $file_path the path to check
    *
    * @return bool
    */
-  public static function check_for_remote_file($file_path) {
+  public static function isRemoteFile($file_path) {
     $found = preg_match('/^([a-zA-Z0-9\+\.\-]+)\:\/\/.+/', $file_path, $matches);
     if (!$found) {
       return false;
@@ -227,7 +242,7 @@ abstract class MSCL_AbstractFileInfo {
    * @return string
    */
   public static function get_file_contents($file_path) {
-    $is_remote = self::check_for_remote_file($file_path);
+    $is_remote = self::isRemoteFile($file_path);
     if ($is_remote) {
       if (!self::is_remote_support_available()) {
         throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $file_path, true);
@@ -300,9 +315,9 @@ abstract class MSCL_AbstractFileInfo {
     throw new MSCL_MediaInfoException("Could not execute cURL request. Reason: ".curl_error($ch).' ['.$error_number.']',
                                       $file_path, true);
   }
-  
+
   private function open_remote_file($cache_date) {
-    $ch = self::prepare_curl_handle($this->file_path, $cache_date);
+    $ch = self::prepare_curl_handle($this->m_filePath, $cache_date);
     // attempt to retrieve the modification date
     curl_setopt($ch, CURLOPT_FILETIME, true);
 
@@ -311,7 +326,7 @@ abstract class MSCL_AbstractFileInfo {
     // NOTE: We need to check "$this->done" here, because when returning "-1" in "curl_callback()",
     //   "curl_exec()" will return "false".
     if (@curl_exec($ch) === false && $this->done === false) {
-      self::handle_curl_error($ch, $this->file_path);
+      self::handle_curl_error($ch, $this->m_filePath);
     }
 
     if ($this->http_status_code === null) {
@@ -351,10 +366,10 @@ abstract class MSCL_AbstractFileInfo {
           throw new MSCL_NotModifiedNotification();
 
         case 404:
-          throw new MSCL_MediaFileNotFoundException($this->file_path, true);
+          throw new MSCL_MediaFileNotFoundException($this->m_filePath, true);
 
         default:
-          throw new MSCL_MediaFileIOException("Invalid HTTP status code: ".$this->http_status_code, $this->file_path, true);
+          throw new MSCL_MediaFileIOException("Invalid HTTP status code: ".$this->http_status_code, $this->m_filePath, true);
       }
     }
 
@@ -368,28 +383,28 @@ abstract class MSCL_AbstractFileInfo {
   }
 
   private function open_local_file($cache_date) {
-    $mod_date = @filemtime($this->file_path);
+    $mod_date = @filemtime($this->m_filePath);
     if ($mod_date === false) {
-      throw new MSCL_MediaFileIOException("Could not determine file modification date.", $this->file_path, false);
+      throw new MSCL_MediaFileIOException("Could not determine file modification date.", $this->m_filePath, false);
     }
     if ($cache_date !== null && $cache_date >= $mod_date) {
       throw new MSCL_NotModifiedNotification();
     }
     $this->last_modified_date = $mod_date;
 
-    $this->file_size = filesize($this->file_path);
+    $this->file_size = filesize($this->m_filePath);
     if ($this->file_size === false) {
-      throw new MSCL_MediaFileIOException("Could not determine file size.", $this->file_path, false);
+      throw new MSCL_MediaFileIOException("Could not determine file size.", $this->m_filePath, false);
     }
 
-    $file_handle = @fopen($this->file_path, 'rb');
+    $file_handle = @fopen($this->m_filePath, 'rb');
     if ($file_handle === false) {
-      throw new MSCL_MediaFileIOException("Could not open file.", $this->file_path, false);
+      throw new MSCL_MediaFileIOException("Could not open file.", $this->m_filePath, false);
     }
     while (!feof($file_handle)) {
       $chunk = fread($file_handle, 2048);
       if ($chunk === false) {
-        throw new MSCL_MediaFileIOException("Could not read file.", $this->file_path, false);
+        throw new MSCL_MediaFileIOException("Could not read file.", $this->m_filePath, false);
       }
       if ($this->handle_data_prep($chunk)) {
         break;
@@ -458,8 +473,8 @@ abstract class MSCL_AbstractFileInfo {
 class MSCL_SimpleFileInfo extends MSCL_AbstractFileInfo {
   const name = 'MSCL_SimpleFileInfo';
 
-  protected function  __construct($file_path, $cache_date = null) {
-    parent::__construct($file_path, $cache_date);
+  protected function  __construct($filePath, $cacheDate = null) {
+    parent::__construct($filePath, $cacheDate);
   }
 
   protected function finish_initialization() { }

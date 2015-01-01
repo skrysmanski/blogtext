@@ -22,7 +22,7 @@
 require_once(dirname(__FILE__).'/base_file_info.php');
 
 /**
- * This class determines width, height and type of images. Works both on local and remote images. Only 
+ * This class determines width, height and type of images. Works both on local and remote images. Only
  * necessary information are read from the images. Thus using this class is usually a lot faster than calls
  * to "getimagesize()" or "imagecreatefrom...()", as those need to download the whole image file.
  */
@@ -49,9 +49,9 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
   private $width = null;
   private $height = null;
 
-  protected function __construct($file_path, $cache_date=null) {
+  protected function __construct($filePath, $cacheDate=null) {
     // determines file info - see "handle_data()" and "finish_initialization()"
-    parent::__construct($file_path, $cache_date);
+    parent::__construct($filePath, $cacheDate);
   }
 
   protected function finish_initialization() {
@@ -187,7 +187,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
 
   private function check_jpg_data($data) {
     //
-    // See: 
+    // See:
     // * Regular JPEG: http://www.videotechnology.com/jpeg/j1.html
     // * EXIF: http://www.media.mit.edu/pia/Research/deepview/exif.html
     //
@@ -200,7 +200,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
         $this->get_file_path(), $this->is_remote_file());
     }
 
-    // NOTE: We can't use the density (bytes 14-17) as even for units "0" the Xdensity and Ydensity 
+    // NOTE: We can't use the density (bytes 14-17) as even for units "0" the Xdensity and Ydensity
     //   may not be correct (eg. may be 100x100 while the image is actually 128x128).
 
     //
@@ -226,7 +226,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
         // 0xFFC0 to 0xFFC3 is the "Start of frame" marker which contains the image size.
         // The header byte defines the JPEG encoding type:
         //  * C0 : Baseline DCT (common)
-        //  * C1 : Extended Sequential DCT 
+        //  * C1 : Extended Sequential DCT
         //  * C2 : Progressive DCT (common)
         //  * C3 : Lossless
         // Note that height and width are "exchanged" (ie. they don't come as "width", "height")

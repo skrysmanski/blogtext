@@ -352,12 +352,12 @@ class MSCL_Thumbnail {
       $this->loadDataFromThumbnailInfoFile();
 
       // We need to redo the check here in case local and remote file reside in the same directory
-      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::check_for_remote_file($this->m_srcImgFullPath);
+      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::isRemoteFile($this->m_srcImgFullPath);
     }
     else
     {
       $this->m_cacheId = self::createThumbnailCacheId($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
-      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::check_for_remote_file($img_src); // required for getting the file path
+      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::isRemoteFile($img_src); // required for getting the file path
 
       if (file_exists($this->getThumbnailInfoFilePath())) {
         // reuse already existing data
