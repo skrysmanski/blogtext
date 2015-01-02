@@ -24,7 +24,7 @@ namespace MSCL\FileInfo;
 /**
  * Indicates an error in any of the media info classes.
  */
-class FileInfoException extends Exception
+class FileInfoException extends \Exception
 {
     /**
      * @var string
