@@ -3,7 +3,7 @@
 Plugin Name: BlogText for WordPress
 Plugin URI: http://wordpress.org/extend/plugins/blogtext/
 Description: Allows you to write your posts and pages with an alternative, easy-to-learn, and fast-to-type syntax
-Version: 0.9.6
+Version: 0.9.7
 Author: Sebastian Krysmanski
 Author URI: http://mayastudios.com
 */
@@ -52,7 +52,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
     // Create error notifier
     new BlogTextErrorNotifier();
 
-    // Create adminbar menu
+    // Create admin bar menu
     // NOTE: Must run after the "init" action
     new BlogTextAdminBarMenu();
 
@@ -113,29 +113,38 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
     return $this->convert_blogtext($content, true);
   }*/
 
-  public function convert_blogtext($content, $is_excerpt) {
+  public function convert_blogtext($content, $is_excerpt)
+  {
     global $post;
 
-    if (!BlogTextPostSettings::get_use_blogtext($post)) {
+    if (!BlogTextPostSettings::get_use_blogtext($post))
+    {
       // Don't use BlogText for this post.
       return $content;
     }
 
-    try {
-      $markup = new BlogTextMarkup();
-      if (is_preview()) {
+    try
+    {
+      if (is_preview())
+      {
         $is_excerpt = false;
         $render_type = AbstractTextMarkup::RENDER_KIND_PREVIEW;
-      } else if (is_feed()) {
+      }
+      else if (is_feed())
+      {
         $render_type = AbstractTextMarkup::RENDER_KIND_RSS;
-      } else {
+      }
+      else
+      {
         $render_type = AbstractTextMarkup::RENDER_KIND_REGULAR;
       }
+
+      $markup = new BlogTextMarkup();
       return $markup->convert_post_to_html($post, $content, $render_type, $is_excerpt);
-    } catch (Exception $e) {
-      print MSCL_ErrorHandling::format_exception($e);
-      // exit here as the exception may come from some static constructor that is only executed once
-      exit;
+    }
+    catch (Exception $e)
+    {
+      return MSCL_ErrorHandling::format_exception($e);
     }
   }
 

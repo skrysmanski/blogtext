@@ -2,8 +2,8 @@
 Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
-Tested up to: 3.4.2
-Stable tag: 0.9.6
+Tested up to: 4.1.0
+Stable tag: 0.9.7
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
 good Wordpress editor integration.
@@ -36,7 +36,7 @@ For more information, see BlogText's feature list at: http://blogtext.mayastudio
 == Installation ==
 Installing BlogText is pretty much straight forward.
 
-You need **Wordpress 3.0 or higher** to install BlogText. You also need **PHP 5.0 or higher** installed on
+You need **Wordpress 3.0 or higher** to install BlogText. You also need **PHP 5.3 or higher** installed on
 your webserver.
 
 1. Simply download the BlogText .zip file.
@@ -47,6 +47,12 @@ your webserver.
 1. Start writing your posts
 
 == Changelog ==
+
+= 0.9.7 =
+* Breaking change: BlogText now requires at least PHP 5.3!
+* Feature: Added support for email addresses (plain text as well as interlink ones).
+* Change: Exceptions thrown while converting a post from BlogText to HTML no longer stops the whole PHP script (i.e.
+  content coming after the affected post is now rendered).
 
 = 0.9.6 =
 * Change: link anchors in TOC links in list view are now prepended with "post-" to meet the (arguably ancient) HTML 4

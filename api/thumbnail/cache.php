@@ -30,7 +30,7 @@ class MSCL_ThumbnailCache {
   const REGISTERED_MARKER = 'post_registered';
 
   const THUMBNAIL_TYPE = 'thumb';
-  
+
   private $local_file_cache_dir_path = null;
   private $remote_file_cache_dir_path = null;
   private $table_name;
@@ -45,7 +45,7 @@ class MSCL_ThumbnailCache {
 
     $this->local_file_cache_dir_path = str_replace('//', '/', $base_dir.'/'.LOCAL_IMG_CACHE_DIR);
     $this->remote_file_cache_dir_path = str_replace('//', '/', $base_dir.'/'.REMOTE_IMG_CACHE_DIR);
-    
+
     if (MSCL_is_wordpress_loaded()) {
       // Only available when running from inside of Wordpress
       // Note that this isn't a problem though, as the directories already have been created when creating
@@ -163,7 +163,7 @@ class MSCL_ThumbnailCache {
 
     @mysql_query("COMMIT", $wpdb->dbh); // commit transaction
   }
-  
+
   public static function is_thumbnail_used($thumbnail_id) {
     global $wpdb;
     MSCL_check_wordpress_is_loaded();
@@ -185,28 +185,39 @@ class MSCL_ThumbnailCache {
     return $wpdb->get_col($wpdb->prepare($sql, $post_id, self::THUMBNAIL_TYPE));
   }
 
-  public static function are_post_thumbnails_uptodate($post_id, $do_remote_check=false) {
+  public static function are_post_thumbnails_uptodate($post_id, $do_remote_check=false)
+  {
     $thumb_ids = self::get_post_thumbnail_ids($post_id, false);
-    if (count($thumb_ids) == 0) {
+
+    if (count($thumb_ids) == 0)
+    {
       // this post has never been registered in the cache; return false
       return false;
     }
 
-    foreach ($thumb_ids as $thumb_id) {
-      if ($thumb_id == self::REGISTERED_MARKER) {
+    foreach ($thumb_ids as $thumb_id)
+    {
+      if ($thumb_id == self::REGISTERED_MARKER)
+      {
         // Marker that this post has been registered. Ignore it.
         continue;
       }
-      if (!MSCL_ThumbnailApi::does_token_file_exists($thumb_id)) {
+
+      if (!MSCL_ThumbnailApi::doesThumbnailInfoFileExist($thumb_id))
+      {
         // Happens if the thumbnail cache has been cleared.
         return false;
       }
-      $thumb = MSCL_ThumbnailApi::get_thumbnail_from_token($thumb_id);
-      if ($thumb->is_remote_image() && !$do_remote_check) {
+
+      $thumb = MSCL_ThumbnailApi::getThumbnailFromCacheId($thumb_id);
+      if ($thumb->is_remote_image() && !$do_remote_check)
+      {
         // Ignore remote images, as they have not put their size into the HTML code.
         continue;
       }
-      if (!$thumb->is_uptodate()) {
+
+      if (!$thumb->isUpToDate())
+      {
         return false;
       }
     }

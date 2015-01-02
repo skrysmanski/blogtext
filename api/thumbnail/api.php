@@ -173,10 +173,10 @@ class MSCL_ThumbnailApi {
       list($requested_width, $requested_height) = self::get_max_size($size);
     }
 
-    $token = MSCL_Thumbnail::create_token($img_src, $requested_width, $requested_height, $mode);
-    $thumb = self::get_thumbnail_from_token($token, false);
+    $token = MSCL_Thumbnail::createThumbnailCacheId($img_src, $requested_width, $requested_height, $mode);
+    $thumb = self::getThumbnailFromCacheId($token, false);
     if ($thumb === null) {
-      $thumb = new MSCL_Thumbnail($img_src, $requested_width, $requested_height, 
+      $thumb = new MSCL_Thumbnail($img_src, $requested_width, $requested_height,
                                   self::check_mode($size, $mode), true);
       $instance = self::get_instance();
       $instance->thumbnails[$token] = $thumb;
@@ -190,11 +190,12 @@ class MSCL_ThumbnailApi {
     return array($thumb->get_thumb_image_url(), $thumb->get_thumb_width(), $thumb->get_thumb_height());
   }
 
-  public static function does_token_file_exists($token, $is_remote=null) {
-    return MSCL_Thumbnail::does_token_file_exists($token, $is_remote);
+  public static function doesThumbnailInfoFileExist($cacheId, $isRemote=null)
+  {
+    return MSCL_Thumbnail::doesThumbnailInfoFileExist($cacheId, $isRemote);
   }
 
-  public static function get_thumbnail_from_token($token, $create_if_necessary=true) {
+  public static function getThumbnailFromCacheId($token, $create_if_necessary=true) {
     $instance = self::get_instance();
     $thumb = @$instance->thumbnails[$token];
     if ($thumb === null && $create_if_necessary) {
@@ -202,7 +203,7 @@ class MSCL_ThumbnailApi {
     }
     return $thumb;
   }
-  
+
   /**
    * Removes the thumbnail to which the token belongs from the cache directory. Do this, if the thumbnail
    * is not longer needed.
@@ -226,9 +227,10 @@ interface IThumbnailContainer {
  * Represents a single thumbnail image.
  */
 class MSCL_Thumbnail {
+  // TODO: Move these constants to its own class (enum)
   /**
    * Resizes the image so that it matches the specified size, even if the original image is smaller than the
-   * spezified size. Aspect ratio is kept so one dimension (width or height) may not match the specified
+   * specified size. Aspect ratio is kept so one dimension (width or height) may not match the specified
    * size (but the other will).
    */
   const MODE_ALWAYS_RESIZE = 'always_resize';
@@ -238,7 +240,7 @@ class MSCL_Thumbnail {
    */
   const MODE_RESIZE_IF_LARGER = 'resize_if_larger';
   /**
-   * Always resizes the source image so that it matches the specified size. Doesn't keep the aspect ratio 
+   * Always resizes the source image so that it matches the specified size. Doesn't keep the aspect ratio
    * meaning that the image may look stretched in one dimension.
    */
   const MODE_FILL_RESIZE = 'fill_resize';
@@ -253,29 +255,63 @@ class MSCL_Thumbnail {
    */
   const MODE_CROP_AND_RESIZE = 'crop_resize';
 
-  private $img_token;
   /**
-   * @var string the source image for this thumbnail. Can be a local or a remote image.
+   * The thumbnail cache id of this thumbnail.
+   * @var string
    */
-  private $img_src;
-  private $is_src_img_remote;
-  private $src_img_width;
-  private $src_img_height;
-  private $src_img_type;
+  private $m_cacheId;
+
+  /**
+   * The absolute path to the source image of this thumbnail. Can either be a local or a remote image.
+   * @var string
+   */
+  private $m_srcImgFullPath;
+
+  /**
+   * Whether this thumbnail is based on a remote image (true) or local image (false).
+   * @var bool
+   */
+  private $m_isSrcImgRemote;
+
+  /**
+   * Width of the source image.
+   * @var int
+   */
+  private $m_srcImgWidth;
+
+  /**
+   * Height of the source image.
+   * @var int
+   */
+  private $m_srcImgHeight;
+
+  // TODO: What about gif?
+  /**
+   * Image type of the source image; will only be either "jpg" or "png". May change, if the
+   * source image has changed its image type.
+   * @var string
+   */
+  private $m_srcImgType;
 
   /**
    * The timestamp when the remote image was last time check for modifications. Only available when
-   * REMOTE_IMAGE_TIMEOUT > 0.
+   * {@link REMOTE_IMAGE_TIMEOUT} > 0.
    */
-  private $last_remote_update_check = null;
+  private $m_lastRemoteUpdateCheckTimestamp = null;
 
   /**
-   * @var string type of the thumb image; will only be either "jpg" or "png". May change, if the source image
-   *   has changed its image type.
+   * The requested thumbnail width in pixels; or 0 if auto determined. In the latter case
+   * {@link m_requestedThumbHeight} must be non-zero.
+   * @var int
    */
-  private $requested_thumb_width;
-  private $requested_thumb_height;
-  private $mode;
+  private $m_requestedThumbWidth;
+  /**
+   * The requested thumbnail height in pixels; or 0 if auto determined. In the latter case
+   * {@link m_requestedThumbWidth} must be non-zero.
+   * @var int
+   */
+  private $m_requestedThumbHeight;
+  private $m_resizeMode;
 
   private $thumb_width = 0;
   private $thumb_height = 0;
@@ -293,102 +329,128 @@ class MSCL_Thumbnail {
    * @var int
    */
   private $cache_date = null;
-  private $is_uptodate = null;
+  private $m_isUpToDate = null;
 
-  public function  __construct($img_src, $requested_thumb_width, $requested_thumb_height, 
+  public function  __construct($img_src, $requested_thumb_width, $requested_thumb_height,
                                $mode, $do_remote_check=false) {
     $img_src = trim($img_src);
-    if (is_null($requested_thumb_width)) {
-      $this->img_token = $img_src;
-      // we need to figure out whether the image is a remote image. just check where the file exists
-      $this->is_src_img_remote = false;
-      if (!file_exists($this->get_token_file_path())) {
-        $this->is_src_img_remote = true;
+
+    if (is_null($requested_thumb_width))
+    {
+      $this->m_cacheId = $img_src;
+
+      // We need to figure out whether the image is a remote image. Just check whether the file exists.
+      if (!file_exists(self::createThumbnailInfoFilePath($img_src, false)))
+      {
+        $this->m_isSrcImgRemote = true;
       }
-      $this->load_token_file();
+      else
+      {
+        $this->m_isSrcImgRemote = false;
+      }
+
+      $this->loadDataFromThumbnailInfoFile();
+
       // We need to redo the check here in case local and remote file reside in the same directory
-      $this->is_src_img_remote = MSCL_AbstractFileInfo::check_for_remote_file($this->img_src);
-    } else {
-      $this->img_token = self::create_token($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
-      $this->is_src_img_remote = MSCL_AbstractFileInfo::check_for_remote_file($img_src); // required for getting the file path
+      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::isRemoteFileStatic($this->m_srcImgFullPath);
+    }
+    else
+    {
+      $this->m_cacheId = self::createThumbnailCacheId($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
+      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::isRemoteFileStatic($img_src); // required for getting the file path
 
-      if (file_exists($this->get_token_file_path())) {
+      if (file_exists($this->getThumbnailInfoFilePath())) {
         // reuse already existing data
-        $this->load_token_file();
-      } else {
-        $this->img_src = $img_src;
-        $this->requested_thumb_width = max(0, intval($requested_thumb_width));
-        $this->requested_thumb_height = max(0, intval($requested_thumb_height));
+        $this->loadDataFromThumbnailInfoFile();
+      }
+      else
+      {
+        $this->m_srcImgFullPath = $img_src;
+        $this->m_requestedThumbWidth = max(0, intval($requested_thumb_width));
+        $this->m_requestedThumbHeight = max(0, intval($requested_thumb_height));
 
-        switch ($mode) {
+        switch ($mode)
+        {
           case self::MODE_ALWAYS_RESIZE:
           case self::MODE_RESIZE_IF_LARGER:
           case self::MODE_FILL_RESIZE:
           case self::MODE_CROP:
           case self::MODE_CROP_AND_RESIZE:
-            $this->mode = $mode;
+            $this->m_resizeMode = $mode;
             break;
           default:
             throw new Exception("Invalid mode: ".$mode);
         }
 
-        if ($this->requested_thumb_width == 0 && $this->requested_thumb_height == 0) {
+        if ($this->m_requestedThumbWidth == 0 && $this->m_requestedThumbHeight == 0)
+        {
           throw new Exception("At least one dimension must be specified.");
         }
 
-        // Since this seems to be a newly created thumbnai, we need to store its token file.
-        $this->store_token_file();
+        // Since this seems to be a newly created thumbnail, we need to store its token file.
+        $this->storeDataInThumbnailInfoFile();
       }
     }
 
-    if (!$this->is_src_img_remote || $do_remote_check) {
-      $this->check_for_modifications();
+    if (!$this->m_isSrcImgRemote || $do_remote_check)
+    {
+      $this->checkForModificationsAndUpdate();
     }
   }
 
   /**
-   * Constructs a thumbnail token from the specified information.
-   * @param <type> $img_src
-   * @param <type> $requested_thumb_width
-   * @param <type> $requested_thumb_height
-   * @param <type> $mode
+   * Constructs a thumbnail cache id for the specified information.
+   *
+   * @param string $srcImagePath  the absolute path to the source image (local or remote)
+   * @param int $thumbWidth  the width of the thumbnail (or 0, if the original width is to be used)
+   * @param int $thumbHeight  the height of the thumbnail (or 0, if the original height is to be used)
+   * @param string $resizeMode  how to resize the image if it's too large
+   *
    * @return string
    */
-  public static function create_token($img_src, $requested_thumb_width, $requested_thumb_height, $mode) {
+  public static function createThumbnailCacheId($srcImagePath, $thumbWidth, $thumbHeight, $resizeMode)
+  {
     // NOTE: The token must only contain a-z,0-9, "_", "-", and ".". This way it can be used directly as
     //  an URL parameter and doesn't produce an invalid file name on the local file system.
-    return sha1($img_src)
-         . '_'.intval($requested_thumb_width).'x'.intval($requested_thumb_height)
-         . '_'.$mode;
+    return sha1($srcImagePath)
+         . '_'.intval($thumbWidth).'x'.intval($thumbHeight)
+         . '_'.$resizeMode;
   }
 
-  public static function does_token_file_exists($token, $is_remote=null) {
-    if ($is_remote === null) {
-      if (file_exists(self::create_token_file_path($token, false))) {
+  public static function doesThumbnailInfoFileExist($cacheId, $isRemote=null)
+  {
+    if ($isRemote === null)
+    {
+      if (file_exists(self::createThumbnailInfoFilePath($cacheId, false)))
+      {
         return true;
       }
-      $is_remote = true;
+      $isRemote = true;
     }
 
-    return file_exists(self::create_token_file_path($token, $is_remote));
+    return file_exists(self::createThumbnailInfoFilePath($cacheId, $isRemote));
   }
 
-  private static function get_cache_dir($is_remote) {
+  private static function getThumbnailCacheDir($is_remote)
+  {
     return ($is_remote ? MSCL_ThumbnailCache::get_remote_file_cache_dir()
                        : MSCL_ThumbnailCache::get_local_file_cache_dir());
   }
 
-  public static function create_token_file_path($token, $is_remote) {
-    return self::get_cache_dir($is_remote).'/'.$token.'.info.txt';
+  private static function createThumbnailInfoFilePath($cacheId, $isRemote)
+  {
+    return self::getThumbnailCacheDir($isRemote).'/'.$cacheId.'.info.txt';
   }
 
-  public function get_token_file_path() {
-    return self::create_token_file_path($this->img_token, $this->is_src_img_remote);
+  public function getThumbnailInfoFilePath()
+  {
+    return self::createThumbnailInfoFilePath($this->m_cacheId, $this->m_isSrcImgRemote);
   }
 
-  public function get_thumb_image_path() {
+  public function get_thumb_image_path()
+  {
     // NOTE: Don't use "get_thumb_image_type()" as extension as this tends to produce endless recursions.
-    return self::get_cache_dir($this->is_src_img_remote).'/'.$this->img_token.'.img';
+    return self::getThumbnailCacheDir($this->m_isSrcImgRemote).'/'.$this->m_cacheId.'.img';
   }
 
   public function get_thumb_image_url() {
@@ -407,7 +469,7 @@ class MSCL_Thumbnail {
     //     he/she instead wanted to have a link to an thumbnail that's always up-to-date.
     //  3. The load on "do.php" is not that big since the browser's cache is used.
     // NOTE: "$img_token" doesn't need to run through "urlencode()". See definition above.
-    return $script_do_php_url.'id='.$this->img_token;
+    return $script_do_php_url.'id='.$this->m_cacheId;
   }
 
   private static function create_token_glob($cache_dir, $token) {
@@ -449,11 +511,11 @@ class MSCL_Thumbnail {
     // NOTE: We use a glob to find all related files.
     //   This also handles the case where, for example, the token file has already been deleted but the
     //   thumbnail hasn't (shouldn't happen, however).
-    
+
     // local files
-    $files = self::create_token_glob(self::get_cache_dir(false), $token);
+    $files = self::create_token_glob(self::getThumbnailCacheDir(false), $token);
     if ($files === false) {
-      log_error("Listing files for '".self::get_cache_dir(false)."' (local files cache) failed.");
+      log_error("Listing files for '".self::getThumbnailCacheDir(false)."' (local files cache) failed.");
     } else {
       foreach ($files as $filename) {
         unlink($filename);
@@ -461,9 +523,9 @@ class MSCL_Thumbnail {
     }
 
     // remote  files
-    $files = self::create_token_glob(self::get_cache_dir(true), $token);
+    $files = self::create_token_glob(self::getThumbnailCacheDir(true), $token);
     if ($files === false) {
-      log_error("Listing files for '".self::get_cache_dir(true)."' (remote files cache) failed.");
+      log_error("Listing files for '".self::getThumbnailCacheDir(true)."' (remote files cache) failed.");
     } else {
       foreach ($files as $filename) {
         unlink($filename);
@@ -473,25 +535,28 @@ class MSCL_Thumbnail {
     log_info("Thumbnail for id '$token' has been deleted.");
   }
 
-  private function load_token_file() {
-    $token_file = $this->get_token_file_path();
+  private function loadDataFromThumbnailInfoFile()
+  {
+    $token_file = $this->getThumbnailInfoFilePath();
     $contents = @file_get_contents($token_file);
-    if ($contents === false) {
+    if ($contents === false)
+    {
       throw new Exception("Could not read specified token file.");
     }
+
     $data = unserialize($contents);
 
-    $this->img_src = $data['img_src'];
-    $this->src_img_width = $data['src_img_width'];
-    $this->src_img_height = $data['src_img_height'];
-    $this->src_img_type = $data['src_img_type'];
+    $this->m_srcImgFullPath = $data['img_src'];
+    $this->m_srcImgWidth = $data['src_img_width'];
+    $this->m_srcImgHeight = $data['src_img_height'];
+    $this->m_srcImgType = $data['src_img_type'];
 
-    $this->requested_thumb_width = $data['requested_thumb_width'];
-    $this->requested_thumb_height = $data['requested_thumb_height'];
-    $this->mode = $data['mode'];
+    $this->m_requestedThumbWidth = $data['requested_thumb_width'];
+    $this->m_requestedThumbHeight = $data['requested_thumb_height'];
+    $this->m_resizeMode = $data['mode'];
 
     // NOTE: This field describes the "version" of the source image. It's required for two tasks:
-    //  1. This date is sent to the server to check whether the file has been modified (ie. if the 
+    //  1. This date is sent to the server to check whether the file has been modified (ie. if the
     //     modification date of the source image is later than this cache date, the file has been modified).
     //  2. This date is also used to check whether the thumbnail (on the local file system) is up-to-date.
     //     This check is done by comparing the thumbnail's last modification date with the cache date.
@@ -502,35 +567,35 @@ class MSCL_Thumbnail {
     //    (otherwise they would always be the same).
     $this->cache_date = $data['cache_date'];
 
-    $this->last_remote_update_check = $data['last_remote_update_check'];
+    $this->m_lastRemoteUpdateCheckTimestamp = $data['last_remote_update_check'];
   }
 
-  private function store_token_file() {
-    $filename = $this->get_token_file_path();
+  private function storeDataInThumbnailInfoFile() {
+    $filename = $this->getThumbnailInfoFilePath();
     // Store data
     $data = array
     (
-      'img_src' => $this->img_src,
-      'src_img_width' => $this->src_img_width,
-      'src_img_height' => $this->src_img_height,
-      'src_img_type' => $this->src_img_type,
+      'img_src' => $this->m_srcImgFullPath,
+      'src_img_width' => $this->m_srcImgWidth,
+      'src_img_height' => $this->m_srcImgHeight,
+      'src_img_type' => $this->m_srcImgType,
 
-      'requested_thumb_width' => $this->requested_thumb_width,
-      'requested_thumb_height' => $this->requested_thumb_height,
-      'mode' => $this->mode,
+      'requested_thumb_width' => $this->m_requestedThumbWidth,
+      'requested_thumb_height' => $this->m_requestedThumbHeight,
+      'mode' => $this->m_resizeMode,
 
       'cache_date' => $this->cache_date,
-      'last_remote_update_check' => $this->last_remote_update_check,
+      'last_remote_update_check' => $this->m_lastRemoteUpdateCheckTimestamp,
     );
     file_put_contents($filename, serialize($data), LOCK_EX);
   }
 
   public function is_remote_image() {
-    return $this->is_src_img_remote;
+    return $this->m_isSrcImgRemote;
   }
 
   public function get_token() {
-    return $this->img_token;
+    return $this->m_cacheId;
   }
 
   /**
@@ -541,14 +606,14 @@ class MSCL_Thumbnail {
    * @return string
    */
   public function get_thumb_image_type() {
-    if ($this->src_img_type === null) {
+    if ($this->m_srcImgType === null) {
       throw new Exception("Image type not yet available.");
     }
-    if ($this->is_use_original_image() && $this->src_img_type == MSCL_ImageInfo::TYPE_GIF) {
+    if ($this->is_use_original_image() && $this->m_srcImgType == MSCL_ImageInfo::TYPE_GIF) {
       return 'gif';
     }
 
-    return $this->src_img_type == MSCL_ImageInfo::TYPE_JPEG ? 'jpg' : 'png';
+    return $this->m_srcImgType == MSCL_ImageInfo::TYPE_JPEG ? 'jpg' : 'png';
   }
 
   public function get_thumb_image_mimetype() {
@@ -569,7 +634,7 @@ class MSCL_Thumbnail {
    */
   public function get_thumb_width() {
     if ($this->thumb_width == 0) {
-      $this->check_for_modifications();
+      $this->checkForModificationsAndUpdate();
     }
     return $this->thumb_width;
   }
@@ -580,7 +645,7 @@ class MSCL_Thumbnail {
    */
   public function get_thumb_height() {
     if ($this->thumb_height == 0) {
-      $this->check_for_modifications();
+      $this->checkForModificationsAndUpdate();
     }
     return $this->thumb_height;
   }
@@ -595,96 +660,127 @@ class MSCL_Thumbnail {
   }
 
   /**
-   * Indicates whether the cached thumbnail image is up-to-date. Also updates the token file, if necessary.
+   * Indicates whether the cached thumbnail image is up-to-date. Also updates the thumbnail info file, if necessary.
    * @return bool
    */
-  public function is_uptodate() {
-    if ($this->is_uptodate === null) {
+  public function isUpToDate()
+  {
+    if ($this->m_isUpToDate === null)
+    {
       // We've already check whether the file is up to date. Let's assume that the file hasn't changed in the
       // meantime.
-      $this->check_for_modifications();
+      $this->checkForModificationsAndUpdate();
     }
 
-    return $this->is_uptodate;
+    return $this->m_isUpToDate;
   }
 
   /**
-   * Checks whether we should tr
+   * Returns whether an is-up-to-date-check should be performed or not.
+   * @return bool
    */
-  private function can_check_for_modifications($force_update) {
-    if ($force_update) {
+  private function shouldCheckForModifications()
+  {
+    if (!$this->m_isSrcImgRemote)
+    {
+      // Local images can always be checked; it's cheap.
       return true;
     }
 
-    if (!$this->is_src_img_remote) {
-      // local image can always be checked; it's cheap
+    if ($this->m_srcImgWidth == null)
+    {
+      // The source image has never been "analyzed". We need to do this at least once.
       return true;
     }
 
-    if ($this->src_img_width == null) {
-      // the source image has never been "analyzed". at least one time it's necessary.
-      return true;
-    }
-
-    if (REMOTE_IMAGE_TIMEOUT < 0) {
-      // Manual update only; use "$force_update".
+    if (REMOTE_IMAGE_TIMEOUT < 0)
+    {
+      // Manual update only.
       return false;
     }
-
-    if (REMOTE_IMAGE_TIMEOUT == 0) {
+    else if (REMOTE_IMAGE_TIMEOUT == 0)
+    {
       // Always check for modifications
       return true;
     }
 
-    if ($this->last_remote_update_check === null) {
+    if ($this->m_lastRemoteUpdateCheckTimestamp === null)
+    {
+      // Remote image was never checked.
       return true;
     }
 
-    return (time() > $this->last_remote_update_check + REMOTE_IMAGE_TIMEOUT);
+    return (time() > $this->m_lastRemoteUpdateCheckTimestamp + REMOTE_IMAGE_TIMEOUT);
   }
 
-  public function check_for_modifications($force_update=false) {
-    if ($this->is_uptodate !== null && $force_update == false) {
+  /**
+   * Checks whether this thumbnail is up-to-date (i.e. still matches the source
+   * image) and updated {@link isUpToDate()} accordingly.
+   * @param bool $forceUpdate
+   */
+  public function checkForModificationsAndUpdate($forceUpdate = false)
+  {
+    if ($this->m_isUpToDate !== null && $forceUpdate == false)
+    {
       // We're already up-to-date.
       return;
     }
-    
-    $is_uptodate = null;
-    if ($this->can_check_for_modifications($force_update)) {
-      try {
-        // Check for source file modifications
 
-        $info = MSCL_ImageInfo::get_instance($this->img_src, $this->cache_date);
-        $this->src_img_width = $info->get_width();
-        $this->src_img_height = $info->get_height();
-        $this->src_img_type = $info->get_type();
-        $this->cache_date = $info->get_last_modified_date();
-        if ($this->cache_date == null) {
+    $isUpToDate = null;
+
+    if ($forceUpdate || $this->shouldCheckForModifications())
+    {
+      try
+      {
+        //
+        // Check for source file modifications
+        //
+        if (!file_exists($this->m_srcImgFullPath))
+        {
+          // May happen if the information of this thumbnail were loaded from the thumbnail info file
+          // but the source image has moved.
+          // TODO: What to do in this case????
+        }
+
+        $info = MSCL_ImageInfo::get_instance($this->m_srcImgFullPath, $this->cache_date);
+        $this->m_srcImgWidth = $info->get_width();
+        $this->m_srcImgHeight = $info->get_height();
+        $this->m_srcImgType = $info->get_type();
+        $this->cache_date = $info->getLastModifiedDate();
+
+        if ($this->cache_date == null)
+        {
           // if the last modified date isn't available.
           $this->cache_date = time();
         }
-        $this->last_remote_update_check = time();
-        $this->store_token_file();
-        $is_uptodate = false;
-      } catch (MSCL_NotModifiedNotification $e) {
+
+        $this->m_lastRemoteUpdateCheckTimestamp = time();
+        $this->storeDataInThumbnailInfoFile();
+        $isUpToDate = false;
+      }
+      catch (MSCL_NotModifiedNotification $e)
+      {
         // Source image hasn't been changed.
-        if (REMOTE_IMAGE_TIMEOUT > 0) {
-          // only update the last remote check if this is really necessary.
-          $this->last_remote_update_check = time();
-          $this->store_token_file();
+        if (REMOTE_IMAGE_TIMEOUT > 0)
+        {
+          // Only update the last remote check if this is really necessary (i.e.
+          // when auto-checking is enabled).
+          $this->m_lastRemoteUpdateCheckTimestamp = time();
+          $this->storeDataInThumbnailInfoFile();
         }
       }
     }
 
-    if ($is_uptodate === null) {
-      // Check whether thumbnail file needs to be updated. This happens if the source image was modified but
-      // not the thumbnail image.
-      $is_uptodate = ($this->is_in_cache() && filemtime($this->get_thumb_image_path()) >= $this->cache_date);
+    if ($isUpToDate === null)
+    {
+      // Check whether thumbnail file needs to be updated. This happens if the source image was modified.
+      $isUpToDate = ($this->is_in_cache() && filemtime($this->get_thumb_image_path()) >= $this->cache_date);
     }
 
-    if ($is_uptodate !== $this->is_uptodate) {
-      $this->is_uptodate = $is_uptodate;
-      $this->update_thumbnail_size_from_src();
+    if ($isUpToDate !== $this->m_isUpToDate)
+    {
+      $this->m_isUpToDate = $isUpToDate;
+      $this->updateThumbnailSizeFromSrcImg();
     }
   }
 
@@ -693,7 +789,7 @@ class MSCL_Thumbnail {
    */
   public function display_thumbnail() {
     try {
-      if (!$this->is_uptodate()) {
+      if (!$this->isUpToDate()) {
         // NOTE: We don't reuse the image object created in this method for the output but rather read the
         //   file this method has written. We do this under the assumption that compressing the file (jpg/png)
         //   will take longer than reading an already compressed file from the harddrive.
@@ -716,7 +812,7 @@ class MSCL_Thumbnail {
     $etag = sha1((string)$last_modified_date);
 
     // use browser cache if available to speed up page load
-    if ($this->is_uptodate && isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+    if ($this->m_isUpToDate && isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
       $moddate_cache = @strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
       if ($moddate_cache !== false && $moddate_cache >= $last_modified_date) {
         // Browser cache date is newer than the source images modification date. So the image in the browser
@@ -772,26 +868,33 @@ class MSCL_Thumbnail {
    * Updates the thumbnails dimensions from the image source. After calling this method, the size of the
    * thumbnail can be retrieved
    */
-  private function update_thumbnail_size_from_src() {
-    $orig_w = $this->src_img_width;
-    $orig_h = $this->src_img_height;
-    $dest_w = $this->requested_thumb_width;
-    $dest_h = $this->requested_thumb_height;
+  private function updateThumbnailSizeFromSrcImg()
+  {
+    $orig_w = $this->m_srcImgWidth;
+    $orig_h = $this->m_srcImgHeight;
+    $dest_w = $this->m_requestedThumbWidth;
+    $dest_h = $this->m_requestedThumbHeight;
 
-    if ($orig_w <= 0 || $orig_h <= 0) {
-      throw new Exception("Image has invalid size: ".$this->img_src);
+    if ($orig_w <= 0 || $orig_h <= 0)
+    {
+      throw new Exception("Image has invalid size: ".$this->m_srcImgFullPath);
     }
 
     $aspect_ratio = $orig_w / $orig_h;
-    
-    if ($this->mode == self::MODE_CROP || $this->mode == self::MODE_CROP_AND_RESIZE) {
+
+    if ($this->m_resizeMode == self::MODE_CROP || $this->m_resizeMode == self::MODE_CROP_AND_RESIZE)
+    {
       //
       // crop the largest possible portion of the original image that we can size to $dest_w x $dest_h
       //
-      if ($this->mode == self::MODE_CROP_AND_RESIZE && ($orig_w < $dest_w || $orig_h < $dest_h)) {
-        if ($dest_w == 0) {
+      if ($this->m_resizeMode == self::MODE_CROP_AND_RESIZE && ($orig_w < $dest_w || $orig_h < $dest_h))
+      {
+        if ($dest_w == 0)
+        {
           $dest_w = intval($dest_h * $aspect_ratio);
-        } else if ($dest_h == 0) {
+        }
+        else if ($dest_h == 0)
+        {
           $dest_h = intval($dest_w / $aspect_ratio);
         }
 
@@ -801,13 +904,18 @@ class MSCL_Thumbnail {
 
         $new_w = $dest_w;
         $new_h = $dest_h;
-      } else {
+      }
+      else
+      {
         $new_w = min($dest_w, $orig_w);
         $new_h = min($dest_h, $orig_h);
 
-        if ($new_w == 0) {
+        if ($new_w == 0)
+        {
           $new_w = floor($new_h * $aspect_ratio);
-        } else if ($new_h == 0) {
+        }
+        else if ($new_h == 0)
+        {
           $new_h = floor($new_w / $aspect_ratio);
         }
 
@@ -816,9 +924,12 @@ class MSCL_Thumbnail {
         $crop_w = round($new_w / $size_ratio);
         $crop_h = round($new_h / $size_ratio);
       }
+
       $s_x = floor( ($orig_w - $crop_w) / 2 );
       $s_y = floor( ($orig_h - $crop_h) / 2 );
-    } else {
+    }
+    else
+    {
       // don't crop, just resize using $dest_w x $dest_h as a maximum bounding box
       $crop_w = $orig_w;
       $crop_h = $orig_h;
@@ -827,21 +938,28 @@ class MSCL_Thumbnail {
 
       $new_w = $dest_w;
       $new_h = $dest_h;
-      if ($this->mode != self::MODE_FILL_RESIZE) {
-        if ($dest_w == 0) {
+      if ($this->m_resizeMode != self::MODE_FILL_RESIZE)
+      {
+        if ($dest_w == 0)
+        {
           $new_w = floor($dest_h * $aspect_ratio);
-        } else {
+        }
+        else
+        {
           $new_h = floor($dest_w / $aspect_ratio);
         }
       }
     }
 
-    if ($orig_w <= $new_w && $orig_h <= $new_h && $this->mode == self::MODE_RESIZE_IF_LARGER) {
+    if ($orig_w <= $new_w && $orig_h <= $new_h && $this->m_resizeMode == self::MODE_RESIZE_IF_LARGER)
+    {
       // the source image is smaller than the thumbnail; we don't want to resize it
       $this->thumb_width = $orig_w;
       $this->thumb_height = $orig_h;
       $this->src_crop_bounds = null;
-    } else {
+    }
+    else
+    {
       $this->thumb_width = (int)$new_w;
       $this->thumb_height = (int)$new_h;
       $this->src_crop_bounds = array((int)$s_x, (int)$s_y, (int)$crop_w, (int)$crop_h);
@@ -854,32 +972,32 @@ class MSCL_Thumbnail {
    * @return bool
    */
   public function is_use_original_image() {
-    $this->check_for_modifications();
+    $this->checkForModificationsAndUpdate();
     return (   $this->src_crop_bounds === null
-            && $this->thumb_width == $this->src_img_width
-            && $this->thumb_height = $this->src_img_height);
+            && $this->thumb_width == $this->m_srcImgWidth
+            && $this->thumb_height = $this->m_srcImgHeight);
   }
 
   private function update_thumbnail() {
     if ($this->is_use_original_image()) {
       // same size; don't resize - use original image so that we don't lose image quality or gif animations
       // NOTE: this situation always happens when the src image is smaller than the requested thumbnail
-      file_put_contents($this->get_thumb_image_path(), MSCL_AbstractFileInfo::get_file_contents($this->img_src));
+      file_put_contents($this->get_thumb_image_path(), MSCL_AbstractFileInfo::getFileContents($this->m_srcImgFullPath));
       return;
     }
 
-    switch ($this->src_img_type) {
+    switch ($this->m_srcImgType) {
       case MSCL_ImageInfo::TYPE_JPEG:
-        $src_image = imagecreatefromjpeg($this->img_src);
+        $src_image = imagecreatefromjpeg($this->m_srcImgFullPath);
         break;
       case MSCL_ImageInfo::TYPE_PNG:
-        $src_image = imagecreatefrompng($this->img_src);
+        $src_image = imagecreatefrompng($this->m_srcImgFullPath);
         break;
       case MSCL_ImageInfo::TYPE_GIF:
-        $src_image = imagecreatefromgif($this->img_src);
+        $src_image = imagecreatefromgif($this->m_srcImgFullPath);
         break;
       default:
-        throw new MSCL_ThumbnailException("Unsupported mimetype: ".MSCL_ImageInfo::convert_to_mime_type($this->src_img_type));
+        throw new MSCL_ThumbnailException("Unsupported mimetype: ".MSCL_ImageInfo::convert_to_mime_type($this->m_srcImgType));
     }
 
     // create a new true color image
@@ -921,7 +1039,7 @@ class MSCL_Thumbnail {
     }
 
     // Lock the token file to simulate a lock on the thumbnail file.
-    $lock_file = fopen($this->get_token_file_path(), 'r+');
+    $lock_file = fopen($this->getThumbnailInfoFilePath(), 'r+');
     if ($lock_file == false) {
       throw new Exception("Token file doesn't exist although it should.");
     }
@@ -933,7 +1051,7 @@ class MSCL_Thumbnail {
     }
 
     rename($tmp_name, $this->get_thumb_image_path());
-    
+
     flock($lock_file, LOCK_UN); // release the lock
     fclose($lock_file);
   }

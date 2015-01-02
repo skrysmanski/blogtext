@@ -22,150 +22,251 @@
 require_once(dirname(__FILE__).'/../commons.php');
 MSCL_require_once('exceptions.php', __FILE__);
 
+/**
+ * Represents information about a file.
+ */
 abstract class MSCL_AbstractFileInfo {
-  const name = 'MSCL_AbstractFileInfo';
+  /**
+   * Array containing information about all remote files that have been inspected during the current request.
+   * @var array
+   */
+  private static $s_cachedRemoteFileInfo = array();
 
-  private static $cached_remote_file_info = array();
+  /**
+   * The path/URL of this file.
+   * @var string
+   */
+  private $m_filePath;
 
-  private $file_path;
-  private $is_remote_file;
-  private $file_size = null;
-  private $last_modified_date;
+  /**
+   * Whether this file is a remote file (true) or a local file (false).
+   * @var bool
+   */
+  private $m_isRemoteFile;
+
+  /**
+   * The file's size in bytes. May be "0" for remote files when the server doesn't report the file's size.
+   *
+   * @var int
+   */
+  private $m_fileSize = 0;
+
+  /**
+   * Last modification date of the file (seconds since Linux epoch). May be "null" for remote files when the server
+   * doesn't report this information.
+   *
+   * @var int|null
+   */
+  private $m_lastModifiedDate;
 
   private $data = '';
-  private $downloaded_data_size = 0;
 
-  private $http_status_code = null;
+  /**
+   * The number of bytes downloaded/read to determine this image's info. Just for information purposes.
+   *
+   * @var int
+   */
+  private $m_readDataSize = 0;
+
+  /**
+   * The HTTP status code of the file, if this is a remote file. 200 means "ok".
+   * @var int
+   */
+  private $m_httpStatusCode = 0;
   private $done = false;
 
-  protected function __construct($file_path, $cache_date=null) {
-    $this->file_path = $file_path;
-    $this->is_remote_file = $this->is_remote_file($file_path);
-    if ($this->is_remote_file) {
+  /**
+   * Constructor.
+   *
+   * @param string $filePath  The path/URL of this file.
+   * @param int|null $cacheDate
+   *
+   * @throws MSCL_MediaFileIOException
+   * @throws MSCL_MediaFileNotFoundException  if the specified file couldn't be found.
+   * @throws MSCL_NotModifiedNotification
+   */
+  protected function __construct($filePath, $cacheDate)
+  {
+    $this->m_filePath = $filePath;
+    $this->m_isRemoteFile = self::isRemoteFileStatic($filePath);
+
+    if ($this->m_isRemoteFile)
+    {
       // remote file
-      if (!self::is_remote_support_available()) {
-        throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $file_path, true);
+      if (!self::isRemoteFileSupportAvailable())
+      {
+        throw new MSCL_MediaFileIOException('Remote file support is unavailable (CURL is not installed)', $filePath, true);
       }
-      $this->open_remote_file($cache_date);
-    } else {
-      if (!file_exists($file_path)) {
-        throw new MSCL_MediaFileNotFoundException($file_path, false);
+
+      $this->readFileInfoFromRemoteFile($cacheDate);
+    }
+    else
+    {
+      if (!file_exists($filePath))
+      {
+        throw new MSCL_MediaFileNotFoundException($filePath, false);
       }
-      $this->open_local_file($cache_date);
+
+      $this->readFileInfoFromLocalFile($cacheDate);
     }
 
-    $this->finish_initialization();
+    $this->finishInitialization();
 
     // Everything worked out. Store this information.
     // IMPORTANT: We need to pass "$this" as otherwise the name will always be 'MSCL_AbstractFileInfo'.
-    $class_name = get_class($this);
-    if (array_key_exists($file_path, self::$cached_remote_file_info)) {
-      self::$cached_remote_file_info[$file_path][$class_name] =& $this;
-    } else {
-      self::$cached_remote_file_info[$file_path] = array($class_name => &$this);
+    $className = get_class($this);
+    if (array_key_exists($filePath, self::$s_cachedRemoteFileInfo))
+    {
+      self::$s_cachedRemoteFileInfo[$filePath][$className] =& $this;
+    }
+    else
+    {
+      self::$s_cachedRemoteFileInfo[$filePath] = array($className => &$this);
     }
   }
 
-  protected abstract function finish_initialization();
+  protected abstract function finishInitialization();
 
   /**
-   * Returns whether remote file info is supported. This required cURL being installed.
+   * Checks whether remote file info is supported. This requires cURL being installed.
    * @return bool
    */
-  public static function is_remote_support_available() {
+  public static function isRemoteFileSupportAvailable()
+  {
     static $is_supported = null;
-    if ($is_supported === null) {
+    if ($is_supported === null)
+    {
       $is_supported = function_exists('curl_init');
     }
     return $is_supported;
   }
 
   /**
-   * Checks whether the specified protocol (eg. "ftp", "http", "https", ...) is supported. Note that
-   * @see is_remote_support_enabled() must return "true" for this method to work.
+   * Checks whether the specified URL protocol (eg. "ftp", "http", "https", ...) is supported. Note: This method
+   * will always return "true" for protocol "file".
    *
    * @param string $url the url for which the protocol to be checked. Alternatively the protocol can be passed
    *   directly (ie. the part before "://").
+   *
    * @return bool
+   *
+   * @throws Exception  if {@link isRemoteFileSupportAvailable} returns "false" (if protocol is not "file") or the
+   *                    supported remote protocols couldn't be determined.
    */
-  public static function is_protocol_supported($url) {
-    static $supported_protocols = null;
+  public static function isUrlProtocolSupported($url)
+  {
+    static $supportedRemoteProtocols = null;
 
     $url_parts = explode('://', $url, 2);
-    if (count($url_parts) == 2) {
+    if (count($url_parts) == 2)
+    {
       $protocol = $url_parts[0];
-    } else {
+    }
+    else
+    {
       $protocol = $url;
     }
-    
-    if ($protocol == 'file') {
+
+    if ($protocol == 'file')
+    {
       return true;
     }
 
-    if ($supported_protocols === null) {
-      if (!self::is_remote_support_available()) {
+    if ($supportedRemoteProtocols === null)
+    {
+      if (!self::isRemoteFileSupportAvailable())
+      {
         throw new Exception("Remote file info is not supported on this system.");
       }
+
       $info = curl_version();
-      if (isset($info['protocols'])) {
-        $supported_protocols = array_flip($info['protocols']);
-      } else {
+      if (isset($info['protocols']))
+      {
+        $supportedRemoteProtocols = array_flip($info['protocols']);
+      }
+      else
+      {
         // Should never happen
         throw new Exception("Could not determine supported cURL protocols.");
       }
     }
 
-    return isset($supported_protocols[$protocol]);
+    return isset($supportedRemoteProtocols[$protocol]);
   }
 
   /**
-   * Returns the installed cURL version.Note that @see is_remote_support_enabled() must return "true" for
+   * Returns the installed cURL version. Note that @see is_remote_support_enabled() must return "true" for
    * this method to work.
    *
-   * @param bool $as_string if "true", the version will be returned as string (eg. "7.20.0"); if "false", the
+   * @param bool $asString  if "true", the version will be returned as string (eg. "7.20.0"); if "false", the
    *   version will be returned as 24-bit integer (eg. for 7.20.0 this is 463872).
    *
-   * @return string|int
+   * @return int|string
+   *
+   * @throws Exception  if {@link isRemoteFileSupportAvailable} returns "false" or the version information is not
+   *                    available.
    */
-  public static function get_curl_version($as_string=true) {
-    static $version_int = null;
-    static $version_str = null;
-    if ($version_int === null) {
-      if (!self::is_remote_support_available()) {
-        throw new Exception("Remote file info is not supported on this system.");
+  public static function getCurlVersion($asString = true)
+  {
+    static $versionAsInt = null;
+    static $versionAsStr = null;
+
+    if ($versionAsInt === null)
+    {
+      if (!self::isRemoteFileSupportAvailable())
+      {
+        throw new Exception("Remote file support is not available.");
       }
+
       $info = curl_version();
-      if (isset($info['version_number']) && isset($info['version'])) {
-        $version_int = $info['version_number'];
-        $version_str = $info['version'];
-      } else {
+
+      if (isset($info['version_number']) && isset($info['version']))
+      {
+        $versionAsInt = $info['version_number'];
+        $versionAsStr = $info['version'];
+      }
+      else
+      {
         // Should never happen
         throw new Exception("Could not determine cURL version.");
       }
     }
 
-    return ($as_string ? $version_str : $version_int);
+    return $asString ? $versionAsStr : $versionAsInt;
   }
 
-  public static function get_cached_remote_file_info($file_path, $class_name) {
-    if (!array_key_exists($file_path, self::$cached_remote_file_info)) {
+  /**
+   * Returns the cached file information about the specified remote file, if available. Returns null otherwise.
+   *
+   * @param string $filePath
+   * @param string $className
+   *
+   * @return MSCL_AbstractFileInfo|null
+   */
+  public static function getCachedRemoteFileInfo($filePath, $className)
+  {
+    if (!array_key_exists($filePath, self::$s_cachedRemoteFileInfo))
+    {
       return null;
     }
 
-    $file_info = &self::$cached_remote_file_info[$file_path];
-    
-    if (!array_key_exists($class_name, $file_info)) {
+    $fileInfo = &self::$s_cachedRemoteFileInfo[$filePath];
+
+    if (!array_key_exists($className, $fileInfo))
+    {
       return null;
     }
 
-    return $file_info[$class_name];
+    return $fileInfo[$className];
   }
 
   /**
    * Returns the path to the image (either an url or a file path).
+   *
+   * @return string
    */
-  public function get_file_path() {
-    return $this->file_path;
+  public function getFilePath() {
+    return $this->m_filePath;
   }
 
   /**
@@ -173,19 +274,19 @@ abstract class MSCL_AbstractFileInfo {
    *
    * @return bool
    */
-  public function is_remote_file() {
-    return $this->is_remote_file;
+  public function isRemoteFile() {
+    return $this->m_isRemoteFile;
   }
 
   /**
-   * Returns whether the specified file is a remote file.
+   * Checks whether the specified file path represents a remote file.
    *
-   * @param string $file_path the path to check or null, if called from an instance
+   * @param string $filePath the path to check
    *
    * @return bool
    */
-  public static function check_for_remote_file($file_path) {
-    $found = preg_match('/^([a-zA-Z0-9\+\.\-]+)\:\/\/.+/', $file_path, $matches);
+  public static function isRemoteFileStatic($filePath) {
+    $found = preg_match('/^([a-zA-Z0-9\+\.\-]+)\:\/\/.+/', $filePath, $matches);
     if (!$found) {
       return false;
     }
@@ -194,88 +295,123 @@ abstract class MSCL_AbstractFileInfo {
   }
 
   /**
-   * Last modification date of the file. May be "null" for remote files when the server doesn't report this
-   * information.
-   * @return int|null seconds since Linux epoc or "null"
+   * Returns the "last modification date" of the file (seconds since Linux epoch). May be "null" for remote files when
+   * the server doesn't report this information.
+   *
+   * @return int|null
    */
-  public function get_last_modified_date() {
-    return $this->last_modified_date;
+  public function getLastModifiedDate()
+  {
+    return $this->m_lastModifiedDate;
   }
 
   /**
    * Returns the file's size in bytes. May be "null" for remote files when the server doesn't report the
    * file's size.
+   *
    * @return int|null
    */
-  public function get_file_size() {
-    return $this->file_size;
+  public function getFileSize()
+  {
+    return $this->m_fileSize;
   }
 
   /**
-   * Returns the number of bytes downloaded to determine this image's info. Just for information purposes.
+   * Returns the number of bytes downloaded/read to determine this image's info. Just for information purposes.
+   *
    * @return int
    */
-  public function get_downloaded_data_size() {
-    return $this->downloaded_data_size;
+  public function getReadDataSize()
+  {
+    return $this->m_readDataSize;
   }
 
   /**
    * Returns the content of the specified file. If it's a remote file, the file is being downloaded.
    *
-   * @param string $file_path the file
+   * @param string $filePath  the file to load
    *
    * @return string
+   *
+   * @throws MSCL_MediaFileNotFoundException  if the specified file couldn't be found
+   * @throws MSCL_MediaFileIOException  if remote file support isn't available or the downloading a remote file failed
+   *                                    with some unexpected HTTP status code
    */
-  public static function get_file_contents($file_path) {
-    $is_remote = self::check_for_remote_file($file_path);
-    if ($is_remote) {
-      if (!self::is_remote_support_available()) {
-        throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $file_path, true);
+  public static function getFileContents($filePath)
+  {
+    $is_remote = self::isRemoteFileStatic($filePath);
+    if ($is_remote)
+    {
+      if (!self::isRemoteFileSupportAvailable())
+      {
+        throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $filePath, true);
       }
 
-      $ch = self::prepare_curl_handle($file_path, null);
+      $ch = self::createCurlHandle($filePath, null);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
       $result = curl_exec($ch);
-      if ($result === false) {
-        self::handle_curl_error($ch, $file_path);
+      if ($result === false)
+      {
+        self::processCurlError($ch, $filePath);
       }
 
       $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-      switch ($status_code) {
+      switch ($status_code)
+      {
         case 200: // OK
           break;
         case 404:
-          throw new MSCL_MediaFileNotFoundException($file_path, true);
+          throw new MSCL_MediaFileNotFoundException($filePath, true);
         default:
-          throw new MSCL_MediaFileIOException("Invalid HTTP status code: ".$status_code, $file_path, true);
+          throw new MSCL_MediaFileIOException("Invalid HTTP status code: ".$status_code, $filePath, true);
       }
 
       curl_close($ch);
-    } else {
-      if (!is_file($file_path)) {
-        throw new MSCL_MediaFileNotFoundException($file_path, false);
+    }
+    else
+    {
+      if (!is_file($filePath))
+      {
+        throw new MSCL_MediaFileNotFoundException($filePath, false);
       }
-      $result = file_get_contents($file_path);
+
+      $result = file_get_contents($filePath);
     }
 
     return $result;
   }
 
-  private static function prepare_curl_handle($file_path, $cache_date) {
-    $ch = curl_init($file_path);
-    if ($cache_date !== null) {
+  /**
+   * Creates a CURL handle for downloading the specified file.
+   *
+   * @param string $filePath  the file to download
+   * @param $cacheDate
+   *
+   * @return resource
+   * @throws MSCL_MediaInfoException  if the CURL handle couldn't be created
+   */
+  private static function createCurlHandle($filePath, $cacheDate)
+  {
+    $ch = curl_init($filePath);
+    if (!$ch)
+    {
+      throw new MSCL_MediaInfoException("curl_init() failed", $filePath, true);
+    }
+
+    if ($cacheDate !== null)
+    {
       // The date needs to be formatted as RFC 1123, eg. "Sun, 06 Nov 1994 08:49:37 GMT"
       // See: http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
       // NOTE: We can't use "DATE_RFC1123" here, as this won't produce the correct timezone (will produce
       //   "+0000" instead of "GMT").
       curl_setopt($ch, CURLOPT_HTTPHEADER,
-                  array('If-Modified-Since: '.gmdate('D, d M Y H:i:s \G\M\T', $cache_date))
+                  array('If-Modified-Since: '.gmdate('D, d M Y H:i:s \G\M\T', $cacheDate))
                  );
     }
     curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-    // NOTE: This option can't be enabled in safe mode. But that's not a big problem, since most files won't
-    //  have a redirect.
+    // NOTE: This option can't be enabled in safe mode. But that's not a big problem, since most files will probably
+    //  have no redirect anyways.
     @curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
 
@@ -291,57 +427,90 @@ abstract class MSCL_AbstractFileInfo {
     return $ch;
   }
 
-  private static function handle_curl_error($ch, $file_path) {
+  /**
+   * Converts the last error that occurred on the specified CURL handle into an appropriate exception.
+   *
+   * @param resource $ch  the CURL handle
+   * @param string $file_path  the file that was attempted to be downloaded
+   *
+   * @throws MSCL_MediaFileNotFoundException  if the specified domain couldn't be found or reached
+   * @throws MSCL_MediaInfoException  for any other error
+   */
+  private static function processCurlError($ch, $file_path) {
     $error_number = curl_errno($ch);
-    if ($error_number == 60 || $error_number == 6) {
+    if ($error_number == 60 || $error_number == 6)
+    {
       // Treat "domain not found" (6) and "no route to host" (60) as file not found
       throw new MSCL_MediaFileNotFoundException($file_path, true);
     }
+
     throw new MSCL_MediaInfoException("Could not execute cURL request. Reason: ".curl_error($ch).' ['.$error_number.']',
                                       $file_path, true);
   }
-  
-  private function open_remote_file($cache_date) {
-    $ch = self::prepare_curl_handle($this->file_path, $cache_date);
+
+  private function readFileInfoFromRemoteFile($cache_date)
+  {
+    $ch = self::createCurlHandle($this->m_filePath, $cache_date);
     // attempt to retrieve the modification date
     curl_setopt($ch, CURLOPT_FILETIME, true);
 
-    curl_setopt($ch, CURLOPT_WRITEFUNCTION, array($this, 'curl_callback'));
+    curl_setopt($ch, CURLOPT_WRITEFUNCTION, array($this, 'onRemoteFileOpened'));
 
-    // NOTE: We need to check "$this->done" here, because when returning "-1" in "curl_callback()",
+    // NOTE: We need to check "$this->done" here, because when returning "-1" in "onRemoteFileOpened()",
     //   "curl_exec()" will return "false".
-    if (@curl_exec($ch) === false && $this->done === false) {
-      self::handle_curl_error($ch, $this->file_path);
+    if (@curl_exec($ch) === false && $this->done === false)
+    {
+      self::processCurlError($ch, $this->m_filePath);
     }
 
-    if ($this->http_status_code === null) {
+    if ($this->m_httpStatusCode === null)
+    {
       // For certain status codes the write callback isn't used but "curl_exec()" returns directly. In this
       // case the status code hasn't been checked. The code 304 NOT MODIFIED is such an example.
-      $this->http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-      if ($this->http_status_code == 304 && $cache_date !== null) {
+      $this->m_httpStatusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+      if ($this->m_httpStatusCode == 304 && $cache_date !== null)
+      {
         throw new MSCL_NotModifiedNotification();
       }
     }
 
-    $this->last_modified_date = curl_getinfo($ch, CURLINFO_FILETIME);
-    if ($this->last_modified_date == -1) {
-      $this->last_modified_date = null;
+    $this->m_lastModifiedDate = curl_getinfo($ch, CURLINFO_FILETIME);
+    if ($this->m_lastModifiedDate == -1)
+    {
+      $this->m_lastModifiedDate = null;
     }
 
-    $this->file_size = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
-    if ($this->file_size == 0) {
-      $this->file_size = null;
+    $this->m_fileSize = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+    if ($this->m_fileSize == 0)
+    {
+      $this->m_fileSize = null;
     }
 
     curl_close($ch);
     // NOTE: Handling failure of check_data is done in the constructor.
   }
 
-  private function curl_callback($ch, $chunk) {
-    if ($this->http_status_code === null) {
-      $this->http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  /**
+   * CURL callback for {@link openRemoteFile()}.
+   *
+   * @param resource $ch  the CURL handle
+   * @param string $dataChunk  the data chunk that has been read
+   *
+   * @return int
+   * @throws MSCL_MediaFileIOException
+   * @throws MSCL_MediaFileNotFoundException
+   * @throws MSCL_NotModifiedNotification
+   */
+  private function onRemoteFileOpened($ch, $dataChunk)
+  {
+    if ($this->m_httpStatusCode === null)
+    {
+      $this->m_httpStatusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
       // see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-      switch($this->http_status_code) {
+      switch($this->m_httpStatusCode)
+      {
         case 200: // OK
           break;
 
@@ -351,47 +520,62 @@ abstract class MSCL_AbstractFileInfo {
           throw new MSCL_NotModifiedNotification();
 
         case 404:
-          throw new MSCL_MediaFileNotFoundException($this->file_path, true);
+          throw new MSCL_MediaFileNotFoundException($this->m_filePath, true);
 
         default:
-          throw new MSCL_MediaFileIOException("Invalid HTTP status code: ".$this->http_status_code, $this->file_path, true);
+          throw new MSCL_MediaFileIOException("Invalid HTTP status code: ".$this->m_httpStatusCode, $this->m_filePath, true);
       }
     }
 
-    if ($this->handle_data_prep($chunk)) {
+    if ($this->accumulateAndProcessHeaderData($dataChunk))
+    {
       // we're done; break curl connection
       $this->done = true;
       return -1;
     }
 
-    return strlen($chunk);
+    return strlen($dataChunk);
   }
 
-  private function open_local_file($cache_date) {
-    $mod_date = @filemtime($this->file_path);
-    if ($mod_date === false) {
-      throw new MSCL_MediaFileIOException("Could not determine file modification date.", $this->file_path, false);
+  /**
+   * @param int $cache_date
+   *
+   * @throws MSCL_MediaFileIOException
+   * @throws MSCL_NotModifiedNotification
+   */
+  private function readFileInfoFromLocalFile($cache_date)
+  {
+    $mod_date = @filemtime($this->m_filePath);
+    if ($mod_date === false)
+    {
+      throw new MSCL_MediaFileIOException("Could not determine file modification date.", $this->m_filePath, false);
     }
-    if ($cache_date !== null && $cache_date >= $mod_date) {
+    if ($cache_date !== null && $cache_date >= $mod_date)
+    {
       throw new MSCL_NotModifiedNotification();
     }
-    $this->last_modified_date = $mod_date;
+    $this->m_lastModifiedDate = $mod_date;
 
-    $this->file_size = filesize($this->file_path);
-    if ($this->file_size === false) {
-      throw new MSCL_MediaFileIOException("Could not determine file size.", $this->file_path, false);
+    $this->m_fileSize = filesize($this->m_filePath);
+    if ($this->m_fileSize === false)
+    {
+      throw new MSCL_MediaFileIOException("Could not determine file size.", $this->m_filePath, false);
     }
 
-    $file_handle = @fopen($this->file_path, 'rb');
-    if ($file_handle === false) {
-      throw new MSCL_MediaFileIOException("Could not open file.", $this->file_path, false);
+    $file_handle = @fopen($this->m_filePath, 'rb');
+    if ($file_handle === false)
+    {
+      throw new MSCL_MediaFileIOException("Could not open file.", $this->m_filePath, false);
     }
-    while (!feof($file_handle)) {
-      $chunk = fread($file_handle, 2048);
-      if ($chunk === false) {
-        throw new MSCL_MediaFileIOException("Could not read file.", $this->file_path, false);
+    while (!feof($file_handle))
+    {
+      $dataChunk = fread($file_handle, 2048);
+      if ($dataChunk === false)
+      {
+        throw new MSCL_MediaFileIOException("Could not read file.", $this->m_filePath, false);
       }
-      if ($this->handle_data_prep($chunk)) {
+      if ($this->accumulateAndProcessHeaderData($dataChunk))
+      {
         break;
       }
     }
@@ -399,53 +583,103 @@ abstract class MSCL_AbstractFileInfo {
     // NOTE: Handling failure of check_data is done in the constructor.
   }
 
-  private function handle_data_prep($chunk) {
-    $this->data .= $chunk;
+  // TODO: Move this to its own class
+  /**
+   * Accumulates and processes the header data of this file to obtain more information about the file.
+   *
+   * @param string $dataChunk  the data which has already been downloaded/read
+   *
+   * @return bool returns "true" if enough data has been processed and no more data needs to be
+   *   read/downloaded. If this returns "false", more data will be read/downloaded.
+   */
+  private function accumulateAndProcessHeaderData($dataChunk) {
+    $this->data .= $dataChunk;
 
-    if (!$this->handle_data($this->data)) {
+    if (!$this->processHeaderData($this->data)) {
       return false;
     }
 
-    $this->downloaded_data_size = strlen($this->data);
+    $this->m_readDataSize = strlen($this->data);
     // free data
     $this->data = null;
     return true;
   }
 
   /**
-   * Handles the data.
+   * Processes the header data of this file to obtain more information about the file.
    *
-   * @param string $data the data which has already been downloaded
+   * @param string $data  the data which has already been downloaded/read
    *
-   * @return bool returns "true" if enought data has been processed and no more data needs to be
+   * @return bool returns "true" if enough data has been processed and no more data needs to be
    *   read/downloaded. If this returns "false", more data will be read/downloaded.
    */
-  protected abstract function handle_data($data);
+  protected abstract function processHeaderData($data);
 
   ////////////////////////////////////////////////////////////////////////////////////////
   //
   // Helper functions
   //
 
-  protected static function starts_with($str, $with, $offset=0) {
-    return (substr($str, $offset, strlen($with)) == $with);
+    // TODO: Replace with "string_starts_with()"
+  /**
+   * Whether $str starts with $with.
+   *
+   * @param string $str  the string to check
+   * @param string $with  the start string
+   * @param int $offset  offset within the string to start the comparison at
+   *
+   * @return bool
+   */
+  protected static function startsWith($str, $with, $offset=0)
+  {
+    return substr($str, $offset, strlen($with)) == $with;
   }
 
-  protected static function unpack_short($data, $pos, $use_big_endian=true) {
+  /**
+   * Deserializes a 16 bit int (short) at the specified location.
+   *
+   * NOTE: {@code (int)$data} can't be used here as it's the same as {@code ord($data)}.
+   *
+   * @param string $data  the data to parse
+   * @param int $pos  the position in $data to read from
+   * @param bool $use_big_endian  whether the int is serialized as big-endian (true) or little-endian (false)
+   *
+   * @return int
+   */
+  protected static function deserializeInt16($data, $pos, $use_big_endian = true)
+  {
     // NOTE: (int)$data parses the character while ord($data) converts it.
-    if ($use_big_endian) {
+    if ($use_big_endian)
+    {
       return ord($data[$pos]) * 0x100 + ord($data[$pos + 1]);
-    } else {
+    }
+    else
+    {
       return ord($data[$pos]) + ord($data[$pos + 1]) * 0x100;
     }
   }
 
-  protected static function unpack_int($data, $pos, $use_big_endian=true) {
+  /**
+   * Deserializes a 32 bit int at the specified location.
+   *
+   * NOTE: {@code (int)$data} can't be used here as it's the same as {@code ord($data)}.
+   *
+   * @param string $data  the data to parse
+   * @param int $pos  the position in $data to read from
+   * @param bool $use_big_endian  whether the int is serialized as big-endian (true) or little-endian (false)
+   *
+   * @return int
+   */
+  protected static function deserializeInt32($data, $pos, $use_big_endian = true)
+  {
     // NOTE: (int)$data parses the character while ord($data) converts it.
-    if ($use_big_endian) {
+    if ($use_big_endian)
+    {
       return ord($data[$pos]) * 0x1000000 + ord($data[$pos + 1]) * 0x10000
            + ord($data[$pos + 2]) * 0x100 + ord($data[$pos + 3]);
-    } else {
+    }
+    else
+    {
       return ord($data[$pos]) + ord($data[$pos + 1]) * 0x100
            + ord($data[$pos + 2]) * 0x10000 + ord($data[$pos + 3]) * 0x10000;
     }
@@ -455,33 +689,39 @@ abstract class MSCL_AbstractFileInfo {
 /**
  * Just provides basic information about the file.
  */
-class MSCL_SimpleFileInfo extends MSCL_AbstractFileInfo {
-  const name = 'MSCL_SimpleFileInfo';
+class MSCL_SimpleFileInfo extends MSCL_AbstractFileInfo
+{
+  const CLASS_NAME = 'MSCL_SimpleFileInfo';
 
-  protected function  __construct($file_path, $cache_date = null) {
-    parent::__construct($file_path, $cache_date);
+  protected function  __construct($filePath, $cacheDate = null)
+  {
+    parent::__construct($filePath, $cacheDate);
   }
 
-  protected function finish_initialization() { }
+  protected function finishInitialization() { }
 
-  protected function handle_data($data) {
+  protected function processHeaderData($data)
+  {
     return true;
   }
 
-  public static function get_instance($file_path, $cache_date=null) {
-    $info = self::get_cached_remote_file_info($file_path, self::name);
-    if ($info === null) {
-      $info = new MSCL_SimpleFileInfo($file_path, $cache_date);
+  public static function getInstance($filePath, $cacheDate = null)
+  {
+    $info = self::getCachedRemoteFileInfo($filePath, self::CLASS_NAME);
+    if ($info === null)
+    {
+      $info = new MSCL_SimpleFileInfo($filePath, $cacheDate);
     }
     return $info;
   }
 }
 
+// TODO: Remove this class to make code flow easier to understand
 /**
  * This "notification" is thrown by any media info class, if the specified file hasn't been modified and
  * its cached counterpart is still valid.
  */
-class MSCL_NotModifiedNotification extends Exception {
+class MSCL_NotModifiedNotification extends Exception
+{
   // This class is a "hack" but it's the easiest way to handle this situation.
 }
-?>

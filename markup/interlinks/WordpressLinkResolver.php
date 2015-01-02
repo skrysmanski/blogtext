@@ -71,7 +71,7 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
 
   private function resolve_regular_link($params, $cur_post_id) {
     $link = null;
-    $title = null;
+    $title = null; # null = auto title
     $is_external = false;
     $type = null;
 
@@ -84,6 +84,15 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
       return array($link, $title, false, null);
     }
 
+    if (strpos($params[0], '@') !== false) {
+      # Assume email address
+      $link = $params[0];
+      if (count($params) == 1) {
+        $title = $link;
+      }
+      return array('mailto:'.$link, $title, false, self::TYPE_EMAIL_ADDRESS);
+    }
+
     $ref_parts = explode('#', $params[0], 2);
     if (count($ref_parts) == 2) {
       $page_id = trim($ref_parts[0]);
@@ -92,7 +101,8 @@ class WordpressLinkProvider implements IInterlinkLinkResolver {
         // link to section on this page
         return array('#'.$anchor, null, false, self::TYPE_SAME_PAGE_ANCHOR);
       }
-    } else {
+    }
+    else {
       $page_id = $params[0];
       $anchor = '';
     }

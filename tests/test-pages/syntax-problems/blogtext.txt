@@ -104,3 +104,11 @@ For more information on inserting code snippets, see [[#code_snippets_syntax]] b
 
 = Insertings Code Snippets = #code_snippets_syntax
 BlogText provides a convenient method to add code snippets to your post or page.
+
+----
+
+Some mail addresses:
+
+ * mail@mydomain.com
+ * [[mymail@mydomain.com]]
+ * Named [[mymail@mydomain.com|My Mail]]
