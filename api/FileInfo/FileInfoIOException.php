@@ -17,23 +17,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################################
-use MSCL\FileInfo\FileInfoException;
 
+namespace MSCL\FileInfo;
 
 /**
  * Indicates an I/O error, usually meaning that the file could not be read.
  */
-class MSCL_MediaFileIOException extends FileInfoException
+class FileInfoIOException extends FileInfoException
 {
-  /**
-   * Constructor.
-   *
-   * @param string $message  the message
-   * @param string $filePath  the affected file
-   * @param bool $isRemoteFile  whether the affected file is a remote file
-   */
-  public function  __construct($message, $filePath, $isRemoteFile)
-  {
-    parent::__construct($message, $filePath, $isRemoteFile);
-  }
+    /**
+     * Constructor.
+     *
+     * @param string $message the message
+     * @param string $filePath the affected file
+     * @param bool $isRemoteFile whether the affected file is a remote file
+     */
+    public function  __construct( $message, $filePath, $isRemoteFile )
+    {
+        parent::__construct( $message, $filePath, $isRemoteFile );
+    }
 }

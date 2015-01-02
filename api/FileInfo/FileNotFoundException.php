@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################################
+use MSCL\FileInfo\FileInfoIOException;
 
 
 /**
  * Indicates that the specified file doesn't exist.
  */
-class MSCL_MediaFileNotFoundException extends MSCL_MediaFileIOException
+class MSCL_MediaFileNotFoundException extends FileInfoIOException
 {
   /**
    * Constructor.

@@ -20,6 +20,7 @@
 
 
 use MSCL\FileInfo\FileInfoException;
+use MSCL\FileInfo\FileInfoIOException;
 
 require_once(dirname(__FILE__).'/../commons.php');
 MSCL_require_once('exceptions.php', __FILE__);
@@ -83,7 +84,7 @@ abstract class MSCL_AbstractFileInfo {
    * @param string $filePath  The path/URL of this file.
    * @param int|null $cacheDate
    *
-   * @throws MSCL_MediaFileIOException
+   * @throws FileInfoIOException
    * @throws MSCL_MediaFileNotFoundException  if the specified file couldn't be found.
    * @throws MSCL_NotModifiedNotification
    */
@@ -97,7 +98,7 @@ abstract class MSCL_AbstractFileInfo {
       // remote file
       if (!self::isRemoteFileSupportAvailable())
       {
-        throw new MSCL_MediaFileIOException('Remote file support is unavailable (CURL is not installed)', $filePath, true);
+        throw new FileInfoIOException('Remote file support is unavailable (CURL is not installed)', $filePath, true);
       }
 
       $this->readFileInfoFromRemoteFile($cacheDate);
@@ -336,7 +337,7 @@ abstract class MSCL_AbstractFileInfo {
    * @return string
    *
    * @throws MSCL_MediaFileNotFoundException  if the specified file couldn't be found
-   * @throws MSCL_MediaFileIOException  if remote file support isn't available or the downloading a remote file failed
+   * @throws FileInfoIOException  if remote file support isn't available or the downloading a remote file failed
    *                                    with some unexpected HTTP status code
    */
   public static function getFileContents($filePath)
@@ -346,7 +347,7 @@ abstract class MSCL_AbstractFileInfo {
     {
       if (!self::isRemoteFileSupportAvailable())
       {
-        throw new MSCL_MediaFileIOException('Remote support is unavailable (CURL is not installed)', $filePath, true);
+        throw new FileInfoIOException('Remote support is unavailable (CURL is not installed)', $filePath, true);
       }
 
       $ch = self::createCurlHandle($filePath, null);
@@ -366,7 +367,7 @@ abstract class MSCL_AbstractFileInfo {
         case 404:
           throw new MSCL_MediaFileNotFoundException($filePath, true);
         default:
-          throw new MSCL_MediaFileIOException("Invalid HTTP status code: ".$status_code, $filePath, true);
+          throw new FileInfoIOException("Invalid HTTP status code: ".$status_code, $filePath, true);
       }
 
       curl_close($ch);
@@ -500,7 +501,7 @@ abstract class MSCL_AbstractFileInfo {
    * @param string $dataChunk  the data chunk that has been read
    *
    * @return int
-   * @throws MSCL_MediaFileIOException
+   * @throws FileInfoIOException
    * @throws MSCL_MediaFileNotFoundException
    * @throws MSCL_NotModifiedNotification
    */
@@ -525,7 +526,7 @@ abstract class MSCL_AbstractFileInfo {
           throw new MSCL_MediaFileNotFoundException($this->m_filePath, true);
 
         default:
-          throw new MSCL_MediaFileIOException("Invalid HTTP status code: ".$this->m_httpStatusCode, $this->m_filePath, true);
+          throw new FileInfoIOException("Invalid HTTP status code: ".$this->m_httpStatusCode, $this->m_filePath, true);
       }
     }
 
@@ -542,7 +543,7 @@ abstract class MSCL_AbstractFileInfo {
   /**
    * @param int $cache_date
    *
-   * @throws MSCL_MediaFileIOException
+   * @throws FileInfoIOException
    * @throws MSCL_NotModifiedNotification
    */
   private function readFileInfoFromLocalFile($cache_date)
@@ -550,7 +551,7 @@ abstract class MSCL_AbstractFileInfo {
     $mod_date = @filemtime($this->m_filePath);
     if ($mod_date === false)
     {
-      throw new MSCL_MediaFileIOException("Could not determine file modification date.", $this->m_filePath, false);
+      throw new FileInfoIOException("Could not determine file modification date.", $this->m_filePath, false);
     }
     if ($cache_date !== null && $cache_date >= $mod_date)
     {
@@ -561,20 +562,20 @@ abstract class MSCL_AbstractFileInfo {
     $this->m_fileSize = filesize($this->m_filePath);
     if ($this->m_fileSize === false)
     {
-      throw new MSCL_MediaFileIOException("Could not determine file size.", $this->m_filePath, false);
+      throw new FileInfoIOException("Could not determine file size.", $this->m_filePath, false);
     }
 
     $file_handle = @fopen($this->m_filePath, 'rb');
     if ($file_handle === false)
     {
-      throw new MSCL_MediaFileIOException("Could not open file.", $this->m_filePath, false);
+      throw new FileInfoIOException("Could not open file.", $this->m_filePath, false);
     }
     while (!feof($file_handle))
     {
       $dataChunk = fread($file_handle, 2048);
       if ($dataChunk === false)
       {
-        throw new MSCL_MediaFileIOException("Could not read file.", $this->m_filePath, false);
+        throw new FileInfoIOException("Could not read file.", $this->m_filePath, false);
       }
       if ($this->accumulateAndProcessHeaderData($dataChunk))
       {
