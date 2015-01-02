@@ -19,6 +19,8 @@
 #########################################################################################
 
 
+use MSCL\FileInfo\FileInfoFormatException;
+
 require_once(dirname(__FILE__).'/base_file_info.php');
 
 /**
@@ -56,11 +58,11 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
 
   protected function finishInitialization() {
     if ($this->type === null) {
-      throw new MSCL_MediaFileFormatException("Could not determine image type.", $this->getFilePath(), $this->isRemoteFile());
+      throw new FileInfoFormatException("Could not determine image type.", $this->getFilePath(), $this->isRemoteFile());
     }
 
     if ($this->width === null) {
-      throw new MSCL_MediaFileFormatException("Could not determine image size.", $this->getFilePath(), $this->isRemoteFile());
+      throw new FileInfoFormatException("Could not determine image size.", $this->getFilePath(), $this->isRemoteFile());
     }
   }
 
@@ -175,7 +177,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
     }
 
     if ($types_checked >= self::$SUPPORTED_FORMAT_COUNT) {
-      throw new MSCL_MediaFileFormatException("Could not determine image type.", $this->getFilePath(), $this->isRemoteFile());
+      throw new FileInfoFormatException("Could not determine image type.", $this->getFilePath(), $this->isRemoteFile());
     }
 
     return false;
@@ -196,7 +198,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
     } else if (self::startsWith($data, "\xFF\xE1", 2) && self::startsWith($data, "Exif\0", 6)) {
       // Exif JPEG
     } else {
-      throw new MSCL_MediaFileFormatException(sprintf("Unsupported jpeg image (with marker: %X%X).", ord($data[2]), ord($data[3])),
+      throw new FileInfoFormatException(sprintf("Unsupported jpeg image (with marker: %X%X).", ord($data[2]), ord($data[3])),
         $this->getFilePath(), $this->isRemoteFile());
     }
 
@@ -219,7 +221,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
       }
       // NOTE: (int)$data parses the character while ord($data) converts it.
       if (ord($data[$pos]) != 0xFF) {
-        throw new MSCL_MediaFileFormatException("Malformed jpeg image [2].", $this->getFilePath(), $this->isRemoteFile());
+        throw new FileInfoFormatException("Malformed jpeg image [2].", $this->getFilePath(), $this->isRemoteFile());
       }
       $header_byte = ord($data[$pos+1]);
       if ($header_byte >= 0xC0 && $header_byte <= 0xC3 && $pos + 9 < $len) {
@@ -236,7 +238,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
       } else if ($header_byte == 0xFA) {
         // We've reached the image data. No more headers will follow; so, also no
         // image dimension information can't be found anymore.
-        throw new MSCL_MediaFileFormatException("Malformed jpeg image [3].", $this->getFilePath(), $this->isRemoteFile());
+        throw new FileInfoFormatException("Malformed jpeg image [3].", $this->getFilePath(), $this->isRemoteFile());
       }
       $pos += 2;
     }
@@ -250,7 +252,7 @@ class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
 
   private function check_png_data($data) {
     if (!self::startsWith($data, 'IHDR', 12)) {
-      throw new MSCL_MediaFileFormatException("Malformed png image.", $this->getFilePath(), $this->isRemoteFile());
+      throw new FileInfoFormatException("Malformed png image.", $this->getFilePath(), $this->isRemoteFile());
     }
     $width  = self::deserializeInt32($data, 16);
     $height = self::deserializeInt32($data, 20);
