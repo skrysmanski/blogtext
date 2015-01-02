@@ -1,7 +1,7 @@
 <?php
 #########################################################################################
 #
-# Copyright 2010-2014  Maya Studios (http://www.mayastudios.com)
+# Copyright 2010-2015  Maya Studios (http://www.mayastudios.com)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -63,58 +63,5 @@ class MSCL_MediaInfoException extends Exception
   public function isRemoteFile()
   {
     return $this->m_isRemoteFile;
-  }
-}
-
-/**
- * Indicates an I/O error, usually meaning that the file could not be read.
- */
-class MSCL_MediaFileIOException extends MSCL_MediaInfoException
-{
-  /**
-   * Constructor.
-   *
-   * @param string $message  the message
-   * @param string $filePath  the affected file
-   * @param bool $isRemoteFile  whether the affected file is a remote file
-   */
-  public function  __construct($message, $filePath, $isRemoteFile)
-  {
-    parent::__construct($message, $filePath, $isRemoteFile);
-  }
-}
-
-/**
- * Indicates that the specified file doesn't exist.
- */
-class MSCL_MediaFileNotFoundException extends MSCL_MediaFileIOException
-{
-  /**
-   * Constructor.
-   *
-   * @param string $filePath  the affected file
-   * @param bool $isRemoteFile  whether the affected file is a remote file
-   */
-  public function  __construct($filePath, $isRemoteFile)
-  {
-    parent::__construct('File could not be found', $filePath, $isRemoteFile);
-  }
-}
-
-/**
- * Indicates that the media file's file format could not be determined or that the data was invalid.
- */
-class MSCL_MediaFileFormatException extends MSCL_MediaInfoException
-{
-  /**
-   * Constructor.
-   *
-   * @param string $message  the message
-   * @param string $filePath  the affected file
-   * @param bool $isRemoteFile  whether the affected file is a remote file
-   */
-  public function  __construct($message, $filePath, $isRemoteFile)
-  {
-    parent::__construct($message, $filePath, $isRemoteFile);
   }
 }
