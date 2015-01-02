@@ -20,6 +20,7 @@
 
 
 use MSCL\FileInfo\FileInfoException;
+use MSCL\FileInfo\FileNotFoundException;
 
 require_once(dirname(__FILE__).'/../../api/commons.php');
 MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
@@ -238,7 +239,7 @@ class MediaMacro implements IInterlinkMacro {
         list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref, $img_size_attr);
       }
     }
-    catch (MSCL_MediaFileNotFoundException $e) {
+    catch (FileNotFoundException $e) {
       return self::generate_error_html($e->getFilePath(), true);
     }
     catch (FileInfoException $e) {

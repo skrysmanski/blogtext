@@ -21,6 +21,7 @@
 
 use MSCL\FileInfo\FileInfoException;
 use MSCL\FileInfo\FileInfoIOException;
+use MSCL\FileInfo\FileNotFoundException;
 
 require_once(dirname(__FILE__).'/../commons.php');
 MSCL_require_once('exceptions.php', __FILE__);
@@ -85,7 +86,7 @@ abstract class MSCL_AbstractFileInfo {
    * @param int|null $cacheDate
    *
    * @throws FileInfoIOException
-   * @throws MSCL_MediaFileNotFoundException  if the specified file couldn't be found.
+   * @throws FileNotFoundException  if the specified file couldn't be found.
    * @throws MSCL_NotModifiedNotification
    */
   protected function __construct($filePath, $cacheDate)
@@ -107,7 +108,7 @@ abstract class MSCL_AbstractFileInfo {
     {
       if (!file_exists($filePath))
       {
-        throw new MSCL_MediaFileNotFoundException($filePath, false);
+        throw new FileNotFoundException($filePath, false);
       }
 
       $this->readFileInfoFromLocalFile($cacheDate);
@@ -336,7 +337,7 @@ abstract class MSCL_AbstractFileInfo {
    *
    * @return string
    *
-   * @throws MSCL_MediaFileNotFoundException  if the specified file couldn't be found
+   * @throws FileNotFoundException  if the specified file couldn't be found
    * @throws FileInfoIOException  if remote file support isn't available or the downloading a remote file failed
    *                                    with some unexpected HTTP status code
    */
@@ -365,7 +366,7 @@ abstract class MSCL_AbstractFileInfo {
         case 200: // OK
           break;
         case 404:
-          throw new MSCL_MediaFileNotFoundException($filePath, true);
+          throw new FileNotFoundException($filePath, true);
         default:
           throw new FileInfoIOException("Invalid HTTP status code: ".$status_code, $filePath, true);
       }
@@ -376,7 +377,7 @@ abstract class MSCL_AbstractFileInfo {
     {
       if (!is_file($filePath))
       {
-        throw new MSCL_MediaFileNotFoundException($filePath, false);
+        throw new FileNotFoundException($filePath, false);
       }
 
       $result = file_get_contents($filePath);
@@ -436,7 +437,7 @@ abstract class MSCL_AbstractFileInfo {
    * @param resource $ch  the CURL handle
    * @param string $file_path  the file that was attempted to be downloaded
    *
-   * @throws MSCL_MediaFileNotFoundException  if the specified domain couldn't be found or reached
+   * @throws FileNotFoundException  if the specified domain couldn't be found or reached
    * @throws FileInfoException  for any other error
    */
   private static function processCurlError($ch, $file_path) {
@@ -444,7 +445,7 @@ abstract class MSCL_AbstractFileInfo {
     if ($error_number == 60 || $error_number == 6)
     {
       // Treat "domain not found" (6) and "no route to host" (60) as file not found
-      throw new MSCL_MediaFileNotFoundException($file_path, true);
+      throw new FileNotFoundException($file_path, true);
     }
 
     throw new FileInfoException("Could not execute cURL request. Reason: ".curl_error($ch).' ['.$error_number.']',
@@ -502,7 +503,7 @@ abstract class MSCL_AbstractFileInfo {
    *
    * @return int
    * @throws FileInfoIOException
-   * @throws MSCL_MediaFileNotFoundException
+   * @throws FileNotFoundException
    * @throws MSCL_NotModifiedNotification
    */
   private function onRemoteFileOpened($ch, $dataChunk)
@@ -523,7 +524,7 @@ abstract class MSCL_AbstractFileInfo {
           throw new MSCL_NotModifiedNotification();
 
         case 404:
-          throw new MSCL_MediaFileNotFoundException($this->m_filePath, true);
+          throw new FileNotFoundException($this->m_filePath, true);
 
         default:
           throw new FileInfoIOException("Invalid HTTP status code: ".$this->m_httpStatusCode, $this->m_filePath, true);
