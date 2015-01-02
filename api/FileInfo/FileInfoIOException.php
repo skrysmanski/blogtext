@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################################
+use MSCL\FileInfo\FileInfoException;
 
 
 /**
  * Indicates an I/O error, usually meaning that the file could not be read.
  */
-class MSCL_MediaFileIOException extends MSCL_MediaInfoException
+class MSCL_MediaFileIOException extends FileInfoException
 {
   /**
    * Constructor.

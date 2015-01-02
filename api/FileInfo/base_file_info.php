@@ -19,6 +19,8 @@
 #########################################################################################
 
 
+use MSCL\FileInfo\FileInfoException;
+
 require_once(dirname(__FILE__).'/../commons.php');
 MSCL_require_once('exceptions.php', __FILE__);
 
@@ -389,14 +391,14 @@ abstract class MSCL_AbstractFileInfo {
    * @param $cacheDate
    *
    * @return resource
-   * @throws MSCL_MediaInfoException  if the CURL handle couldn't be created
+   * @throws FileInfoException  if the CURL handle couldn't be created
    */
   private static function createCurlHandle($filePath, $cacheDate)
   {
     $ch = curl_init($filePath);
     if (!$ch)
     {
-      throw new MSCL_MediaInfoException("curl_init() failed", $filePath, true);
+      throw new FileInfoException("curl_init() failed", $filePath, true);
     }
 
     if ($cacheDate !== null)
@@ -434,7 +436,7 @@ abstract class MSCL_AbstractFileInfo {
    * @param string $file_path  the file that was attempted to be downloaded
    *
    * @throws MSCL_MediaFileNotFoundException  if the specified domain couldn't be found or reached
-   * @throws MSCL_MediaInfoException  for any other error
+   * @throws FileInfoException  for any other error
    */
   private static function processCurlError($ch, $file_path) {
     $error_number = curl_errno($ch);
@@ -444,7 +446,7 @@ abstract class MSCL_AbstractFileInfo {
       throw new MSCL_MediaFileNotFoundException($file_path, true);
     }
 
-    throw new MSCL_MediaInfoException("Could not execute cURL request. Reason: ".curl_error($ch).' ['.$error_number.']',
+    throw new FileInfoException("Could not execute cURL request. Reason: ".curl_error($ch).' ['.$error_number.']',
                                       $file_path, true);
   }
 

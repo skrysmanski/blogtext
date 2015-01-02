@@ -17,11 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################################
+use MSCL\FileInfo\FileInfoException;
 
 /**
  * Indicates that the media file's file format could not be determined or that the data was invalid.
  */
-class MSCL_MediaFileFormatException extends MSCL_MediaInfoException
+class MSCL_MediaFileFormatException extends FileInfoException
 {
   /**
    * Constructor.

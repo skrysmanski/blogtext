@@ -19,6 +19,8 @@
 #########################################################################################
 
 
+use MSCL\FileInfo\FileInfoException;
+
 require_once(dirname(__FILE__).'/../../api/commons.php');
 MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 
@@ -239,7 +241,7 @@ class MediaMacro implements IInterlinkMacro {
     catch (MSCL_MediaFileNotFoundException $e) {
       return self::generate_error_html($e->getFilePath(), true);
     }
-    catch (MSCL_MediaInfoException $e) {
+    catch (FileInfoException $e) {
       return self::generate_error_html($e->getMessage());
     }
     catch (MSCL_ThumbnailException $e) {
@@ -318,7 +320,7 @@ class MediaMacro implements IInterlinkMacro {
       $info = MSCL_ImageInfo::get_instance($img_path);
       return array($info->get_width(), $info->get_height());
     }
-    catch (MSCL_MediaInfoException $e) {
+    catch (FileInfoException $e) {
       // Media information not available; don't specify size
       log_error($e->getMessage(), 'media info not available');
       return false;
