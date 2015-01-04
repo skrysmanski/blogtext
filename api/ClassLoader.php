@@ -104,10 +104,6 @@ final class ClassLoader
             /** @noinspection PhpIncludeInspection */
             require($fileName);
         }
-        else
-        {
-            trigger_error("Could not find php file for class '$className'. (Tried file '$fileName'.)", E_USER_WARNING);
-        }
     }
 
     /**
@@ -123,7 +119,5 @@ final class ClassLoader
     {
         $loader = new ClassLoader($baseNamespace, $namespaceDir);
         spl_autoload_register(array($loader, 'autoload'));
-
-        trigger_error("Class loader created for namespace '$baseNamespace'.", E_USER_NOTICE);
     }
 }
