@@ -23,6 +23,7 @@
  * Creates and handles the thumbnail cache. Note that this implementation allows multiple thumbnails for the
  * same image and also allows thumbnails for external images (which Wordpress doesn't).
  */
+
 use MSCL\FileInfo\AbstractFileInfo;
 use MSCL\FileInfo\ImageFileInfo;
 use MSCL\FileInfo\NotModifiedNotification;
@@ -30,7 +31,6 @@ use MSCL\FileInfo\NotModifiedNotification;
 require_once(dirname(__FILE__).'/settings.php');
 require_once(dirname(__FILE__).'/cache.php');
 
-MSCL_Api::load(MSCL_Api::IMAGE_INFO);
 
 /**
  * Special exception when trying to create a thumbnail image. These exceptions should be catched and a error
