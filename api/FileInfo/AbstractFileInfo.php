@@ -1,7 +1,7 @@
 <?php
 #########################################################################################
 #
-# Copyright 2010-2011  Maya Studios (http://www.mayastudios.com)
+# Copyright 2010-2015  Maya Studios (http://www.mayastudios.com)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -685,44 +685,4 @@ abstract class MSCL_AbstractFileInfo {
            + ord($data[$pos + 2]) * 0x10000 + ord($data[$pos + 3]) * 0x10000;
     }
   }
-}
-
-/**
- * Just provides basic information about the file.
- */
-class MSCL_SimpleFileInfo extends MSCL_AbstractFileInfo
-{
-  const CLASS_NAME = 'MSCL_SimpleFileInfo';
-
-  protected function  __construct($filePath, $cacheDate = null)
-  {
-    parent::__construct($filePath, $cacheDate);
-  }
-
-  protected function finishInitialization() { }
-
-  protected function processHeaderData($data)
-  {
-    return true;
-  }
-
-  public static function getInstance($filePath, $cacheDate = null)
-  {
-    $info = self::getCachedRemoteFileInfo($filePath, self::CLASS_NAME);
-    if ($info === null)
-    {
-      $info = new MSCL_SimpleFileInfo($filePath, $cacheDate);
-    }
-    return $info;
-  }
-}
-
-// TODO: Remove this class to make code flow easier to understand
-/**
- * This "notification" is thrown by any media info class, if the specified file hasn't been modified and
- * its cached counterpart is still valid.
- */
-class MSCL_NotModifiedNotification extends Exception
-{
-  // This class is a "hack" but it's the easiest way to handle this situation.
 }
