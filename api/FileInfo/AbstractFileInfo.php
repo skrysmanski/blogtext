@@ -22,7 +22,7 @@
 namespace MSCL\FileInfo;
 
 use Exception;
-use MSCL_NotModifiedNotification;
+use MSCL\FileInfo\NotModifiedNotification;
 
 /**
  * Represents information about a file.
@@ -86,7 +86,7 @@ abstract class AbstractFileInfo
      *
      * @throws FileInfoIOException
      * @throws FileNotFoundException  if the specified file couldn't be found.
-     * @throws MSCL_NotModifiedNotification
+     * @throws NotModifiedNotification
      */
     protected function __construct($filePath, $cacheDate)
     {
@@ -481,7 +481,7 @@ abstract class AbstractFileInfo
 
             if ($this->m_httpStatusCode == 304 && $cache_date !== null)
             {
-                throw new MSCL_NotModifiedNotification();
+                throw new NotModifiedNotification();
             }
         }
 
@@ -510,7 +510,7 @@ abstract class AbstractFileInfo
      * @return int
      * @throws FileInfoIOException
      * @throws FileNotFoundException
-     * @throws MSCL_NotModifiedNotification
+     * @throws NotModifiedNotification
      */
     private function onRemoteFileOpened($ch, $dataChunk)
     {
@@ -527,7 +527,7 @@ abstract class AbstractFileInfo
                 case 304: // NOT MODIFIED
                     // NOTE: We usually don't get here as this method isn't called if the 304 status is returned.
                     //  But to be on the safe side ...
-                    throw new MSCL_NotModifiedNotification();
+                    throw new NotModifiedNotification();
 
                 case 404:
                     throw new FileNotFoundException($this->m_filePath, true);
@@ -552,7 +552,7 @@ abstract class AbstractFileInfo
      * @param int $cache_date
      *
      * @throws FileInfoIOException
-     * @throws MSCL_NotModifiedNotification
+     * @throws NotModifiedNotification
      */
     private function readFileInfoFromLocalFile($cache_date)
     {
@@ -563,7 +563,7 @@ abstract class AbstractFileInfo
         }
         if ($cache_date !== null && $cache_date >= $mod_date)
         {
-            throw new MSCL_NotModifiedNotification();
+            throw new NotModifiedNotification();
         }
         $this->m_lastModifiedDate = $mod_date;
 

@@ -24,6 +24,7 @@
  * same image and also allows thumbnails for external images (which Wordpress doesn't).
  */
 use MSCL\FileInfo\AbstractFileInfo;
+use MSCL\FileInfo\NotModifiedNotification;
 
 require_once(dirname(__FILE__).'/settings.php');
 require_once(dirname(__FILE__).'/cache.php');
@@ -760,7 +761,7 @@ class MSCL_Thumbnail {
         $this->storeDataInThumbnailInfoFile();
         $isUpToDate = false;
       }
-      catch (MSCL_NotModifiedNotification $e)
+      catch (NotModifiedNotification $e)
       {
         // Source image hasn't been changed.
         if (REMOTE_IMAGE_TIMEOUT > 0)
