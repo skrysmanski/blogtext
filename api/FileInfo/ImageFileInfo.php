@@ -18,15 +18,16 @@
 #
 #########################################################################################
 
-use MSCL\FileInfo\FileInfoFormatException;
-use MSCL\FileInfo\AbstractFileInfo;
+namespace MSCL\FileInfo;
+
+use Exception;
 
 /**
  * This class determines width, height and type of images. Works both on local and remote images. Only
  * necessary information are read from the images. Thus using this class is usually a lot faster than calls
  * to "getimagesize()" or "imagecreatefrom...()", as those need to download the whole image file.
  */
-class MSCL_ImageInfo extends AbstractFileInfo
+class ImageFileInfo extends AbstractFileInfo
 {
     const name = 'MSCL_ImageInfo';
 
@@ -76,14 +77,14 @@ class MSCL_ImageInfo extends AbstractFileInfo
      * @param string $file_path the file path/url to the file to be inspected
      * @param        $cache_date
      *
-     * @return MSCL_ImageInfo|null
+     * @return ImageFileInfo|null
      */
     public static function get_instance($file_path, $cache_date = null)
     {
         $info = self::getCachedRemoteFileInfo($file_path, self::name);
         if ($info === null)
         {
-            $info = new MSCL_ImageInfo($file_path, $cache_date);
+            $info = new ImageFileInfo($file_path, $cache_date);
         }
 
         return $info;
