@@ -58,15 +58,6 @@
           <option name="ALIGN_MULTILINE_BINARY_OPERATION" value="true" />
           <option name="ALIGN_MULTILINE_EXTENDS_LIST" value="true" />
           <option name="SPACE_AROUND_UNARY_OPERATOR" value="true" />
-          <option name="SPACE_WITHIN_PARENTHESES" value="true" />
-          <option name="SPACE_WITHIN_METHOD_CALL_PARENTHESES" value="true" />
-          <option name="SPACE_WITHIN_METHOD_PARENTHESES" value="true" />
-          <option name="SPACE_WITHIN_IF_PARENTHESES" value="true" />
-          <option name="SPACE_WITHIN_WHILE_PARENTHESES" value="true" />
-          <option name="SPACE_WITHIN_FOR_PARENTHESES" value="true" />
-          <option name="SPACE_WITHIN_CATCH_PARENTHESES" value="true" />
-          <option name="SPACE_WITHIN_SWITCH_PARENTHESES" value="true" />
-          <option name="SPACE_WITHIN_ARRAY_INITIALIZER_BRACES" value="true" />
           <option name="SPACE_AFTER_TYPE_CAST" value="true" />
           <option name="PARENTHESES_EXPRESSION_LPAREN_WRAP" value="true" />
           <option name="PARENTHESES_EXPRESSION_RPAREN_WRAP" value="true" />
@@ -83,6 +74,5 @@
       </value>
     </option>
     <option name="USE_PER_PROJECT_SETTINGS" value="true" />
-    <option name="PREFERRED_PROJECT_CODE_STYLE" value="Default (1)" />
   </component>
 </project>
