@@ -18,13 +18,12 @@
 #
 #########################################################################################
 
-use MSCL\FileInfo\AbstractFileInfo;
-
+namespace MSCL\FileInfo;
 
 /**
  * Just provides basic information about the file.
  */
-class MSCL_SimpleFileInfo extends AbstractFileInfo
+class BasicFileInfo extends AbstractFileInfo
 {
     const CLASS_NAME = 'MSCL_SimpleFileInfo';
 
@@ -45,7 +44,7 @@ class MSCL_SimpleFileInfo extends AbstractFileInfo
         $info = self::getCachedRemoteFileInfo($filePath, self::CLASS_NAME);
         if ($info === null)
         {
-            $info = new MSCL_SimpleFileInfo($filePath, $cacheDate);
+            $info = new BasicFileInfo($filePath, $cacheDate);
         }
 
         return $info;
