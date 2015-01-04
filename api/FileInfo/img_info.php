@@ -20,6 +20,7 @@
 
 
 use MSCL\FileInfo\FileInfoFormatException;
+use MSCL\FileInfo\AbstractFileInfo;
 
 require_once(dirname(__FILE__).'/base_file_info.php');
 
@@ -28,7 +29,7 @@ require_once(dirname(__FILE__).'/base_file_info.php');
  * necessary information are read from the images. Thus using this class is usually a lot faster than calls
  * to "getimagesize()" or "imagecreatefrom...()", as those need to download the whole image file.
  */
-class MSCL_ImageInfo extends MSCL_AbstractFileInfo {
+class MSCL_ImageInfo extends AbstractFileInfo {
   const name = 'MSCL_ImageInfo';
 
   const TYPE_JPEG = 0;

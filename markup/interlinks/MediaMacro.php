@@ -21,6 +21,7 @@
 
 use MSCL\FileInfo\FileInfoException;
 use MSCL\FileInfo\FileNotFoundException;
+use MSCL\FileInfo\AbstractFileInfo;
 
 require_once(dirname(__FILE__).'/../../api/commons.php');
 MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
@@ -78,9 +79,9 @@ class MediaMacro implements IInterlinkMacro {
     }
 
     if (   !$is_attachment
-        && MSCL_AbstractFileInfo::isRemoteFileStatic($ref)
-        && MSCL_AbstractFileInfo::isRemoteFileSupportAvailable()
-        && !MSCL_AbstractFileInfo::isUrlProtocolSupported($ref)) {
+        && AbstractFileInfo::isRemoteFileStatic($ref)
+        && AbstractFileInfo::isRemoteFileSupportAvailable()
+        && !AbstractFileInfo::isUrlProtocolSupported($ref)) {
       // Remote image whose protocol isn't supported. Create a good looking error message here.
       return self::generate_error_html("The protocol for remote file '".$ref."' isn't supported.");
     }

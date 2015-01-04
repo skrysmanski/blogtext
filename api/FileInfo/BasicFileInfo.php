@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################################
+use MSCL\FileInfo\AbstractFileInfo;
 
 
 /**
  * Just provides basic information about the file.
  */
-class MSCL_SimpleFileInfo extends MSCL_AbstractFileInfo
+class MSCL_SimpleFileInfo extends AbstractFileInfo
 {
   const CLASS_NAME = 'MSCL_SimpleFileInfo';
 

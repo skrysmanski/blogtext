@@ -23,6 +23,8 @@
  * Creates and handles the thumbnail cache. Note that this implementation allows multiple thumbnails for the
  * same image and also allows thumbnails for external images (which Wordpress doesn't).
  */
+use MSCL\FileInfo\AbstractFileInfo;
+
 require_once(dirname(__FILE__).'/settings.php');
 require_once(dirname(__FILE__).'/cache.php');
 
@@ -352,12 +354,12 @@ class MSCL_Thumbnail {
       $this->loadDataFromThumbnailInfoFile();
 
       // We need to redo the check here in case local and remote file reside in the same directory
-      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::isRemoteFileStatic($this->m_srcImgFullPath);
+      $this->m_isSrcImgRemote = AbstractFileInfo::isRemoteFileStatic($this->m_srcImgFullPath);
     }
     else
     {
       $this->m_cacheId = self::createThumbnailCacheId($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
-      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::isRemoteFileStatic($img_src); // required for getting the file path
+      $this->m_isSrcImgRemote = AbstractFileInfo::isRemoteFileStatic($img_src); // required for getting the file path
 
       if (file_exists($this->getThumbnailInfoFilePath())) {
         // reuse already existing data
@@ -982,7 +984,7 @@ class MSCL_Thumbnail {
     if ($this->is_use_original_image()) {
       // same size; don't resize - use original image so that we don't lose image quality or gif animations
       // NOTE: this situation always happens when the src image is smaller than the requested thumbnail
-      file_put_contents($this->get_thumb_image_path(), MSCL_AbstractFileInfo::getFileContents($this->m_srcImgFullPath));
+      file_put_contents($this->get_thumb_image_path(), AbstractFileInfo::getFileContents($this->m_srcImgFullPath));
       return;
     }
 

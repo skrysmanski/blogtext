@@ -19,14 +19,15 @@
 #########################################################################################
 
 
-use MSCL\FileInfo\FileInfoException;
-use MSCL\FileInfo\FileInfoIOException;
-use MSCL\FileInfo\FileNotFoundException;
+namespace MSCL\FileInfo;
+
+use Exception;
+use MSCL_NotModifiedNotification;
 
 /**
  * Represents information about a file.
  */
-abstract class MSCL_AbstractFileInfo
+abstract class AbstractFileInfo
 {
     /**
      * Array containing information about all remote files that have been inspected during the current request.
@@ -244,7 +245,7 @@ abstract class MSCL_AbstractFileInfo
      * @param string $filePath
      * @param string $className
      *
-     * @return MSCL_AbstractFileInfo|null
+     * @return AbstractFileInfo|null
      */
     public static function getCachedRemoteFileInfo($filePath, $className)
     {
