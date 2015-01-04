@@ -46,18 +46,14 @@ final class ClassLoader
      * Constructor.
      *
      * @param string $baseNamespace the base namespace this class loader is responsible for; can be a nested namespace
-     *                              (e.g. "ns1\ns2"). May have a leading backslash or not. The namespace is case-sensitive.
+     *                              (e.g. "ns1\ns2"). May have a leading backslash or not. The namespace is
+     *                              case-sensitive. Must not be the root namespace \.
      * @param string $namespaceDir  the absolute path to the directory in which files for $baseNamespace are located.
      *                              Note that the directory must exist.
      */
     private function __construct($baseNamespace, $namespaceDir)
     {
-        if (!string_starts_with($baseNamespace, '\\'))
-        {
-            $baseNamespace = '\\' . $baseNamespace;
-        }
-
-        $baseNamespace = \rtrim($baseNamespace, '\\');
+        $baseNamespace = trim($baseNamespace, '\\');
 
         if ($baseNamespace == '')
         {
@@ -78,10 +74,13 @@ final class ClassLoader
     /**
      * Tries to load the specified class name.
      *
-     * @param string $className the fully-qualified class name (including leading backslash).
+     * @param string $className the fully-qualified class name (without leading backslash).
      */
     private function autoload($className)
     {
+        # Usually there shouldn't be a leading backslash here but to be on the safe side.
+        $className = ltrim($className, '\\');
+
         if (!string_starts_with($className, $this->m_baseNamespace))
         {
             # We're not responsible for this namespace.
@@ -105,13 +104,18 @@ final class ClassLoader
             /** @noinspection PhpIncludeInspection */
             require($fileName);
         }
+        else
+        {
+            trigger_error("Could not find php file for class '$className'. (Tried file '$fileName'.)", E_USER_WARNING);
+        }
     }
 
     /**
      * Registers a new auto class loader.
      *
      * @param string $baseNamespace the base namespace this class loader is responsible for; can be a nested namespace
-     *                              (e.g. "ns1\ns2"). May have a leading backslash or not. The namespace is case-sensitive.
+     *                              (e.g. "ns1\ns2"). May have a leading backslash or not. The namespace is
+     *                              case-sensitive. Must not be the root namespace \.
      * @param string $namespaceDir  the absolute path to the directory in which files for $baseNamespace are located.
      *                              Note that the directory must exist.
      */
@@ -119,5 +123,7 @@ final class ClassLoader
     {
         $loader = new ClassLoader($baseNamespace, $namespaceDir);
         spl_autoload_register(array($loader, 'autoload'));
+
+        trigger_error("Class loader created for namespace '$baseNamespace'.", E_USER_NOTICE);
     }
 }

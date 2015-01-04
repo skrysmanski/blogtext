@@ -32,7 +32,15 @@ namespace MSCL;
  */
 function string_starts_with($str, $with, $offset = 0)
 {
-    return substr($str, $offset, strlen($with)) == $with;
+    $withLen = strlen($with);
+    if ($withLen === 1)
+    {
+        return $str[$offset] === $with[0];
+    }
+    else
+    {
+        return substr($str, $offset, strlen($with)) === $with;
+    }
 }
 
 /**
@@ -45,5 +53,13 @@ function string_starts_with($str, $with, $offset = 0)
  */
 function string_ends_with($str, $with)
 {
-    return substr($str, -strlen($with)) == $with;
+    $withLen = strlen($with);
+    if ($withLen === 1)
+    {
+        return $str[strlen($str) - 1] === $with[0];
+    }
+    else
+    {
+        return substr($str, -strlen($with)) === $with;
+    }
 }
