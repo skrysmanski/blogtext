@@ -23,9 +23,6 @@ use MSCL\FileInfo\FileInfoException;
 use MSCL\FileInfo\FileInfoIOException;
 use MSCL\FileInfo\FileNotFoundException;
 
-require_once(dirname(__FILE__).'/../commons.php');
-MSCL_require_once('exceptions.php', __FILE__);
-
 /**
  * Represents information about a file.
  */
