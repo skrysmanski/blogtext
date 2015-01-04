@@ -29,7 +29,7 @@ use Exception;
  */
 class ImageFileInfo extends AbstractFileInfo
 {
-    const name = 'MSCL_ImageInfo';
+    const CLASS_NAME = 'ImageFileInfo';
 
     const TYPE_JPEG = 0;
     const TYPE_PNG = 1;
@@ -81,7 +81,7 @@ class ImageFileInfo extends AbstractFileInfo
      */
     public static function get_instance($file_path, $cache_date = null)
     {
-        $info = self::getCachedRemoteFileInfo($file_path, self::name);
+        $info = self::getCachedRemoteFileInfo($file_path, self::CLASS_NAME);
         if ($info === null)
         {
             $info = new ImageFileInfo($file_path, $cache_date);

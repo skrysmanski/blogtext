@@ -25,7 +25,7 @@ namespace MSCL\FileInfo;
  */
 class BasicFileInfo extends AbstractFileInfo
 {
-    const CLASS_NAME = 'MSCL_SimpleFileInfo';
+    const CLASS_NAME = 'BasicFileInfo';
 
     protected function  __construct($filePath, $cacheDate = null)
     {
