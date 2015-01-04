@@ -22,7 +22,6 @@
 namespace MSCL\FileInfo;
 
 use Exception;
-use MSCL\FileInfo\NotModifiedNotification;
 
 /**
  * Represents information about a file.
