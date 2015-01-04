@@ -22,6 +22,7 @@
 namespace MSCL\FileInfo;
 
 use Exception;
+use MSCL\Exceptions\InvalidOperationException;
 
 /**
  * Represents information about a file.
@@ -340,9 +341,9 @@ abstract class AbstractFileInfo
      *
      * @return string
      *
+     * @throws InvalidOperationException  if remote file support isn't available
      * @throws FileNotFoundException  if the specified file couldn't be found
-     * @throws FileInfoIOException  if remote file support isn't available or the downloading a remote file failed
-     *                                    with some unexpected HTTP status code
+     * @throws FileInfoIOException  if downloading the remote file failed with some unexpected HTTP status code
      */
     public static function getFileContents($filePath)
     {
@@ -351,7 +352,7 @@ abstract class AbstractFileInfo
         {
             if (!self::isRemoteFileSupportAvailable())
             {
-                throw new FileInfoIOException('Remote support is unavailable (CURL is not installed)', $filePath, true);
+                throw new InvalidOperationException('Remote support is unavailable (CURL is not installed)');
             }
 
             $ch = self::createCurlHandle($filePath, null);
