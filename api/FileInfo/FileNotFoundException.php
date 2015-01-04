@@ -28,11 +28,11 @@ class FileNotFoundException extends FileInfoIOException
     /**
      * Constructor.
      *
-     * @param string $filePath the affected file
-     * @param bool $isRemoteFile whether the affected file is a remote file
+     * @param string $filePath     the affected file
+     * @param bool   $isRemoteFile whether the affected file is a remote file
      */
-    public function  __construct( $filePath, $isRemoteFile )
+    public function  __construct($filePath, $isRemoteFile)
     {
-        parent::__construct( 'File could not be found', $filePath, $isRemoteFile );
+        parent::__construct('File could not be found', $filePath, $isRemoteFile);
     }
 }

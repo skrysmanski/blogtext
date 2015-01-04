@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################################
+
 use MSCL\FileInfo\AbstractFileInfo;
 
 
@@ -25,27 +26,28 @@ use MSCL\FileInfo\AbstractFileInfo;
  */
 class MSCL_SimpleFileInfo extends AbstractFileInfo
 {
-  const CLASS_NAME = 'MSCL_SimpleFileInfo';
+    const CLASS_NAME = 'MSCL_SimpleFileInfo';
 
-  protected function  __construct($filePath, $cacheDate = null)
-  {
-    parent::__construct($filePath, $cacheDate);
-  }
-
-  protected function finishInitialization() { }
-
-  protected function processHeaderData($data)
-  {
-    return true;
-  }
-
-  public static function getInstance($filePath, $cacheDate = null)
-  {
-    $info = self::getCachedRemoteFileInfo($filePath, self::CLASS_NAME);
-    if ($info === null)
+    protected function  __construct($filePath, $cacheDate = null)
     {
-      $info = new MSCL_SimpleFileInfo($filePath, $cacheDate);
+        parent::__construct($filePath, $cacheDate);
     }
-    return $info;
-  }
+
+    protected function finishInitialization() { }
+
+    protected function processHeaderData($data)
+    {
+        return true;
+    }
+
+    public static function getInstance($filePath, $cacheDate = null)
+    {
+        $info = self::getCachedRemoteFileInfo($filePath, self::CLASS_NAME);
+        if ($info === null)
+        {
+            $info = new MSCL_SimpleFileInfo($filePath, $cacheDate);
+        }
+
+        return $info;
+    }
 }

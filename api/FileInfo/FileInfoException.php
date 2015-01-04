@@ -18,7 +18,6 @@
 #
 #########################################################################################
 
-
 namespace MSCL\FileInfo;
 
 /**
@@ -38,13 +37,13 @@ class FileInfoException extends \Exception
     /**
      * Constructor.
      *
-     * @param string $message the message
-     * @param string $filePath the affected file
-     * @param bool $isRemoteFile whether the affected file is a remote file
+     * @param string $message      the message
+     * @param string $filePath     the affected file
+     * @param bool   $isRemoteFile whether the affected file is a remote file
      */
-    public function  __construct( $message, $filePath, $isRemoteFile )
+    public function  __construct($message, $filePath, $isRemoteFile)
     {
-        parent::__construct( $message . ' [' . $filePath . ']' );
+        parent::__construct($message . ' [' . $filePath . ']');
         $this->m_filePath     = (string) $filePath;
         $this->m_isRemoteFile = $isRemoteFile;
     }

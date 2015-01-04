@@ -19,6 +19,8 @@
         <option name="LINE_SEPARATOR" value="&#10;" />
         <PHPCodeStyleSettings>
           <option name="ALIGN_KEY_VALUE_PAIRS" value="true" />
+          <option name="ALIGN_PHPDOC_PARAM_NAMES" value="true" />
+          <option name="ALIGN_PHPDOC_COMMENTS" value="true" />
           <option name="ALIGN_ASSIGNMENTS" value="true" />
           <option name="PHPDOC_BLANK_LINES_AROUND_PARAMETERS" value="true" />
           <option name="LOWER_CASE_BOOLEAN_CONST" value="true" />
@@ -44,7 +46,6 @@
           <option name="RIGHT_MARGIN" value="120" />
           <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="0" />
           <option name="BLANK_LINES_AFTER_PACKAGE" value="1" />
-          <option name="BLANK_LINES_BEFORE_IMPORTS" value="0" />
           <option name="BRACE_STYLE" value="2" />
           <option name="ELSE_ON_NEW_LINE" value="true" />
           <option name="CATCH_ON_NEW_LINE" value="true" />

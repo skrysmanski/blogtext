@@ -28,12 +28,12 @@ class FileInfoIOException extends FileInfoException
     /**
      * Constructor.
      *
-     * @param string $message the message
-     * @param string $filePath the affected file
-     * @param bool $isRemoteFile whether the affected file is a remote file
+     * @param string $message      the message
+     * @param string $filePath     the affected file
+     * @param bool   $isRemoteFile whether the affected file is a remote file
      */
-    public function  __construct( $message, $filePath, $isRemoteFile )
+    public function  __construct($message, $filePath, $isRemoteFile)
     {
-        parent::__construct( $message, $filePath, $isRemoteFile );
+        parent::__construct($message, $filePath, $isRemoteFile);
     }
 }

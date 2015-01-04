@@ -81,7 +81,7 @@ abstract class AbstractFileInfo
     /**
      * Constructor.
      *
-     * @param string $filePath The path/URL of this file.
+     * @param string   $filePath The path/URL of this file.
      * @param int|null $cacheDate
      *
      * @throws FileInfoIOException
@@ -150,7 +150,7 @@ abstract class AbstractFileInfo
      * will always return "true" for protocol "file".
      *
      * @param string $url the url for which the protocol to be checked. Alternatively the protocol can be passed
-     *   directly (ie. the part before "://").
+     *                    directly (ie. the part before "://").
      *
      * @return bool
      *
@@ -203,7 +203,7 @@ abstract class AbstractFileInfo
      * this method to work.
      *
      * @param bool $asString if "true", the version will be returned as string (eg. "7.20.0"); if "false", the
-     *   version will be returned as 24-bit integer (eg. for 7.20.0 this is 463872).
+     *                       version will be returned as 24-bit integer (eg. for 7.20.0 this is 463872).
      *
      * @return int|string
      *
@@ -394,7 +394,7 @@ abstract class AbstractFileInfo
      * Creates a CURL handle for downloading the specified file.
      *
      * @param string $filePath the file to download
-     * @param $cacheDate
+     * @param        $cacheDate
      *
      * @return resource
      * @throws FileInfoException  if the CURL handle couldn't be created
@@ -439,8 +439,8 @@ abstract class AbstractFileInfo
     /**
      * Converts the last error that occurred on the specified CURL handle into an appropriate exception.
      *
-     * @param resource $ch the CURL handle
-     * @param string $file_path the file that was attempted to be downloaded
+     * @param resource $ch        the CURL handle
+     * @param string   $file_path the file that was attempted to be downloaded
      *
      * @throws FileNotFoundException  if the specified domain couldn't be found or reached
      * @throws FileInfoException  for any other error
@@ -504,8 +504,8 @@ abstract class AbstractFileInfo
     /**
      * CURL callback for {@link openRemoteFile()}.
      *
-     * @param resource $ch the CURL handle
-     * @param string $dataChunk the data chunk that has been read
+     * @param resource $ch        the CURL handle
+     * @param string   $dataChunk the data chunk that has been read
      *
      * @return int
      * @throws FileInfoIOException
@@ -638,9 +638,9 @@ abstract class AbstractFileInfo
     /**
      * Whether $str starts with $with.
      *
-     * @param string $str the string to check
-     * @param string $with the start string
-     * @param int $offset offset within the string to start the comparison at
+     * @param string $str    the string to check
+     * @param string $with   the start string
+     * @param int    $offset offset within the string to start the comparison at
      *
      * @return bool
      */
@@ -654,9 +654,9 @@ abstract class AbstractFileInfo
      *
      * NOTE: {@code (int)$data} can't be used here as it's the same as {@code ord($data)}.
      *
-     * @param string $data the data to parse
-     * @param int $pos the position in $data to read from
-     * @param bool $use_big_endian whether the int is serialized as big-endian (true) or little-endian (false)
+     * @param string $data           the data to parse
+     * @param int    $pos            the position in $data to read from
+     * @param bool   $use_big_endian whether the int is serialized as big-endian (true) or little-endian (false)
      *
      * @return int
      */
@@ -678,9 +678,9 @@ abstract class AbstractFileInfo
      *
      * NOTE: {@code (int)$data} can't be used here as it's the same as {@code ord($data)}.
      *
-     * @param string $data the data to parse
-     * @param int $pos the position in $data to read from
-     * @param bool $use_big_endian whether the int is serialized as big-endian (true) or little-endian (false)
+     * @param string $data           the data to parse
+     * @param int    $pos            the position in $data to read from
+     * @param bool   $use_big_endian whether the int is serialized as big-endian (true) or little-endian (false)
      *
      * @return int
      */

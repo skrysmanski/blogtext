@@ -45,16 +45,16 @@ final class ClassLoader
     /**
      * Constructor.
      *
-     * @param string $baseNamespace  the base namespace this class loader is responsible for; can be a nested namespace
-     *   (e.g. "ns1\ns2"). May have a leading backslash or not. The namespace is case-sensitive.
+     * @param string $baseNamespace the base namespace this class loader is responsible for; can be a nested namespace
+     *                              (e.g. "ns1\ns2"). May have a leading backslash or not. The namespace is case-sensitive.
      * @param string $namespaceDir  the absolute path to the directory in which files for $baseNamespace are located.
-     *   Note that the directory must exist.
+     *                              Note that the directory must exist.
      */
     private function __construct($baseNamespace, $namespaceDir)
     {
         if (!string_starts_with($baseNamespace, '\\'))
         {
-            $baseNamespace = '\\'.$baseNamespace;
+            $baseNamespace = '\\' . $baseNamespace;
         }
 
         $baseNamespace = \rtrim($baseNamespace, '\\');
@@ -78,7 +78,7 @@ final class ClassLoader
     /**
      * Tries to load the specified class name.
      *
-     * @param string $className  the fully-qualified class name (including leading backslash).
+     * @param string $className the fully-qualified class name (including leading backslash).
      */
     private function autoload($className)
     {
@@ -110,10 +110,10 @@ final class ClassLoader
     /**
      * Registers a new auto class loader.
      *
-     * @param string $baseNamespace  the base namespace this class loader is responsible for; can be a nested namespace
-     *   (e.g. "ns1\ns2"). May have a leading backslash or not. The namespace is case-sensitive.
+     * @param string $baseNamespace the base namespace this class loader is responsible for; can be a nested namespace
+     *                              (e.g. "ns1\ns2"). May have a leading backslash or not. The namespace is case-sensitive.
      * @param string $namespaceDir  the absolute path to the directory in which files for $baseNamespace are located.
-     *   Note that the directory must exist.
+     *                              Note that the directory must exist.
      */
     public static function register($baseNamespace, $namespaceDir)
     {
