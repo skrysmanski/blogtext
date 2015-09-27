@@ -39,6 +39,10 @@ Installing BlogText is pretty much straight forward.
 You need **Wordpress 3.0 or higher** to install BlogText. You also need **PHP 5.3 or higher** installed on
 your webserver.
 
+Simple way: **Install via WordPress' plugin page.**
+
+Manual way:
+
 1. Simply download the BlogText .zip file.
 1. Extract it.
 1. Upload the folder "blogtext" (containing the file `blogtext.php` among others) into your blog's plugin
