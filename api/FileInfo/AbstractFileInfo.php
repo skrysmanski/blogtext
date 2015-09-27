@@ -128,6 +128,7 @@ abstract class AbstractFileInfo
         }
     }
 
+    // TODO: Remove and replace with private constructor and static factory method
     protected abstract function finishInitialization();
 
     /**
