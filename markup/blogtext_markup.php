@@ -748,7 +748,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         }
         else {
           // not an url - assume wrong prefix
-          $not_found_reason = 'unknown prefix';
+          $not_found_reason = 'unknown prefix: ' . $prefix;
           if (count($params) == 1) {
             $title = "$prefix:$params[0]";
           }
