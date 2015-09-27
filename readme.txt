@@ -4,6 +4,8 @@ Tags: formatting, markup, post
 Requires at least: 3.0.0
 Tested up to: 4.3.1
 Stable tag: 0.9.7
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a
 good Wordpress editor integration.
@@ -14,8 +16,8 @@ syntax (based on the Creole wiki syntax) to write your posts and pages. This syn
 fast-to-type. The goal behind BlogText is that you don’t need to write HTML anymore to achieve the desired
 text layout.
 
-The following list lists some of the markups supported by BlogText. For a more complete list, see BlogText's
-syntax description page at http://blogtext.mayastudios.com/syntax/ (which is written entirely in BlogText
+The following list lists some of the markups supported by BlogText. For a more complete list, see [BlogText's
+syntax description page](http://blogtext.mayastudios.com/syntax/) (which is written entirely in BlogText
 syntax and demonstrates BlogText's capabilities).
 
 Supported markup:
@@ -31,7 +33,7 @@ Supported markup:
 BlogText also integrates into Wordpress' HTML editor by providing its own buttons (to create BlogText syntax),
 media browser integration, and help links. This make writing posts with BlogText even easier.
 
-For more information, see BlogText's feature list at: http://blogtext.mayastudios.com/features/
+For more information, see [BlogText's feature list](http://blogtext.mayastudios.com/features/)
 
 == Installation ==
 Installing BlogText is pretty much straight forward.
@@ -62,7 +64,7 @@ Manual way:
 * Change/Fix: Removed BlogText comments from the beginning of every post/page as Wordpress was creating an extra
   paragraph for them (although it shouldn't).
 * Change: Updated to GeSHi 1.0.8.12 (from 1.0.8.10). This new version adds some more languages for code blocks. See
-  full changelog (https://github.com/GeSHi/geshi-1.0/blob/d9cfd3e0cc9b24e6bd3045a4d222e651e68accd8/src/docs/CHANGES).
+  [full changelog](https://github.com/GeSHi/geshi-1.0/blob/d9cfd3e0cc9b24e6bd3045a4d222e651e68accd8/src/docs/CHANGES).
 * Change: The default BlogText CSS file (now called `blogtext-default.css`) is now minified.
 * Fix: Wordpress instances using BlogText can now be moved to different folders (issue #15).
 * Fix: Fixed code blocks with line numbers in Twenty Fifteen theme (issue #27).
