@@ -60,6 +60,7 @@ your webserver.
 * Change: Updated to GeSHi 1.0.8.12 (from 1.0.8.10). This new version adds some more languages for code blocks. See
   full changelog (https://github.com/GeSHi/geshi-1.0/blob/d9cfd3e0cc9b24e6bd3045a4d222e651e68accd8/src/docs/CHANGES).
 * Fix: Wordpress instances using BlogText can now be moved to different folders (issue #15).
+* Fix: Fixed code blocks with line numbers in Twenty Fifteen theme (issue #27).
 
 = 0.9.6 =
 * Change: link anchors in TOC links in list view are now prepended with "post-" to meet the (arguably ancient) HTML 4
