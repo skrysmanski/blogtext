@@ -161,12 +161,13 @@ class WordpressLinkProvider implements IInterlinkLinkResolver
         {
             // post or page
             $link = get_permalink($post->ID);
-            // post_type: post|page|attachment
+            // post_type: post|page
             $type = $post->post_type;
         }
         else
         {
-            throw new LinkTargetNotFoundException(LinkTargetNotFoundException::REASON_NOT_PUBLISHED, $title);
+            // Post/Page not published. Could be unpublished, trashed, ...
+            throw new LinkTargetNotFoundException($post->post_status, $title);
         }
 
         if (!empty($anchor) && !$is_attachment)

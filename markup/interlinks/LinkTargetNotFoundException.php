@@ -23,7 +23,7 @@ require_once(dirname(__FILE__) . '/../../api/commons.php');
 
 
 /**
- * This exception is thrown whenever a IInterlinkLinkResolver couldn't resolve its Interlink or if it couldn't
+ * This exception is thrown whenever a IInterlinkLinkResolver could not resolve its Interlink or if it could not
  * find the Interlink's target.
  *
  * @see IInterlinkLinkResolver
@@ -31,7 +31,6 @@ require_once(dirname(__FILE__) . '/../../api/commons.php');
 class LinkTargetNotFoundException extends Exception
 {
     const REASON_DONT_EXIST = 'doesn\'t exist';
-    const REASON_NOT_PUBLISHED = 'unpublished';
 
     private $reason;
     private $link_name;
@@ -42,7 +41,7 @@ class LinkTargetNotFoundException extends Exception
      * @param string $reason  the more detailed reason why the Interlink couldn't be resolved. Should only be a
      *    few words as they are added to the link's name (ie. the part between <a> and </a>). Defaults to
      *    @see REASON_DONT_EXIST. If possible, you should use one of the constants provided by this class.
-     * @param string $link_name  the title of the link that could not be resolved, if known and not explicitely
+     * @param string $link_name  the title of the link that could not be resolved, if known and not explicitly
      *    provided in the interlink. Otherwise "null".
      */
     public function __construct($reason = null, $link_name = '')
@@ -69,7 +68,7 @@ class LinkTargetNotFoundException extends Exception
     }
 
     /**
-     * Returns the reason why the Interlink couldn't be resolved. Is never null nor empty.
+     * Returns the reason why the Interlink could not be resolved. Is never null nor empty.
      * @return string
      */
     public function get_reason()

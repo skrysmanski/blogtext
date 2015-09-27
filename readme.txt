@@ -53,6 +53,8 @@ your webserver.
 * Feature: Added support for email addresses (plain text as well as interlink ones).
 * Change: Exceptions thrown while converting a post from BlogText to HTML no longer stops the whole PHP script (i.e.
   content coming after the affected post is now rendered).
+* Change: When a link to a page/post couldn't be created because the post status is not 'published', the post status
+  will now be put in the link text. Before it would always say "[unpublished]" even if the post was trashed. (issue #24)
 * Fix: Wordpress instances using BlogText can now be moved to different folders (issue #15).
 
 = 0.9.6 =
