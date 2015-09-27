@@ -53,6 +53,7 @@ your webserver.
 * Feature: Added support for email addresses (plain text as well as interlink ones).
 * Change: Exceptions thrown while converting a post from BlogText to HTML no longer stops the whole PHP script (i.e.
   content coming after the affected post is now rendered).
+* Fix: Wordpress instances using BlogText can now be moved to different folders (issue #15).
 
 = 0.9.6 =
 * Change: link anchors in TOC links in list view are now prepended with "post-" to meet the (arguably ancient) HTML 4
@@ -78,10 +79,10 @@ your webserver.
 * BlogText now works with PHP 5.4.0 (did not work due to an error in BlogText's option API).
 * Removed all file type icons. Icons for links to external sites, attachments, and subsections in the same page remain.
   The icons have been replaced by a web-font though (making them scale with the font size). Additionally each icon type
-  can now be disabled in BlogText's settings (closes/fixes #13).
-* Fix: Emphasis (`//`) can now surround an external link (fixes #12)
+  can now be disabled in BlogText's settings (issue #13).
+* Fix: Emphasis (`//`) can now surround an external link (issue #12)
 * BlogText no longer creates thumbnails when the original image would work just fine.
-* A double space in a heading no longer breaks the parser (fixes #10).
+* A double space in a heading no longer breaks the parser (issue #10).
 * Fix/Change: If punctuation is written after a plain-text URL separated by one or more spaces, now the space will be
   removed only for certain punctuations. Especially, it won't be removed anymore for opening brackets. To force BlogText
   to keep the spaces, simply use more than one.
@@ -104,7 +105,7 @@ your webserver.
 = 0.9.3 =
 * "cat:" is now allowed as alternative to the "category:" Interlink prefix
 * Now runs with Wordpress 3.3
-* Fixed anchors to headings not working in multi post view and RSS feed (ticket #1)
+* Fixed anchors to headings not working in multi post view and RSS feed (issue #1)
 * Anchor links (¶) are no longer added to headings in the RSS feed
 
 = 0.9.2.1 =
