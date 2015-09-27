@@ -12,12 +12,12 @@ Paragraphs are created simply by separating them by a blank line, like so:
 
 Simple line breaks are respected. For example this code:
 
-  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
+  Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
   sed diam nonumy eirmod tempor invidunt ut labore et dolore
 
 will look like this (which is exactly like the original code):
 
-  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
+  Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
   sed diam nonumy eirmod tempor invidunt ut labore et dolore
 
 = Basic Inline Formatting = #basic-inline-format
@@ -73,7 +73,7 @@ Internal links are links within the blog. In most cases this will be links to ot
 
 This will render as:
 
-  Link to the [[about|About Page]]
+  Link to the [[hello-world|About Page]]
 
 [[image:pagename2|right|caption|The name ("Slug") in "Quick Edit"]]
 [[image:pagename|right|caption|The name while editing a page or post]]
@@ -101,7 +101,7 @@ We're planning to also implement links to archives (year archive, month archive)
 
 
 == Links to Media/Attachments == #inserting-attachments
-Wordpress makes it quite easy to [[wpcodex:Using_Image_and_File_Attachments|upload images and other files]] (like PDF files) to your blog. To upload new files, use the quick links located just above the toolbar while editing a post or page.
+Wordpress makes it quite easy to [[invalidprefix:Using_Image_and_File_Attachments|upload images and other files]] (like PDF files) to your blog. To upload new files, use the quick links located just above the toolbar while editing a post or page.
 
 [[image:quicklinks.png|center|link=source|caption|Quicklinks for images and file upload]]
 
@@ -109,8 +109,8 @@ Wordpress makes it quite easy to [[wpcodex:Using_Image_and_File_Attachments|uplo
 
 After clicking on one of the four buttons (it doesn't matter which one), you can select the file to upload. In our example we've uploaded the file ##gpl.pdf##. In the upload form
 
- # add the information you want (eg. a caption is recommended), 
- # then click the button called "File URL" (only sometimes necessary), 
+ # add the information you want (eg. a caption is recommended),
+ # then click the button called "File URL" (only sometimes necessary),
  # and then click the "Insert Into Post" button.
 
 [[image:insert-file.jpg|center|medium|thumb|Uploading a file with the media browser]]
@@ -153,7 +153,7 @@ The text after a pipe is called a //parameter//. An Interlink can have multiple 
 
   For example, ##[[wiki:en|Portal (video game)|Portal]]## - which is a [[#custom-interlinks|custom interlink]] - will be rendered as [[wiki:en|Portal (video game)|Portal]]. This interlink has three parameters: ##en##, ##Portal (video game)##, and ##Portal##.
 
-So, to be more precise, the link name is always determined by the //last parameter//. 
+So, to be more precise, the link name is always determined by the //last parameter//.
 
   For example, ##[[wiki:en|Portal (video game)]]## will be rendered as [[wiki:en|Portal (video game)]] while ##[[wiki:en|Portal (video game)|]]## will be rendered as [[wiki:en|Portal (video game)|]].
 
@@ -220,7 +220,7 @@ The section describes all parameters and their values for images (##[[image:...]
 |Alignment | ##left##, ##center##, ##right##  |
 |Size as word   | ##small##, ##medium##, ##large##, ##big## | when no size is specified, the image will be displayed in full size (unless ##thumb## is specified); the actual size of these names can be specified in the Media settings in Wordpress' admin interface.
 |Width in pixels | ##123px##  | specifies the width of the image in pixels; can't be used together with a "size word" (eg. ##small##).
-|Link to source image | ##link=source## 
+|Link to source image | ##link=source##
 |Link to internal page | ##link=hello-world##
 |Link with prefix | ##link=category:Announcements## | You can used any available [[#interlinks-in-general|Interlink]]. It's no problem, if the interlink requires one than one parameter. All parameters not recognized by the image Interlink will automatically be passed as parameter to the link Interlink.
 |Link to external page | ##link=http://www.mayastudios.de##
@@ -228,7 +228,7 @@ The section describes all parameters and their values for images (##[[image:...]
 |Hide caption | ##nocaption## | Hides the image caption, if it would otherwise be displayed.
 |Thumbnail | ##thumb## | Equals ##link=source|small##
 
-//Notes:// 
+//Notes://
  * If the last parameter is not recognized by the image Interlink, it'll be used as caption for the image. This will also overwrite any caption that may have been specified in the image's media browser form.
  * You can't overwrite the link for an image that has the ##thumb## parameter. It'll always link to the source image.
 
@@ -417,7 +417,7 @@ The number of equal sign (=) at the beginning determine the heading level. The e
 == Level 2b ==========================
 }}}
 
-//Note:// You can always use level 1 heading (single = sign) for your top-level heading. The HTML heading level produced from the top-level heading can be set in the settings (eg. {{{= test =}}} can produce {{{<h2>test</h2>}}}). 
+//Note:// You can always use level 1 heading (single = sign) for your top-level heading. The HTML heading level produced from the top-level heading can be set in the settings (eg. {{{= test =}}} can produce {{{<h2>test</h2>}}}).
 
 == Table of Contents (TOC) ==
 If you have created a longer post or page with a lot of heading (like this page), you may want to add a table of contents (TOC) to the post or page. You can do this by simply adding the following line to your code (preferrably at the beginning):
@@ -440,7 +440,7 @@ However, if you want to link to a certain section, you should provide your own a
 
 Note that you need to separate the anchor name from the heading's text by at least one equal sign (as shown in the example).
 
-For your anchor name, you shouldn't use fancy characters like spaces, tabulators, or umlauts. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (##_##), and dashes (##-##). In fact, a valid HTML (4) id must only use the previously mentioned characters and must start with a letter. 
+For your anchor name, you shouldn't use fancy characters like spaces, tabulators, or umlauts. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (##_##), and dashes (##-##). In fact, a valid HTML (4) id must only use the previously mentioned characters and must start with a letter.
 
 //Recommendation:// To separate words in your ids, use dashes (##-##) instead of underscores (##_##). This has some subtle advantages for SEO and editors as the dash is usually interpreted as punctuation whereas the underscore is not.
 
@@ -464,7 +464,7 @@ More often, however, you will want to use //code blocks//. You can specify a cod
 <pre class="code">
 {{{
 #include <iostream>
- 
+
 int main()
 {
     std::cout << "Hello, world!\n";
@@ -477,7 +477,7 @@ This will render like this:
 
 {{{
 #include <iostream>
- 
+
 int main()
 {
     std::cout << "Hello, world!\n";
@@ -490,7 +490,7 @@ Since this is a [[wiki:en|C++|C++]] code snippet, we'd like to have some syntax 
 <pre class="code">
 {{{ lang=c++ line=4
 #include <iostream>
- 
+
 int main()
 {
     std::cout << "Hello, world!\n";
@@ -503,7 +503,7 @@ And this will render like this:
 
 {{{ lang=c++ line=4
 #include <iostream>
- 
+
 int main()
 {
     std::cout << "Hello, world!\n";
@@ -558,7 +558,7 @@ class Program : Object
 #endregion
 }}}
 
-//Notes:// 
+//Notes://
  * You can also enable syntax highlighting for inline code snippets. For this, you need to use the curly braces syntax (##{{{ ... }}}##). For example this ##{{{ lang=php function do_something($my_var) }}}## will render like this: {{{ lang=php function do_something($my_var) }}}.
  * You can also specify the language by the file extension associated with the language. Simply use a dot followed by the file extension. For example, this will result in Ada highlighting: ##{{{ lang=.adb ... }}}##.
 
