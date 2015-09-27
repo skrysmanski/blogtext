@@ -1,4 +1,4 @@
-<!-- Generated "rss-item" item --><pre class="code">struct MyStruct {
+<pre class="code">struct MyStruct {
   int MyVar;
 }</pre>
 

@@ -114,11 +114,7 @@ class MarkupCache {
             && $cached_content_date >= $this->markup_modification_date
             && $are_externals_uptodate)
         {
-            // NOTE: Don't add a "\n" at the end of the comment line to prevent Wordpress from adding
-            //   unnecessary paragraphs and line breaks.
-            $cache_comment = '<!-- Cached "' . $cache_name . '" item from ' . $cached_content_date . ' -->';
-
-            return $cache_comment . $cached_content;
+            return $cached_content;
         }
 
         $html_code = $cache_handler->convert_markup_to_html_uncached($markup_content, $post, $is_rss);
@@ -130,11 +126,7 @@ class MarkupCache {
 
         log_info("Cache for post $post->ID ($cache_name) has been updated.");
 
-        // NOTE: Don't add a "\n" at the end of the comment line to prevent Wordpress from adding
-        //   unnecessary paragraphs and line breaks.
-        $generate_comment = '<!-- Generated "' . $cache_name . '" item at ' . $mod_date . ' -->';
-
-        return $generate_comment . $html_code;
+        return $html_code;
     }
 
   private function check_and_register_externals($cache_handler, $post) {

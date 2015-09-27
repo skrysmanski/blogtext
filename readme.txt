@@ -55,6 +55,8 @@ your webserver.
   content coming after the affected post is now rendered).
 * Change: When a link to a page/post couldn't be created because the post status is not 'published', the post status
   will now be put in the link text. Before it would always say "[unpublished]" even if the post was trashed. (issue #24)
+* Change/Fix: Removed BlogText comments from the beginning of every post/page as Wordpress was creating an extra
+  paragraph for them (although it shouldn't).
 * Fix: Wordpress instances using BlogText can now be moved to different folders (issue #15).
 
 = 0.9.6 =
