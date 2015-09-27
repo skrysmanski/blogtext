@@ -57,6 +57,8 @@ your webserver.
   will now be put in the link text. Before it would always say "[unpublished]" even if the post was trashed. (issue #24)
 * Change/Fix: Removed BlogText comments from the beginning of every post/page as Wordpress was creating an extra
   paragraph for them (although it shouldn't).
+* Change: Updated to GeSHi 1.0.8.12 (from 1.0.8.10). This new version adds some more languages for code blocks. See
+  full changelog (https://github.com/GeSHi/geshi-1.0/blob/d9cfd3e0cc9b24e6bd3045a4d222e651e68accd8/src/docs/CHANGES).
 * Fix: Wordpress instances using BlogText can now be moved to different folders (issue #15).
 
 = 0.9.6 =
