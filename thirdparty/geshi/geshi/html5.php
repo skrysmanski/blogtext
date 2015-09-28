@@ -4,10 +4,10 @@
  * ---------------
  * Author: Nigel McNie (nigel@geshi.org)
  * Copyright: (c) 2004 Nigel McNie (http://qbnz.com/highlighter/)
- * Release Version: 1.0.8.10
+ * Release Version: 1.0.8.12
  * Date Started: 2004/07/10
  *
- * HTML 4.01 strict language file for GeSHi.
+ * HTML 5 language file for GeSHi.
  *
  * CHANGES
  * -------
@@ -208,5 +208,3 @@ $language_data = array (
         )
     )
 );
-
-?>

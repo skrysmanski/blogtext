@@ -23,10 +23,14 @@
  * Creates and handles the thumbnail cache. Note that this implementation allows multiple thumbnails for the
  * same image and also allows thumbnails for external images (which Wordpress doesn't).
  */
+
+use MSCL\FileInfo\AbstractFileInfo;
+use MSCL\FileInfo\ImageFileInfo;
+use MSCL\FileInfo\NotModifiedNotification;
+
 require_once(dirname(__FILE__).'/settings.php');
 require_once(dirname(__FILE__).'/cache.php');
 
-MSCL_Api::load(MSCL_Api::IMAGE_INFO);
 
 /**
  * Special exception when trying to create a thumbnail image. These exceptions should be catched and a error
@@ -66,7 +70,7 @@ class MSCL_ThumbnailApi {
   }
 
   public static function get_image_info($img_path) {
-    return MSCL_ImageInfo::get_instance($img_path);
+    return ImageFileInfo::get_instance($img_path);
   }
 
   /**
@@ -352,12 +356,12 @@ class MSCL_Thumbnail {
       $this->loadDataFromThumbnailInfoFile();
 
       // We need to redo the check here in case local and remote file reside in the same directory
-      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::isRemoteFileStatic($this->m_srcImgFullPath);
+      $this->m_isSrcImgRemote = AbstractFileInfo::isRemoteFileStatic($this->m_srcImgFullPath);
     }
     else
     {
       $this->m_cacheId = self::createThumbnailCacheId($img_src, $requested_thumb_width, $requested_thumb_height, $mode);
-      $this->m_isSrcImgRemote = MSCL_AbstractFileInfo::isRemoteFileStatic($img_src); // required for getting the file path
+      $this->m_isSrcImgRemote = AbstractFileInfo::isRemoteFileStatic($img_src); // required for getting the file path
 
       if (file_exists($this->getThumbnailInfoFilePath())) {
         // reuse already existing data
@@ -609,11 +613,11 @@ class MSCL_Thumbnail {
     if ($this->m_srcImgType === null) {
       throw new Exception("Image type not yet available.");
     }
-    if ($this->is_use_original_image() && $this->m_srcImgType == MSCL_ImageInfo::TYPE_GIF) {
+    if ($this->is_use_original_image() && $this->m_srcImgType == ImageFileInfo::TYPE_GIF) {
       return 'gif';
     }
 
-    return $this->m_srcImgType == MSCL_ImageInfo::TYPE_JPEG ? 'jpg' : 'png';
+    return $this->m_srcImgType == ImageFileInfo::TYPE_JPEG ? 'jpg' : 'png';
   }
 
   public function get_thumb_image_mimetype() {
@@ -742,7 +746,7 @@ class MSCL_Thumbnail {
           // TODO: What to do in this case????
         }
 
-        $info = MSCL_ImageInfo::get_instance($this->m_srcImgFullPath, $this->cache_date);
+        $info = ImageFileInfo::get_instance($this->m_srcImgFullPath, $this->cache_date);
         $this->m_srcImgWidth = $info->get_width();
         $this->m_srcImgHeight = $info->get_height();
         $this->m_srcImgType = $info->get_type();
@@ -758,7 +762,7 @@ class MSCL_Thumbnail {
         $this->storeDataInThumbnailInfoFile();
         $isUpToDate = false;
       }
-      catch (MSCL_NotModifiedNotification $e)
+      catch (NotModifiedNotification $e)
       {
         // Source image hasn't been changed.
         if (REMOTE_IMAGE_TIMEOUT > 0)
@@ -982,22 +986,22 @@ class MSCL_Thumbnail {
     if ($this->is_use_original_image()) {
       // same size; don't resize - use original image so that we don't lose image quality or gif animations
       // NOTE: this situation always happens when the src image is smaller than the requested thumbnail
-      file_put_contents($this->get_thumb_image_path(), MSCL_AbstractFileInfo::getFileContents($this->m_srcImgFullPath));
+      file_put_contents($this->get_thumb_image_path(), AbstractFileInfo::getFileContents($this->m_srcImgFullPath));
       return;
     }
 
     switch ($this->m_srcImgType) {
-      case MSCL_ImageInfo::TYPE_JPEG:
+      case ImageFileInfo::TYPE_JPEG:
         $src_image = imagecreatefromjpeg($this->m_srcImgFullPath);
         break;
-      case MSCL_ImageInfo::TYPE_PNG:
+      case ImageFileInfo::TYPE_PNG:
         $src_image = imagecreatefrompng($this->m_srcImgFullPath);
         break;
-      case MSCL_ImageInfo::TYPE_GIF:
+      case ImageFileInfo::TYPE_GIF:
         $src_image = imagecreatefromgif($this->m_srcImgFullPath);
         break;
       default:
-        throw new MSCL_ThumbnailException("Unsupported mimetype: ".MSCL_ImageInfo::convert_to_mime_type($this->m_srcImgType));
+        throw new MSCL_ThumbnailException("Unsupported mimetype: ".ImageFileInfo::convert_to_mime_type($this->m_srcImgType));
     }
 
     // create a new true color image

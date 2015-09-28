@@ -748,7 +748,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         }
         else {
           // not an url - assume wrong prefix
-          $not_found_reason = 'unknown prefix';
+          $not_found_reason = 'unknown prefix: ' . $prefix;
           if (count($params) == 1) {
             $title = "$prefix:$params[0]";
           }
@@ -1255,104 +1255,122 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return $unique_list_types;
   }
 
-  /**
-   * The callback function for lists
-   */
-  private function list_callback($matches) {
-    $list_stack = new ATM_ListStack();
+    /**
+     * The callback function for lists
+     */
+    private function list_callback($matches)
+    {
+        $list_stack = new ATM_ListStack();
 
-    preg_match_all('/^(?:[ ]*((?:\*|#|;[\:\!])+)(\^|;|\!)?[ ]+|(;)(?![\:\!])|[ ]*)(.*)$/m',
-                   $matches[0], $listLineMatches, PREG_SET_ORDER);
-    foreach ($listLineMatches as $lineMatch) {
-      if (strlen(trim($lineMatch[0])) == 0) {
-        // Add paragraph; useful to make list wider, like:
-        //
-        //  * item 1
-        //
-        //  * item 2
-        //
-        // Though this isn't the best practice, we still let the user decide whether he/she wants a dense or
-        // a wide list.
-        $list_stack->append_para();
-        continue;
-      }
+        preg_match_all('/^(?:[ ]*((?:\*|#|;[\:\!])+)(\^|;|\!)?[ ]+|(;)(?![\:\!])|[ ]*)(.*)$/m',
+            $matches[0], $listLineMatches, PREG_SET_ORDER);
+        foreach ($listLineMatches as $lineMatch)
+        {
+            if (strlen(trim($lineMatch[0])) == 0)
+            {
+                // Add paragraph; useful to make list wider, like:
+                //
+                //  * item 1
+                //
+                //  * item 2
+                //
+                // Though this isn't the best practice, we still let the user decide whether he/she wants a dense or
+                // a wide list.
+                $list_stack->append_para();
+                continue;
+            }
 
-      $text = $lineMatch[4];
+            $text = $lineMatch[4];
 
-      // contains either:
-      // * for example "**#" for a three level list
-      // * is empty, if the line starts with spaces and/or tabs or in case of a inline definition
-      $new_list_stack_str = $lineMatch[1];
+            // contains either:
+            // * for example "**#" for a three level list
+            // * is empty, if the line starts with spaces and/or tabs or in case of a inline definition
+            $new_list_stack_str = $lineMatch[1];
 
-      // Either "\n; def : exp" or "**; def : exp"
-      $inline_dl = ($lineMatch[2] == ';' || $lineMatch[3] == ';');
+            // Either "\n; def : exp" or "**; def : exp"
+            $inline_dl = ($lineMatch[2] == ';' || $lineMatch[3] == ';');
 
-      if (strlen(trim($new_list_stack_str)) === 0 && !$inline_dl) {
-        if (strlen($new_list_stack_str) < 2) {
-          // unrecognized syntax. close current list.
-          $list_stack->append_text("\n".$new_list_stack_str.$text);
+            if (strlen(trim($new_list_stack_str)) === 0 && !$inline_dl)
+            {
+                if (strlen($new_list_stack_str) < 2)
+                {
+                    // unrecognized syntax. close current list.
+                    $list_stack->append_text("\n" . $new_list_stack_str . $text);
+                }
+                else
+                {
+                    // continue the previous list level
+                    if (trim($text) == '')
+                    {
+                        // empty line - see note above
+                        $list_stack->append_para();
+                    }
+                    else
+                    {
+                        $list_stack->append_text("\n" . $text);
+                    }
+                }
+                continue;
+            }
+
+            $continue_list = ($lineMatch[2] == '^');
+            $restart_list  = ($lineMatch[2] == '!');
+
+            if ($restart_list && $list_stack->has_open_lists())
+            {
+                // restart the list; useful only for ordered list in which the numbering starts again at 1
+                // NOTE: You can only restart the deepest nested list (ie. the right most). I doubt that there's a
+                //   use case in which one would need to restart a list lower in the list stack.
+                // NOTE 2: We close the deepest list here. If the new list doesn't match the closed list, no harm is
+                //   done since the old list would have been closed anyway. In any case a new list is opened.
+                $list_stack->close_lists(1);
+            }
+
+            $new_list_stack_types = self::convert_to_unique_list_types($new_list_stack_str);
+            if ($inline_dl)
+            {
+                // inline definition line: "term : definition"
+                $parts = explode(': ', $text, 2);
+                if (count($parts) == 2)
+                {
+                    $term = $parts[0];
+                    $text = $parts[1];
+                }
+                else
+                {
+                    $term = $text;
+                    $text = '';
+                }
+                $new_list_stack_types[] = ATM_ListStack::UNIQUE_ITEM_TYPE_DT;
+                $list_stack->append_new_item($new_list_stack_types, false, $term);
+                array_pop($new_list_stack_types);
+                $new_list_stack_types[] = ATM_ListStack::UNIQUE_ITEM_TYPE_DD;
+                $list_stack->append_new_item($new_list_stack_types, false, $text);
+            }
+            else
+            {
+                $list_stack->append_new_item($new_list_stack_types, $continue_list, $text);
+            }
         }
-        else {
-          // continue the previous list level
-          if (trim($text) == '') {
-            // empty line - see note above
-            $list_stack->append_para();
-          }
-          else {
-            $list_stack->append_text("\n".$text);
-          }
+
+        //
+        // generate code
+        //
+        $code = '';
+        foreach ($list_stack->root_items as $root_item)
+        {
+            if ($root_item instanceof ATM_List)
+            {
+                $code .= $this->generate_list_code($root_item);
+            }
+            else
+            {
+                $code .= $root_item;
+            }
         }
-        continue;
-      }
 
-      $continue_list = ($lineMatch[2] == '^');
-      $restart_list = ($lineMatch[2] == '!');
-
-      if ($restart_list && $list_stack->has_open_lists()) {
-        // restart the list; useful only for ordered list in which the numbering starts again at 1
-        // NOTE: You can only restart the deepest nested list (ie. the right most). I doubt that there's a
-        //   use case in which one would need to restart a list lower in the list stack.
-        // NOTE 2: We close the deepest list here. If the new list doesn't match the closed list, no harm is
-        //   done since the old list would have been closed anyway. In any case a new list is opened.
-        $list_stack->close_lists(1);
-      }
-
-      $new_list_stack_types = self::convert_to_unique_list_types($new_list_stack_str);
-      if ($inline_dl) {
-        // inline definition line: "term : definition"
-        $parts = explode(': ', $text, 2);
-        if (count($parts) == 2) {
-          $term = $parts[0];
-          $text = $parts[1];
-        } else {
-          $term = $text;
-          $text = '';
-        }
-        $new_list_stack_types[] = ATM_ListStack::UNIQUE_ITEM_TYPE_DT;
-        $list_stack->append_new_item($new_list_stack_types, false, $term);
-        array_pop($new_list_stack_types);
-        $new_list_stack_types[] = ATM_ListStack::UNIQUE_ITEM_TYPE_DD;
-        $list_stack->append_new_item($new_list_stack_types, false, $text);
-      }
-      else {
-        $list_stack->append_new_item($new_list_stack_types, $continue_list, $text);
-      }
+        return $code;
     }
-
-    //
-    // generate code
-    //
-    $code = '';
-    foreach ($list_stack->root_items as $root_item) {
-      if ($root_item instanceof ATM_List) {
-        $code .= $this->generate_list_code($root_item);
-      } else {
-        $code .= $root_item;
-      }
-    }
-
-    return $code;
-  }
 
   //
   // Tables

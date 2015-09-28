@@ -154,7 +154,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
   private function add_stylesheets() {
     if (BlogTextSettings::use_default_css()) {
-      $this->add_frontend_stylesheet('style/default.css');
+      $this->add_frontend_stylesheet('style/blogtext-default.css');
     }
 
     $geshi_style = BlogTextSettings::get_geshi_theme();

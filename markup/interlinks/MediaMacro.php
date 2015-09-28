@@ -19,6 +19,11 @@
 #########################################################################################
 
 
+use MSCL\FileInfo\FileInfoException;
+use MSCL\FileInfo\FileNotFoundException;
+use MSCL\FileInfo\AbstractFileInfo;
+use MSCL\FileInfo\ImageFileInfo;
+
 require_once(dirname(__FILE__).'/../../api/commons.php');
 MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 
@@ -75,9 +80,9 @@ class MediaMacro implements IInterlinkMacro {
     }
 
     if (   !$is_attachment
-        && MSCL_AbstractFileInfo::isRemoteFileStatic($ref)
-        && MSCL_AbstractFileInfo::isRemoteFileSupportAvailable()
-        && !MSCL_AbstractFileInfo::isUrlProtocolSupported($ref)) {
+        && AbstractFileInfo::isRemoteFileStatic($ref)
+        && AbstractFileInfo::isRemoteFileSupportAvailable()
+        && !AbstractFileInfo::isUrlProtocolSupported($ref)) {
       // Remote image whose protocol isn't supported. Create a good looking error message here.
       return self::generate_error_html("The protocol for remote file '".$ref."' isn't supported.");
     }
@@ -236,10 +241,10 @@ class MediaMacro implements IInterlinkMacro {
         list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref, $img_size_attr);
       }
     }
-    catch (MSCL_MediaFileNotFoundException $e) {
+    catch (FileNotFoundException $e) {
       return self::generate_error_html($e->getFilePath(), true);
     }
-    catch (MSCL_MediaInfoException $e) {
+    catch (FileInfoException $e) {
       return self::generate_error_html($e->getMessage());
     }
     catch (MSCL_ThumbnailException $e) {
@@ -315,10 +320,10 @@ class MediaMacro implements IInterlinkMacro {
     try {
       $img_path = $isAttachment ? get_attached_file($ref, true) : $ref;
 
-      $info = MSCL_ImageInfo::get_instance($img_path);
+      $info = ImageFileInfo::get_instance($img_path);
       return array($info->get_width(), $info->get_height());
     }
-    catch (MSCL_MediaInfoException $e) {
+    catch (FileInfoException $e) {
       // Media information not available; don't specify size
       log_error($e->getMessage(), 'media info not available');
       return false;

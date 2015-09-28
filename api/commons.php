@@ -35,8 +35,6 @@ require_once(dirname(__FILE__).'/ClassLoader.php');
 define('MSCL_PLUGIN_ROOT_DIR', dirname(dirname(__FILE__)));
 
 class MSCL_Api {
-  const FILE_INFO = 'media-info/base_file_info.php';
-  const IMAGE_INFO = 'media-info/img_info.php';
   const THUMBNAIL_API = 'thumbnail/api.php';
   const THUMBNAIL_CACHE = 'thumbnail/cache.php';
   const CACHE_API = 'cache-api.php';

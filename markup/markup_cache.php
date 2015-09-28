@@ -13,7 +13,7 @@ interface IMarkupCacheHandler {
    * @param object $post  the post to be converted
    * @param bool $is_rss  indicates whether the content is to be displayed in an RSS feed (RSS reader). If
    *   this is false, the content is to be displayed in the browser.
-   * 
+   *
    * @return string  the HTML code
    */
   function convert_markup_to_html_uncached($markup_content, $post, $is_rss);
@@ -80,54 +80,54 @@ class MarkupCache {
    *
    * @return string  the HTML code
    */
-  public function get_html_code($cache_handler, $markup_content, $post, $is_rss) {
-    // NOTE: Always check this (even if the cached content can't be used), so that externals can be
-    //   registered.
-    $are_externals_uptodate = $this->check_and_register_externals($cache_handler, $post);
+    public function get_html_code($cache_handler, $markup_content, $post, $is_rss)
+    {
+        // NOTE: Always check this (even if the cached content can't be used), so that externals can be
+        //   registered.
+        $are_externals_uptodate = $this->check_and_register_externals($cache_handler, $post);
 
-    // We need to have two different cached: one for when a post is displayed alone and one when it's
-    // displayed together with other posts (in the loop). HTML IDs may vary and if there's a more link the
-    // contents differ dramatically. (The same applies for RSS feed item which can be dramatically trimmed
-    // down.)
-    if ($is_rss) {
-      $content_cache = $this->get_post_content_cache(self::TYPE_RSS_VIEW, $post->ID);
-      $cache_name = 'rss-item';
-    } else if (is_singular()) {
-      $content_cache = $this->get_post_content_cache(self::TYPE_SINGLE_POST_VIEW, $post->ID);
-      $cache_name = 'single-page';
-    } else {
-      $content_cache = $this->get_post_content_cache(self::TYPE_LOOP_POST_VIEW, $post->ID);
-      $cache_name = 'loop-view';
+        // We need to have two different cached: one for when a post is displayed alone and one when it's
+        // displayed together with other posts (in the loop). HTML IDs may vary and if there's a more link the
+        // contents differ dramatically. (The same applies for RSS feed item which can be dramatically trimmed
+        // down.)
+        if ($is_rss)
+        {
+            $content_cache = $this->get_post_content_cache(self::TYPE_RSS_VIEW, $post->ID);
+            $cache_name    = 'rss-item';
+        }
+        else if (is_singular())
+        {
+            $content_cache = $this->get_post_content_cache(self::TYPE_SINGLE_POST_VIEW, $post->ID);
+            $cache_name    = 'single-page';
+        }
+        else
+        {
+            $content_cache = $this->get_post_content_cache(self::TYPE_LOOP_POST_VIEW, $post->ID);
+            $cache_name    = 'loop-view';
+        }
+
+        // reuse cached content; significantly speeds up the whole process
+        $cached_content      = $content_cache->get_value(self::CONTENT_CACHE_KEY);
+        $cached_content_date = $content_cache->get_value(self::CONTENT_CACHE_DATE_KEY);
+        if (   !empty($cached_content)
+            && $cached_content_date >= $post->post_modified_gmt
+            && $cached_content_date >= $this->markup_modification_date
+            && $are_externals_uptodate)
+        {
+            return $cached_content;
+        }
+
+        $html_code = $cache_handler->convert_markup_to_html_uncached($markup_content, $post, $is_rss);
+
+        // update cache
+        $mod_date = MarkupUtil::create_mysql_date();
+        $content_cache->set_value(self::CONTENT_CACHE_DATE_KEY, $mod_date);
+        $content_cache->set_value(self::CONTENT_CACHE_KEY, $html_code);
+
+        log_info("Cache for post $post->ID ($cache_name) has been updated.");
+
+        return $html_code;
     }
-
-    // reuse cached content; significantly speeds up the whole process
-    $cached_content = $content_cache->get_value(self::CONTENT_CACHE_KEY);
-    $cached_content_date = $content_cache->get_value(self::CONTENT_CACHE_DATE_KEY);
-    if (   !empty($cached_content)
-        && $cached_content_date >= $post->post_modified_gmt
-        && $cached_content_date >= $this->markup_modification_date
-        && $are_externals_uptodate) {
-      // NOTE: Don't add a "\n" at the end of the comment line to prevent Wordpress from adding
-      //   unnecessary paragraphs and line breaks.
-      $cache_comment = '<!-- Cached "'.$cache_name.'" item from '.$cached_content_date.' -->';
-      return $cache_comment.$cached_content;
-    }
-
-    $html_code = $cache_handler->convert_markup_to_html_uncached($markup_content, $post, $is_rss);
-
-    // update cache
-    $mod_date = MarkupUtil::create_mysql_date();
-    $content_cache->set_value(self::CONTENT_CACHE_DATE_KEY, $mod_date);
-    $content_cache->set_value(self::CONTENT_CACHE_KEY, $html_code);
-
-    log_info("Cache for post $post->ID ($cache_name) has been updated.");
-
-    // NOTE: Don't add a "\n" at the end of the comment line to prevent Wordpress from adding
-    //   unnecessary paragraphs and line breaks.
-    $generate_comment = '<!-- Generated "'.$cache_name.'" item at '.$mod_date.' -->';
-
-    return $generate_comment.$html_code;
-  }
 
   private function check_and_register_externals($cache_handler, $post) {
     $externals_last_determined_cache = $this->get_externals_last_determined_cache();
@@ -217,7 +217,7 @@ class MarkupCache {
 
   /**
    * Returns the cache containing the date when the thumbnails were checked the last time.
-   * 
+   *
    * @return MSCL_PersistentObjectCache
    */
   protected function get_externals_last_determined_cache() {

@@ -6,3 +6,4 @@ syntax: glob
 tests/log.txt
 .DS_Store
 dist
+node_modules

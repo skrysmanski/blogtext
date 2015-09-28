@@ -6,7 +6,7 @@
   </head>
   <body>
     <div id="wrapper">
-<!-- Generated "single-page" item --><div class="toc">
+<div class="toc">
 <div class="toc-title">Table of Contents <span class="toc-toggle">[<a id="_toctoggle_XXX" href="javascript:toggle_toc(XXX);">hide</a>]</span></div>
 <div id="_toclist_XXX"><ul>
 <li class="toclevel-1"><a href="#paragraphs-and-line-breaks"><span class="tocnumber">1</span> <span class="toctext">Paragraphs and Line Breaks</span></a></li>
@@ -55,10 +55,10 @@ This page describes the complete BlogText syntax (which is mostly based on the <
 Paragraphs are created simply by separating them by a blank line, like so:
 <p class="indented">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p><p class="indented">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
 Simple line breaks are respected. For example this code:
-<p class="indented">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
+<p class="indented">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
   sed diam nonumy eirmod tempor invidunt ut labore et dolore</p>
 will look like this (which is exactly like the original code):
-<p class="indented">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
+<p class="indented">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
   sed diam nonumy eirmod tempor invidunt ut labore et dolore</p>
 <h2 id="basic-inline-format">Basic Inline Formatting <a class="heading-link" href="#basic-inline-format" title="Link to this section">&#8734;</a></h2>
 <table>
@@ -143,7 +143,7 @@ This will look like this:
 Internal links are links within the blog. In most cases this will be links to other posts or page. You can do this like this (where "about" is the post's or page's name and "About Page" is the link name):
 <p class="indented">Link to the [[about|About Page]]</p>
 This will render as:
-<p class="indented">Link to the <a class="not-found" href="#">About Page[doesn't exist]</a></p>
+<p class="indented">Link to the <a class="internal internal-post" href="http://mydomain.com/?p=XXX">About Page</a></p>
 <div class="image-frame align-right image-frame-align-right" style="width:212px;"><div class="image"><img class="wp-post-image" src="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/pagename2.png" title="The name (&quot;Slug&quot;) in &quot;Quick Edit&quot;" alt="The name (&quot;Slug&quot;) in &quot;Quick Edit&quot;" width="212" height="108"/></div><div class="image-caption">The name (&quot;Slug&quot;) in &quot;Quick Edit&quot;</div></div>
 <div class="image-frame align-right image-frame-align-right" style="width:212px;"><div class="image"><img class="wp-post-image" src="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/pagename.png" title="The name while editing a page or post" alt="The name while editing a page or post" width="212" height="70"/></div><div class="image-caption">The name while editing a page or post</div></div>
 <em>Note:</em> The post's or page's name usually resemble somehow the post's or page's title. The name is displayed in the Posts or Pages overview when clicking on "Quick Edit" (called "Slug"). It is also displayed with a light yellow highlight while editing the post or page at the top of the edit page - as can be seen on the screenshots.
@@ -185,7 +185,7 @@ We're planning to also implement links to archives (year archive, month archive)
 
 
 <h3 id="inserting-attachments">Links to Media/Attachments <a class="heading-link" href="#inserting-attachments" title="Link to this section">&#8734;</a></h3>
-Wordpress makes it quite easy to <a class="not-found" href="#">upload images and other files[unknown prefix]</a> (like PDF files) to your blog. To upload new files, use the quick links located just above the toolbar while editing a post or page.
+Wordpress makes it quite easy to <a class="not-found" href="#">upload images and other files[unknown prefix: invalidprefix]</a> (like PDF files) to your blog. To upload new files, use the quick links located just above the toolbar while editing a post or page.
 
 <div class="image-frame align-center image-frame-align-center" style="width:246px;"><div class="image"><a href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/quicklinks.png" rel="attachment" title="Quicklinks for images and file upload"><img class="wp-post-image" src="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/quicklinks.png" title="Quicklinks for images and file upload" alt="Wordpress Media Quicklinks" width="246" height="49"/></a></div><div class="image-caption">Quicklinks for images and file upload</div></div>
 
@@ -229,7 +229,7 @@ If you don't specify a name after the pipe (<code class="not-hl">|</code>), the 
 <p class="indented">For example, <code class="not-hl">[[file:gpl-3.0.pdf|]]</code> will render as <a class="attachment file-pdf" href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/gpl-3.0.pdf" target="_blank" rel="attachment">gpl-3.0.pdf</a> (whereas <code class="not-hl">[[file:gpl-3.0.pdf]]</code> - without trailing pipe - will render as <a class="attachment file-pdf" href="http://mydomain.com/wp-content/uploads/blogtexttests/syntax-description/gpl-3.0.pdf" target="_blank" rel="attachment">GNU General Public License v3</a>).</p>
 The text after a pipe is called a <em>parameter</em>. An Interlink can have multiple parameters. Parameters are separated by a pipe.
 <p class="indented">For example, <code class="not-hl">[[wiki:en|Portal (video game)|Portal]]</code> - which is a <a class="section-link-below" href="#custom-interlinks">custom interlink</a> - will be rendered as <a class="external external-wiki" href="http://en.wikipedia.org/wiki/Portal (video game)" target="_blank">Portal</a>. This interlink has three parameters: <code class="not-hl">en</code>, <code class="not-hl">Portal (video game)</code>, and <code class="not-hl">Portal</code>.</p>
-So, to be more precise, the link name is always determined by the <em>last parameter</em>. 
+So, to be more precise, the link name is always determined by the <em>last parameter</em>.
 <p class="indented">For example, <code class="not-hl">[[wiki:en|Portal (video game)]]</code> will be rendered as <a class="external external-wiki" href="http://en.wikipedia.org/wiki/Portal (video game)" target="_blank">Portal (video game)</a> while <code class="not-hl">[[wiki:en|Portal (video game)|]]</code> will be rendered as <a class="external external-wiki" href="http://en.wikipedia.org/wiki/Portal (video game)" target="_blank">en</a>.</p>
 There are, however, a few exceptions to this rule where the last parameter is not used as name - most prominently in conjunction with <a class="section-link-below" href="#images">images</a>.
 
@@ -345,7 +345,7 @@ The section describes all parameters and their values for images (<code class="n
 </table>
 
 
-<em>Notes:</em> 
+<em>Notes:</em>
 <ul>
 <li class="first-item">If the last parameter is not recognized by the image Interlink, it'll be used as caption for the image. This will also overwrite any caption that may have been specified in the image's media browser form.</li>
 <li class="last-item"><p>You can't overwrite the link for an image that has the <code class="not-hl">thumb</code> parameter. It'll always link to the source image.</p></li>
@@ -537,7 +537,7 @@ The number of equal sign (=) at the beginning determine the heading level. The e
 <pre class="code not-hl">== Level 2a
 == Level 2b ==========================</pre>
 
-<em>Note:</em> You can always use level 1 heading (single = sign) for your top-level heading. The HTML heading level produced from the top-level heading can be set in the settings (eg. <code class="not-hl">= test =</code> can produce <code class="not-hl">&lt;h2&gt;test&lt;/h2&gt;</code>). 
+<em>Note:</em> You can always use level 1 heading (single = sign) for your top-level heading. The HTML heading level produced from the top-level heading can be set in the settings (eg. <code class="not-hl">= test =</code> can produce <code class="not-hl">&lt;h2&gt;test&lt;/h2&gt;</code>).
 
 <h3 id="table-of-contents-.28toc.29">Table of Contents (TOC) <a class="heading-link" href="#table-of-contents-.28toc.29" title="Link to this section">&#8734;</a></h3>
 If you have created a longer post or page with a lot of heading (like this page), you may want to add a table of contents (TOC) to the post or page. You can do this by simply adding the following line to your code (preferrably at the beginning):
@@ -556,7 +556,7 @@ However, if you want to link to a certain section, you should provide your own a
 
 Note that you need to separate the anchor name from the heading's text by at least one equal sign (as shown in the example).
 
-For your anchor name, you shouldn't use fancy characters like spaces, tabulators, or umlauts. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (<code class="not-hl">_</code>), and dashes (<code class="not-hl">-</code>). In fact, a valid HTML (4) id must only use the previously mentioned characters and must start with a letter. 
+For your anchor name, you shouldn't use fancy characters like spaces, tabulators, or umlauts. It's safe to use English letters (ie. a - z and A - Z), digits (0 - 9), underscores (<code class="not-hl">_</code>), and dashes (<code class="not-hl">-</code>). In fact, a valid HTML (4) id must only use the previously mentioned characters and must start with a letter.
 
 <em>Recommendation:</em> To separate words in your ids, use dashes (<code class="not-hl">-</code>) instead of underscores (<code class="not-hl">_</code>). This has some subtle advantages for SEO and editors as the dash is usually interpreted as punctuation whereas the underscore is not.
 
@@ -576,7 +576,7 @@ More often, however, you will want to use <em>code blocks</em>. You can specify 
 <pre class="code">
 {{{
 #include &lt;iostream&gt;
- 
+
 int main()
 {
     std::cout &lt;&lt; &quot;Hello, world!\n&quot;;
@@ -588,7 +588,7 @@ int main()
 This will render like this:
 
 <pre class="code not-hl">#include &lt;iostream&gt;
- 
+
 int main()
 {
     std::cout &lt;&lt; &quot;Hello, world!\n&quot;;
@@ -600,7 +600,7 @@ Since this is a <a class="external external-wiki" href="http://en.wikipedia.org/
 <pre class="code">
 {{{ lang=c++ line=4
 #include &lt;iostream&gt;
- 
+
 int main()
 {
     std::cout &lt;&lt; &quot;Hello, world!\n&quot;;
@@ -683,7 +683,7 @@ will render as:
 <span class="br0">&#125;</span>
 <span class="co2">#endregion</span></pre></td></tr></tbody></table></div>
 
-<em>Notes:</em> 
+<em>Notes:</em>
 <ul>
 <li class="first-item">You can also enable syntax highlighting for inline code snippets. For this, you need to use the curly braces syntax (<code class="not-hl">{{{ ... }}}</code>). For example this <code class="not-hl">{{{ lang=php function do_something($my_var) }}}</code> will render like this: <code class="hl hl-php"><span class="kw2">function</span> do_something<span class="br0">&#40;</span><span class="re0">$my_var</span><span class="br0">&#41;</span></code>.</li>
 <li class="last-item"><p>You can also specify the language by the file extension associated with the language. Simply use a dot followed by the file extension. For example, this will result in Ada highlighting: <code class="not-hl">{{{ lang=.adb ... }}}</code>.</p></li>

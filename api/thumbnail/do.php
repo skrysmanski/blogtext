@@ -19,6 +19,8 @@
 #########################################################################################
 
 
+use MSCL\FileInfo\FileInfoException;
+
 require_once(dirname(__FILE__).'/../commons.php');
 require_once(dirname(__FILE__).'/api.php');
 
@@ -29,7 +31,7 @@ try {
   // NOTE: We can't use the ThumbnailAPI here as this requires Wordpress being loaded.
   $thumb = new MSCL_Thumbnail($_GET['id'], null, null, null);
   $thumb->display_thumbnail();
-} catch (MSCL_MediaInfoException $e) {
+} catch (FileInfoException $e) {
   MSCL_Thumbnail::display_error_msg_image($e->getMessage());
 } catch (Exception $e) {
   print MSCL_ErrorHandling::format_exception($e, true);
