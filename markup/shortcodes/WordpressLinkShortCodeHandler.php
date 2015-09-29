@@ -27,7 +27,7 @@ MSCL_require_once('ILinkShortCode.php', __FILE__);
 /**
  * Provides Interlink prefixes for most Wordpress blog links, like other posts, categories, tags, ...
  */
-class WordpressLinkProvider implements ILinkShortCode
+class WordpressLinkShortCodeHandler implements ILinkShortCode
 {
     const TYPE_CATEGORY = 'category';
     const TYPE_TAG = 'tag';

@@ -26,7 +26,7 @@ MSCL_Api::load(MSCL_Api::THUMBNAIL_CACHE);
 MSCL_require_once('textmarkup_base.php', __FILE__);
 MSCL_require_once('markup_cache.php', __FILE__);
 MSCL_require_once('shortcodes/ImageShortCode.php', __FILE__);
-MSCL_require_once('shortcodes/WordpressLinkResolver.php', __FILE__);
+MSCL_require_once('shortcodes/WordpressLinkShortCodeHandler.php', __FILE__);
 
 
 class MarkupException extends Exception {
@@ -162,7 +162,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
     // Handles regular links to post (ie. without prefix), as well as attachment and WordPress links (such
     // as categories, tags, blogroll, and archive).
-    self::register_interlink_handler(self::$interlinks, new WordpressLinkProvider());
+    self::register_interlink_handler(self::$interlinks, new WordpressLinkShortCodeHandler());
 
     // let the custom shortcodes overwrite the WordPress link provider, but not the media macro.
     self::register_all_interlink_patterns(self::$interlinks);
