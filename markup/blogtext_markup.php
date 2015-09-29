@@ -25,7 +25,7 @@ MSCL_Api::load(MSCL_Api::THUMBNAIL_CACHE);
 
 MSCL_require_once('textmarkup_base.php', __FILE__);
 MSCL_require_once('markup_cache.php', __FILE__);
-MSCL_require_once('shortcodes/MediaMacro.php', __FILE__);
+MSCL_require_once('shortcodes/ImageShortCode.php', __FILE__);
 MSCL_require_once('shortcodes/WordpressLinkResolver.php', __FILE__);
 
 
@@ -168,7 +168,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     self::register_all_interlink_patterns(self::$interlinks);
 
     // Media macro (images) - load it as the last one (to overwrite any previously created custom shortcodes)
-    self::register_interlink_handler(self::$interlinks, new MediaMacro());
+    self::register_interlink_handler(self::$interlinks, new ImageShortCode());
 
     self::$IS_STATIC_INITIALIZED = true;
   }

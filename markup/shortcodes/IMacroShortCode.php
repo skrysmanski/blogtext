@@ -10,7 +10,7 @@ interface IMacroShortCode
     /**
      * Returns the names of all prefixes handled by this resolver.
      *
-     * @return array the prefixed (as array of strings)
+     * @return string[] the prefixes
      */
     public function get_handled_prefixes();
 

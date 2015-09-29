@@ -29,7 +29,7 @@ MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 
 MSCL_require_once('IMacroShortCode.php', __FILE__);
 
-class MediaMacro implements IMacroShortCode {
+class ImageShortCode implements IMacroShortCode {
   public function get_handled_prefixes() {
     return array('img', 'image');
   }

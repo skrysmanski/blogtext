@@ -55,7 +55,7 @@ interface ILinkShortCode {
   /**
    * Returns the names of all prefixes handled by this resolver.
    *
-   * @return array the prefixed (as array of strings). Prefixes are returned without trailing colon.
+   * @return string[] the prefixes. Prefixes are returned without trailing colon.
    */
   public function get_handled_prefixes();
 
