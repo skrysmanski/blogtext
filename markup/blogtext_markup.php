@@ -66,10 +66,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     // NOTE: Must run AFTER "headings" and BEFORE the tables, as the tables also use pipes
     // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
     'shortcodes' => '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
-    // Interlink without arguments [[[ ]]] (three brackets instead of two)
+    // BlogText short codes without arguments [[[ ]]] (three brackets instead of two)
     // NOTE: For now this must run after "headings" as otherwise the TOC can't be generated (which is done
     //   by this rule.
-    'simple_interlinks' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
+    'simple_shortcodes' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
 
     // External links (plain text urls)
     // NOTE: Plain text urls must also work in list. Lists may surround the links with <li>
@@ -630,7 +630,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return '<a'.$css_classes.' href="'.$url.'"'.$target_attr.'>'.$name.'</a>';
   }
 
-  private function interlinks_callback($matches) {
+  private function shortcodes_callback($matches) {
     // split at | (but not at \| but at \\|)
     $params = preg_split('/(?<!(?<!\\\\)\\\\)\|/', $matches[1]);
     // unescape \|, \[, and \] - don't escape \\ just yet, as it may still be used in \:
@@ -1144,7 +1144,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return str_replace('%', '.', rawurlencode($ret));
   }
 
-  private function simple_interlinks_callback($matches) {
+  private function simple_shortcodes_callback($matches) {
     // TODO: Make this "real" plugins - not just hardcoded TOC
     switch (strtolower($matches[1])) {
       case 'toc':
