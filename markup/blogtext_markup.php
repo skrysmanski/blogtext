@@ -700,7 +700,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       // NOTE: The prefix may even be empty.
       $prefix_handler = self::$interlinks[$prefix_lowercase];
 
-      if ($prefix_handler instanceof IInterlinkMacro) {
+      if ($prefix_handler instanceof IMacroShortCode) {
         // Let the macro create the HTML code and return it directly.
         return $prefix_handler->handle_macro($this, $prefix_lowercase, $params, $generate_html, $text_after);
       }
