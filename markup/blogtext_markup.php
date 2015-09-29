@@ -705,10 +705,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
         return $prefix_handler->handle_macro($this, $prefix_lowercase, $params, $generate_html, $text_after);
       }
 
-      if ($prefix_handler instanceof IInterlinkLinkResolver) {
+      if ($prefix_handler instanceof ILinkShortCode) {
         try {
           list($link, $title, $is_external, $link_type) = $prefix_handler->resolve_link($post_id, $prefix_lowercase, $params);
-          $is_attachment = ($link_type == IInterlinkLinkResolver::TYPE_ATTACHMENT);
+          $is_attachment = ($link_type == ILinkShortCode::TYPE_ATTACHMENT);
         }
         catch (LinkTargetNotFoundException $e) {
           $not_found_reason = $e->get_reason();
@@ -771,10 +771,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       // Attachments are a special case.
       $css_classes = array('attachment' => true);
     }
-    else if ($link_type == IInterlinkLinkResolver::TYPE_EMAIL_ADDRESS) {
+    else if ($link_type == ILinkShortCode::TYPE_EMAIL_ADDRESS) {
       $css_classes = array('mailto' => true);
     }
-    else if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+    else if ($link_type == ILinkShortCode::TYPE_SAME_PAGE_ANCHOR) {
       // Link on the same page - add text position requests to determine whether the heading is above or
       // below the link's position.
       // NOTE: We can't check whether the heading already exists in our headings array to determine whether
@@ -860,7 +860,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
       // No "else if(empty($title))" here as (although unlikely) the last parameter may have been empty
       if (empty($title)) {
-        if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+        if ($link_type == ILinkShortCode::TYPE_SAME_PAGE_ANCHOR) {
           $anchor_name = substr($link, 1); // remove leading #
           if ($this->needsHmlIdEscaping()) {
             $anchor_name = $this->unescapeHtmlId($anchor_name);
@@ -876,7 +876,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     if (!empty($not_found_reason)) {
       // Page not found
       $title .= '['.$not_found_reason.']';
-      if ($link_type != IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+      if ($link_type != ILinkShortCode::TYPE_SAME_PAGE_ANCHOR) {
         $css_classes = array('not-found' => true);
       } else {
         $css_classes = array('section-link-not-existing' => true);

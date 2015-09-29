@@ -23,7 +23,7 @@ require_once(dirname(__FILE__) . '/../../api/commons.php');
 
 
 /**
- * This exception is thrown whenever a IInterlinkLinkResolver could not resolve its Interlink or if it could not
+ * This exception is thrown whenever a ILinkShortCode could not resolve its Interlink or if it could not
  * find the Interlink's target.
  *
  * @see IInterlinkLinkResolver
