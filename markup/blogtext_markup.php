@@ -25,8 +25,8 @@ MSCL_Api::load(MSCL_Api::THUMBNAIL_CACHE);
 
 MSCL_require_once('textmarkup_base.php', __FILE__);
 MSCL_require_once('markup_cache.php', __FILE__);
-MSCL_require_once('interlinks/MediaMacro.php', __FILE__);
-MSCL_require_once('interlinks/WordpressLinkResolver.php', __FILE__);
+MSCL_require_once('shortcodes/MediaMacro.php', __FILE__);
+MSCL_require_once('shortcodes/WordpressLinkResolver.php', __FILE__);
 
 
 class MarkupException extends Exception {
@@ -61,11 +61,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     //   and '=' (like in "a != b"). So we make this syntax more restrictive.
     'headings' =>'/^[ \t]*(={1,6})(.*?)(?:[=]+[ \t]*#([^ \t].*)[ \t]*)?$/m',
 
-    // InterLinks using the [[ ]] syntax
+    // BlogText short codes using the [[ ]] syntax
     // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
     // NOTE: Must run AFTER "headings" and BEFORE the tables, as the tables also use pipes
     // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
-    'interlinks' => '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
+    'shortcodes' => '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
     // Interlink without arguments [[[ ]]] (three brackets instead of two)
     // NOTE: For now this must run after "headings" as otherwise the TOC can't be generated (which is done
     //   by this rule.
@@ -73,8 +73,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
     // External links (plain text urls)
     // NOTE: Plain text urls must also work in list. Lists may surround the links with <li>
-    //   tags and then white space could no longer be used as sole delimter for URLs. On the
-    //   other hand we can't use < and > as delimeter as this would interfere with URL interlinks.
+    //   tags and then white space could no longer be used as sole delimiter for URLs. On the
+    //   other hand we can't use < and > as delimiter as this would interfere with URL shortcodes.
     //   So plaintext urls need to be parsed before tables and lists.
     'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[.,;:\?\!)\]}"\'])?/',
 
@@ -157,17 +157,17 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     self::$CACHE = new MarkupCache(self::CACHE_PREFIX);
 
     //
-    // interlinks
+    // shortcodes
     //
 
     // Handles regular links to post (ie. without prefix), as well as attachment and WordPress links (such
     // as categories, tags, blogroll, and archive).
     self::register_interlink_handler(self::$interlinks, new WordpressLinkProvider());
 
-    // let the custom interlinks overwrite the WordPress link provider, but not the media macro.
+    // let the custom shortcodes overwrite the WordPress link provider, but not the media macro.
     self::register_all_interlink_patterns(self::$interlinks);
 
-    // Media macro (images) - load it as the last one (to overwrite any previously created custom interlinks)
+    // Media macro (images) - load it as the last one (to overwrite any previously created custom shortcodes)
     self::register_interlink_handler(self::$interlinks, new MediaMacro());
 
     self::$IS_STATIC_INITIALIZED = true;
@@ -257,7 +257,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    * @param array $thumbnail_ids  an array of the ids of the thumbnails used in the post
    */
   public function determine_externals($post, &$thumbnail_ids) {
-    // This method is a trimmed down version of "convert_markup_to_html_uncached()". It finds all interlinks and processes
+    // This method is a trimmed down version of "convert_markup_to_html_uncached()". It finds all shortcodes and processes
     // them to find all thumbnails. Note that this method works on the original post content rather than on the
     // content WordPress gives us. This is necessary since the content Wordpress gives us may be only an excerpt
     // which in turn won't contain all image links.
@@ -267,7 +267,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $ret = preg_replace('/\r\n|\r/', "\n", $post->post_content);
     $ret = $this->maskNoParseTextSections($ret);
 
-    $this->execute_regex('interlinks', $ret);
+    $this->execute_regex('shortcodes', $ret);
 
     $thumbnail_ids = array_keys($this->thumbs_used);
   }
