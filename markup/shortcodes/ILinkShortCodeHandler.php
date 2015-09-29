@@ -28,9 +28,9 @@ MSCL_require_once('LinkTargetNotFoundException.php', __FILE__);
  * Interface to resolve an Interlink to a URL.
  *
  * @remarks This is the more simple version of an Interlink. It simply produces a HTML link (ie.
- *   "<a href="...">..</a>"). For creating custom HTML from a Interlink, use "IMacroShortCode" instead.
+ *   "<a href="...">..</a>"). For creating custom HTML from a Interlink, use "IMacroShortCodeHandler" instead.
  */
-interface ILinkShortCode {
+interface ILinkShortCodeHandler {
   /**
    * Represents a post in the current blog. The value equals to "$post->post_type".
    */

@@ -21,13 +21,13 @@
 
 require_once(dirname(__FILE__) . '/../../api/commons.php');
 
-MSCL_require_once('ILinkShortCode.php', __FILE__);
+MSCL_require_once('ILinkShortCodeHandler.php', __FILE__);
 
 
 /**
  * Provides Interlink prefixes for most Wordpress blog links, like other posts, categories, tags, ...
  */
-class WordpressLinkShortCodeHandler implements ILinkShortCode
+class WordpressLinkShortCodeHandler implements ILinkShortCodeHandler
 {
     const TYPE_CATEGORY = 'category';
     const TYPE_TAG = 'tag';
@@ -155,7 +155,7 @@ class WordpressLinkShortCodeHandler implements ILinkShortCode
             // NOTE: Unlike the "attachment:" prefix this doesn't link directly to the attached file but to a
             //   description page for this attachment.
             $link = get_attachment_link($post->ID);
-            $type = ILinkShortCode::TYPE_ATTACHMENT;
+            $type = ILinkShortCodeHandler::TYPE_ATTACHMENT;
         }
         else if ($post->post_status == 'publish')
         {
@@ -189,7 +189,7 @@ class WordpressLinkShortCodeHandler implements ILinkShortCode
         $link        = null;
         $title       = null;
         $is_external = false;
-        $type        = ILinkShortCode::TYPE_ATTACHMENT;
+        $type        = ILinkShortCodeHandler::TYPE_ATTACHMENT;
 
         $att_id = MarkupUtil::get_attachment_id($params[0], $post_id);
         if ($att_id === null)

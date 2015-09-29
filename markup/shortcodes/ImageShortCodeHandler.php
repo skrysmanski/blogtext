@@ -27,9 +27,9 @@ use MSCL\FileInfo\ImageFileInfo;
 require_once(dirname(__FILE__).'/../../api/commons.php');
 MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 
-MSCL_require_once('IMacroShortCode.php', __FILE__);
+MSCL_require_once('IMacroShortCodeHandler.php', __FILE__);
 
-class ImageShortCode implements IMacroShortCode {
+class ImageShortCodeHandler implements IMacroShortCodeHandler {
   public function get_handled_prefixes() {
     return array('img', 'image');
   }
