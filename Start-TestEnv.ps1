@@ -66,6 +66,12 @@ try {
         throw 'Could not determine container id of wordpress container'
     }
 
+    # Fix some permissions that are broken due to mounting the plugin.
+    & docker exec -t $containerId chown www-data /var/www/html/wp-content /var/www/html/wp-content/plugins
+    if (-Not $?) {
+        throw 'Could change ownership of certain directories in the container.'
+    }
+
     # NOTE: For CLI commands, the PHP version doesn't really matter. Thus we don't use it.
     & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli core install `
         "--url=localhost:$HostPort" `
