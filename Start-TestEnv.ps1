@@ -31,6 +31,26 @@ try {
             }
         }
     }
+
+    Write-Host
+    Write-Host 'Installing WordPress...'
+
+    $containerId = & docker-compose ps -q wordpress
+    if (-Not $?) {
+        throw 'Could not determine container id of wordpress container'
+    }
+
+    & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli core install `
+        '--url=localhost:8080' `
+        '--title=Wordpress Test Site' `
+        --admin_user=admin `
+        --admin_password=test1234 `
+        '--admin_email=test@test.com' `
+        --skip-email `
+        --color
+    if (-Not $?) {
+        throw 'Could not install Wordpress'
+    }
 }
 catch {
     # IMPORTANT: We compare type names(!) here - not actual types. This is important because - for example -
