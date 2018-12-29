@@ -17,6 +17,7 @@ services:
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: insecure-password123
       WORDPRESS_DB_NAME: wpdb
+      WORDPRESS_DEBUG: '1'
 
   db:
     image: mysql:5.7

@@ -41,7 +41,7 @@ try {
     }
 
     Write-Host
-    Write-Host 'Waiting for container to come up...'
+    Write-Host 'Waiting for containers to come up...'
 
     for ($i = 0; $i -lt $MaxConnectRetries; $i++) {
         try {
@@ -55,7 +55,7 @@ try {
                 Write-Host -ForegroundColor DarkGray "Attempt: $($i + 2)"
             }
             else {
-                Write-Error 'Container did not come up'
+                Write-Error 'Containers did not come up'
             }
         }
     }
@@ -65,7 +65,7 @@ try {
 
     $containerId = & docker-compose --project-name $ProjectName ps -q web
     if ((-Not $?) -or (-Not $containerId)) {
-        throw 'Could not determine container id of wordpress container'
+        throw 'Could not determine container id of web container'
     }
 
     # Fix some permissions that are broken due to mounting the plugin.
