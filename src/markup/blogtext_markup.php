@@ -25,8 +25,8 @@ MSCL_Api::load(MSCL_Api::THUMBNAIL_CACHE);
 
 MSCL_require_once('textmarkup_base.php', __FILE__);
 MSCL_require_once('markup_cache.php', __FILE__);
-MSCL_require_once('interlinks/MediaMacro.php', __FILE__);
-MSCL_require_once('interlinks/WordpressLinkResolver.php', __FILE__);
+MSCL_require_once('shortcodes/ImageShortCodeHandler.php', __FILE__);
+MSCL_require_once('shortcodes/WordpressLinkShortCodeHandler.php', __FILE__);
 
 
 class MarkupException extends Exception {
@@ -61,20 +61,20 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     //   and '=' (like in "a != b"). So we make this syntax more restrictive.
     'headings' =>'/^[ \t]*(={1,6})(.*?)(?:[=]+[ \t]*#([^ \t].*)[ \t]*)?$/m',
 
-    // InterLinks using the [[ ]] syntax
+    // BlogText short codes using the [[ ]] syntax
     // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
     // NOTE: Must run AFTER "headings" and BEFORE the tables, as the tables also use pipes
     // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
-    'interlinks' => '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
-    // Interlink without arguments [[[ ]]] (three brackets instead of two)
+    'shortcodes' => '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
+    // BlogText short codes without arguments [[[ ]]] (three brackets instead of two)
     // NOTE: For now this must run after "headings" as otherwise the TOC can't be generated (which is done
     //   by this rule.
-    'simple_interlinks' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
+    'simple_shortcodes' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
 
     // External links (plain text urls)
     // NOTE: Plain text urls must also work in list. Lists may surround the links with <li>
-    //   tags and then white space could no longer be used as sole delimter for URLs. On the
-    //   other hand we can't use < and > as delimeter as this would interfere with URL interlinks.
+    //   tags and then white space could no longer be used as sole delimiter for URLs. On the
+    //   other hand we can't use < and > as delimiter as this would interfere with URL shortcodes.
     //   So plaintext urls need to be parsed before tables and lists.
     'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[.,;:\?\!)\]}"\'])?/',
 
@@ -157,18 +157,18 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     self::$CACHE = new MarkupCache(self::CACHE_PREFIX);
 
     //
-    // interlinks
+    // shortcodes
     //
 
     // Handles regular links to post (ie. without prefix), as well as attachment and WordPress links (such
     // as categories, tags, blogroll, and archive).
-    self::register_interlink_handler(self::$interlinks, new WordpressLinkProvider());
+    self::register_interlink_handler(self::$interlinks, new WordpressLinkShortCodeHandler());
 
-    // let the custom interlinks overwrite the WordPress link provider, but not the media macro.
+    // let the custom shortcodes overwrite the WordPress link provider, but not the media macro.
     self::register_all_interlink_patterns(self::$interlinks);
 
-    // Media macro (images) - load it as the last one (to overwrite any previously created custom interlinks)
-    self::register_interlink_handler(self::$interlinks, new MediaMacro());
+    // Media macro (images) - load it as the last one (to overwrite any previously created custom shortcodes)
+    self::register_interlink_handler(self::$interlinks, new ImageShortCodeHandler());
 
     self::$IS_STATIC_INITIALIZED = true;
   }
@@ -257,7 +257,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
    * @param array $thumbnail_ids  an array of the ids of the thumbnails used in the post
    */
   public function determine_externals($post, &$thumbnail_ids) {
-    // This method is a trimmed down version of "convert_markup_to_html_uncached()". It finds all interlinks and processes
+    // This method is a trimmed down version of "convert_markup_to_html_uncached()". It finds all shortcodes and processes
     // them to find all thumbnails. Note that this method works on the original post content rather than on the
     // content WordPress gives us. This is necessary since the content Wordpress gives us may be only an excerpt
     // which in turn won't contain all image links.
@@ -267,7 +267,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $ret = preg_replace('/\r\n|\r/', "\n", $post->post_content);
     $ret = $this->maskNoParseTextSections($ret);
 
-    $this->execute_regex('interlinks', $ret);
+    $this->execute_regex('shortcodes', $ret);
 
     $thumbnail_ids = array_keys($this->thumbs_used);
   }
@@ -630,7 +630,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return '<a'.$css_classes.' href="'.$url.'"'.$target_attr.'>'.$name.'</a>';
   }
 
-  private function interlinks_callback($matches) {
+  private function shortcodes_callback($matches) {
     // split at | (but not at \| but at \\|)
     $params = preg_split('/(?<!(?<!\\\\)\\\\)\|/', $matches[1]);
     // unescape \|, \[, and \] - don't escape \\ just yet, as it may still be used in \:
@@ -700,15 +700,15 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       // NOTE: The prefix may even be empty.
       $prefix_handler = self::$interlinks[$prefix_lowercase];
 
-      if ($prefix_handler instanceof IInterlinkMacro) {
+      if ($prefix_handler instanceof IMacroShortCodeHandler) {
         // Let the macro create the HTML code and return it directly.
         return $prefix_handler->handle_macro($this, $prefix_lowercase, $params, $generate_html, $text_after);
       }
 
-      if ($prefix_handler instanceof IInterlinkLinkResolver) {
+      if ($prefix_handler instanceof ILinkShortCodeHandler) {
         try {
           list($link, $title, $is_external, $link_type) = $prefix_handler->resolve_link($post_id, $prefix_lowercase, $params);
-          $is_attachment = ($link_type == IInterlinkLinkResolver::TYPE_ATTACHMENT);
+          $is_attachment = ($link_type == ILinkShortCodeHandler::TYPE_ATTACHMENT);
         }
         catch (LinkTargetNotFoundException $e) {
           $not_found_reason = $e->get_reason();
@@ -771,10 +771,10 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
       // Attachments are a special case.
       $css_classes = array('attachment' => true);
     }
-    else if ($link_type == IInterlinkLinkResolver::TYPE_EMAIL_ADDRESS) {
+    else if ($link_type == ILinkShortCodeHandler::TYPE_EMAIL_ADDRESS) {
       $css_classes = array('mailto' => true);
     }
-    else if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+    else if ($link_type == ILinkShortCodeHandler::TYPE_SAME_PAGE_ANCHOR) {
       // Link on the same page - add text position requests to determine whether the heading is above or
       // below the link's position.
       // NOTE: We can't check whether the heading already exists in our headings array to determine whether
@@ -860,7 +860,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
       // No "else if(empty($title))" here as (although unlikely) the last parameter may have been empty
       if (empty($title)) {
-        if ($link_type == IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+        if ($link_type == ILinkShortCodeHandler::TYPE_SAME_PAGE_ANCHOR) {
           $anchor_name = substr($link, 1); // remove leading #
           if ($this->needsHmlIdEscaping()) {
             $anchor_name = $this->unescapeHtmlId($anchor_name);
@@ -876,7 +876,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     if (!empty($not_found_reason)) {
       // Page not found
       $title .= '['.$not_found_reason.']';
-      if ($link_type != IInterlinkLinkResolver::TYPE_SAME_PAGE_ANCHOR) {
+      if ($link_type != ILinkShortCodeHandler::TYPE_SAME_PAGE_ANCHOR) {
         $css_classes = array('not-found' => true);
       } else {
         $css_classes = array('section-link-not-existing' => true);
@@ -1144,7 +1144,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     return str_replace('%', '.', rawurlencode($ret));
   }
 
-  private function simple_interlinks_callback($matches) {
+  private function simple_shortcodes_callback($matches) {
     // TODO: Make this "real" plugins - not just hardcoded TOC
     switch (strtolower($matches[1])) {
       case 'toc':

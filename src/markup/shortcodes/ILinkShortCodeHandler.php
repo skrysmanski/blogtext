@@ -26,11 +26,11 @@ MSCL_require_once('LinkTargetNotFoundException.php', __FILE__);
 
 /**
  * Interface to resolve an Interlink to a URL.
- * 
- * @remarks This is the more simple version of an Interlink. It simply produces a HTML link (ie. 
- *   "<a href="...">..</a>"). For creating custom HTML from a Interlink, use "IInterlinkMacro" instead.
+ *
+ * @remarks This is the more simple version of an Interlink. It simply produces a HTML link (ie.
+ *   "<a href="...">..</a>"). For creating custom HTML from a Interlink, use "IMacroShortCodeHandler" instead.
  */
-interface IInterlinkLinkResolver {
+interface ILinkShortCodeHandler {
   /**
    * Represents a post in the current blog. The value equals to "$post->post_type".
    */
@@ -55,12 +55,12 @@ interface IInterlinkLinkResolver {
   /**
    * Returns the names of all prefixes handled by this resolver.
    *
-   * @return array the prefixed (as array of strings). Prefixes are returned without trailing colon.
+   * @return string[] the prefixes. Prefixes are returned without trailing colon.
    */
   public function get_handled_prefixes();
 
   /**
-   * Resolves the specified interlink. Throws a "LinkTargetNotFoundException" if the specified link target 
+   * Resolves the specified interlink. Throws a "LinkTargetNotFoundException" if the specified link target
    * doesn't exist.
    *
    * @param int $post_id  the id of the post/page the interlink is contained in
@@ -71,15 +71,15 @@ interface IInterlinkLinkResolver {
    *
    * @return array Returns an array containing the following items (in this order):
    *   url, title, is_external, type
-   *   
+   *
    *   "url": The URL to which this link points. Must not be empty or null.
    *
-   *   "title": can be "null", if the last parameter is to be used as title. This is a convention and should 
-   *      not be violated. The exception would be when it's absolutely sure that the last parameter is 
+   *   "title": can be "null", if the last parameter is to be used as title. This is a convention and should
+   *      not be violated. The exception would be when it's absolutely sure that the last parameter is
    *      actually a parameter and not the title. In this case the title should be returned (as non null).
    *
    *   "is_external": indicates whether the link links to an external target or not. External links usually
-   *      are opened in a new window while internal ones aren't. External usually means "outside of the 
+   *      are opened in a new window while internal ones aren't. External usually means "outside of the
    *      current blog".
    *
    *   "type": should be one of this class' constants (eg. @see TYPE_POST). It can also be any other type but

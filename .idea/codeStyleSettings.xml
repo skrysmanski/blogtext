@@ -26,6 +26,7 @@
           <option name="LOWER_CASE_BOOLEAN_CONST" value="true" />
           <option name="LOWER_CASE_NULL_CONST" value="true" />
           <option name="BLANK_LINE_BEFORE_RETURN_STATEMENT" value="true" />
+          <option name="NAMESPACE_BRACE_STYLE" value="2" />
         </PHPCodeStyleSettings>
         <XML>
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
@@ -44,17 +45,19 @@
         </codeStyleSettings>
         <codeStyleSettings language="PHP">
           <option name="RIGHT_MARGIN" value="120" />
+          <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
           <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="0" />
           <option name="BLANK_LINES_AFTER_PACKAGE" value="1" />
           <option name="BRACE_STYLE" value="2" />
           <option name="ELSE_ON_NEW_LINE" value="true" />
+          <option name="WHILE_ON_NEW_LINE" value="true" />
           <option name="CATCH_ON_NEW_LINE" value="true" />
           <option name="FINALLY_ON_NEW_LINE" value="true" />
           <option name="SPECIAL_ELSE_IF_TREATMENT" value="true" />
           <option name="ALIGN_MULTILINE_CHAINED_METHODS" value="true" />
-          <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
-          <option name="ALIGN_MULTILINE_FOR" value="false" />
+          <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="true" />
           <option name="ALIGN_MULTILINE_BINARY_OPERATION" value="true" />
+          <option name="ALIGN_MULTILINE_TERNARY_OPERATION" value="true" />
           <option name="ALIGN_MULTILINE_EXTENDS_LIST" value="true" />
           <option name="SPACE_AROUND_UNARY_OPERATOR" value="true" />
           <option name="SPACE_AFTER_TYPE_CAST" value="true" />
