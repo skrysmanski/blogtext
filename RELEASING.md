@@ -2,7 +2,7 @@
 
 ## Steps **before** releasing a new version
 
-1. Check readme at: <https://wordpress.org/plugins/about/validator/>
+1. Check readme at: <https://wordpress.org/plugins/developers/readme-validator/>
    * Especially for incorrect line breaks
 1. Check issue tracker for open issues
 1. Check support forum for open issue
