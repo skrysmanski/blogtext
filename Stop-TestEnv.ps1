@@ -7,6 +7,9 @@ param(
 $script:ErrorActionPreference = 'Stop'
 
 try {
+    # Env vars are required to supress warning (they're not used during "down")
+    $env:WORDPRESS_DOCKER_TAG = 'xxx'
+
     & docker-compose --project-name $ProjectName down
     if (-Not $?) {
         throw '"docker-compose down" failed'

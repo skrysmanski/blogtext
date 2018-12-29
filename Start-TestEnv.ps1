@@ -1,5 +1,9 @@
 #!/usr/bin/env pwsh
 param(
+    [string] $WordpressVersion = '',
+
+    [string] $PhpVersion = '',
+
     [string] $ProjectName = 'blogtext',
 
     [int] $MaxConnectRetries = 20
@@ -9,6 +13,21 @@ param(
 $script:ErrorActionPreference = 'Stop'
 
 try {
+    if (($WordpressVersion -ne '') -and ($PhpVersion -ne '')) {
+        $wordpressTag = "$WordpressVersion-php$PhpVersion"
+    }
+    elseif ($WordpressVersion -ne '') {
+        $wordpressTag = $WordpressVersion
+    }
+    elseif ($PhpVersion -ne '') {
+        $wordpressTag = "php$PhpVersion"
+    }
+    else {
+        $wordpressTag = 'latest'
+    }
+
+    $env:WORDPRESS_DOCKER_TAG = $wordpressTag
+
     & docker-compose --project-name $ProjectName up --detach
     if (-Not $?) {
         throw '"docker-compose up" failed'
