@@ -4,6 +4,8 @@ services:
 
   wordpress:
     image: wordpress
+    depends_on:
+      - db
     ports:
       - 8080:80
     environment:
