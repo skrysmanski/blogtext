@@ -5,7 +5,7 @@
 # syntax problems resulting from code changes.
 #
 
-require_once(dirname(__FILE__).'/../api/commons.php');
+require_once(dirname(__FILE__).'/../blogtext/api/commons.php');
 
 class BlogTextTests {
   /**
@@ -43,8 +43,8 @@ class BlogTextTests {
     $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:13.0) Gecko/20100101 Firefox/13.0';
 
     try {
-      require_once(dirname(__FILE__).'/../markup/blogtext_markup.php');
-      require_once(dirname(__FILE__).'/../admin/settings.php');
+      require_once(dirname(__FILE__).'/../blogtext/markup/blogtext_markup.php');
+      require_once(dirname(__FILE__).'/../blogtext/admin/settings.php');
       // you must first include the image.php file
       // for the function wp_generate_attachment_metadata() to work
       require_once(ABSPATH . 'wp-admin/includes/image.php');

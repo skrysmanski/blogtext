@@ -72,7 +72,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
   }
 
   public static function are_tests_available() {
-    return (is_dir(dirname(__FILE__).'/tests'));
+    return (is_dir(dirname(__FILE__).'/../blogtext-tests'));
   }
 
   public function wordpress_initialize() {
@@ -84,7 +84,7 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
 
       if (self::are_tests_available()) {
         // Tests are available
-        MSCL_require_once('tests/tests-admin-page.php', __FILE__);
+        MSCL_require_once('../blogtext-tests/tests-admin-page.php', __FILE__);
         new BlogTextTestExecutionPage();
       }
     }
