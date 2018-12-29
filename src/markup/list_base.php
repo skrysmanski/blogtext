@@ -218,16 +218,19 @@ class ATM_ListStack {
       if (!$continue_list || $opened_unique_item_type != $this->list_stack[$common_lvl - 1][0]) {
         // only add new item, if not continuing or the types don't match (ie. you can't continue a <ul>, if
         // the currently open list is <ol> list)
-        $this->list_stack[$common_lvl - 1][1]->append_new_item(new ATM_ListItem(self::get_list_item_type($opened_unique_item_type)));
+        $new_item = new ATM_ListItem(self::get_list_item_type($opened_unique_item_type));
+        $this->list_stack[$common_lvl - 1][1]->append_new_item($new_item);
       }
-    } else if ($common_lvl != 0 && self::is_def_list($new_level_item_types[$common_lvl - 1])) {
+    }
+    else if ($common_lvl != 0 && self::is_def_list($new_level_item_types[$common_lvl - 1])) {
       // Special case: The most common element is a definition list, but the previous and the new item types
       // aren't the same (ie. <dt> -> <dd> or <dd> -> <dt>). (If they were the same, we would go in the
       // if-branch instead of here.)
       //
       // Now we need to open the the new item type before opening the nested lists.
       $opened_unique_item_type = $new_level_item_types[$common_lvl - 1];
-      $this->list_stack[$common_lvl - 1][1]->append_new_item(new ATM_ListItem(self::get_list_item_type($opened_unique_item_type)));
+      $new_item = new ATM_ListItem(self::get_list_item_type($opened_unique_item_type));
+      $this->list_stack[$common_lvl - 1][1]->append_new_item($new_item);
     }
 
     if ($common_lvl < $cur_lvl) {
@@ -236,7 +239,8 @@ class ATM_ListStack {
       for ($i = $common_lvl; $i < $cur_lvl; $i++) {
         $opened_unique_item_type = $new_level_item_types[$i];
         $cur_open_list = new ATM_List(self::get_list_type($opened_unique_item_type));
-        $cur_open_list->append_new_item(new ATM_ListItem(self::get_list_item_type($opened_unique_item_type)));
+        $new_item = new ATM_ListItem(self::get_list_item_type($opened_unique_item_type));
+        $cur_open_list->append_new_item($new_item);
         $this->append($cur_open_list);
         $this->list_stack[] = array($opened_unique_item_type, &$cur_open_list);
       }
@@ -261,12 +265,12 @@ class ATM_ListStack {
   public function append_para() {
     $this->append_text("\n");
   }
-  
+
   public function close_lists($count) {
     if (count($this->list_stack) < $count) {
       throw new Exception("You're closing too many lists.");
     }
-    
+
     for ($i = 0; $i < $count; $i++) {
       array_pop($this->list_stack);
     }
