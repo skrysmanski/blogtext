@@ -8,6 +8,8 @@ services:
       - db
     ports:
       - 8080:80
+    volumes:
+      - ./src:/var/www/html/wp-content/plugins/blogtext:ro
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: wordpress
