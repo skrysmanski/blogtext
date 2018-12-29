@@ -1,99 +1,61 @@
-Hacking BlogText
-================
+# Hacking BlogText
+
 This file contains some hints for developing BlogText.
 
-See also: http://codex.wordpress.org/Debugging_in_WordPress
+See also: <http://codex.wordpress.org/Debugging_in_WordPress>
 
 Recommended WP-Plugins:
 
- * Debug Bar
+* Debug Bar
 
 Debugging:
 
- * var_dump() : dumps the whole structure of the variable to the output
- * MSCL_ErrorHandling::print_stacktrace() : prints a brief stacktrace
- * log_stacktrace() : log the current stacktrace
- * log_error(), log_warn(), log_info(), console() : logs to FireBug console
+* `var_dump()` : dumps the whole structure of the variable to the output
+* `MSCL_ErrorHandling::print_stacktrace()` : prints a brief stacktrace
+* `log_stacktrace()` : log the current stacktrace
+* `log_error()`, `log_warn()`, `log_info()`, `console()` : logs to the JavaScript browser console
 
+## General Development
 
-Generic Development Directory Structure
----------------------------------------
-If you only want to develop against one Wordpress version (say, the latest), just check out BlogText directly into the
-"plugins" folder (see next section).
+To test out changes to BlogText, you can easily spin up a development server. To do this, you need two things:
 
-If, on the other hand, you want to develop against multiple Wordpress version, use symlinks and the following structure:
+* PowerShell
+* Docker
 
-  /
-  +- BlogText  <-- checked out hg repo
-  +- wordpress-3.1  <-- for Wordpress 3.1.x
-     +- wp-content/plugins/blogtext  <-- symlink to /BlogText
-  +- wordpress-3.2  <-- for Wordpress 3.2.x
-     +- wp-content/plugins/blogtext  <-- symlink to /BlogText
-  +- wordpress-3.3  <-- for Wordpress 3.3.x
-     +- wp-content/plugins/blogtext  <-- symlink to /BlogText
-  ...
+Then just call:
 
-When using PhpStorm, use the "BlogText" directory as project path.
+    ./Start-TestEnv.ps1
 
-On Windows, you can use the "Link Shell Extension" (http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html)
-to create "Symbolic Links" (Windows Vista and higher) or "Junctions" (Windows XP and lower).
+This will spin up a Wordpress Docker container (with the most recent Wordpress and PHP version).
 
-On the webserver then create a symlink to the root directory (i.e. the one containing the "wordpress-x.x" directories).
-This way you automatically gain access to all Wordpress versions (and don't need to link each one individually).
+The development server is then available at:
 
-NOTE: OS X's "alias" (which is available in Finder) doesn't work.
+    http://localhost:8080
 
+You can customize both the Wordpress and the PHP version by specifying the appropriate parameters; e.g.:
 
-Prepare Wordpress Testinstallation
-----------------------------------
-Only once do this:
+    ./Start-TestEnv.ps1 -WordpressVersion 5.0 -PhpVersion 7.1
 
-  Create a MySQL database called "wordpress" (or whatever you want to call it) and an associated user.
+**Note:** This only supports versions that are available in the [Wordpress Docker image](https://hub.docker.com/_/wordpress).
 
-  When using phpMyAdmin:
-    1. Log in
-    2. Go to "Users"
-    3. "Add new user"
-    4a. "User name": wordpress
-    4b. "Host": Local (NOTE: "Any host" does NOT include localhost)
-    4c. "Password" select "No password" from the dropdown menu (or choose one, if you wish)
-    4d. "Database for user": "Create database with same name and grant all privileges"
-    4e. Click "Add User"
+To stop the development server, call:
 
-Then for each new Wordpress installation, do:
+    ./Stop-TestEnv.ps1
 
-  1.  Download the desired Wordpress version
-      * Most recent release: http://wordpress.org/download/
-      * Release Archive: http://wordpress.org/download/release-archive/
-  2.  Open URL to the Wordpress installation (e.g. http://localhost/wordpress-3.3/)
-  3.  Click "Create a Configuration File" and follow the steps.
-  4.  Database Setup:
-      For "Table Prefix" specify "wpxx_" with the Wordpress version (e.g. "wp33_" for Wordpress 3.3.x)
-  5.  General Setup:
-      Use "Wordpress x.x" as title and fill the other stuff.
-  6.  Edit "wp-config.php":
-      - Set "define('WP_DEBUG', true);" (define already exists at the end of the file)
-      - Also add "error_reporting(E_ALL);" at the end(!) of "wp-config.php"
-  7.  Install and activate BlogText plugin (under "InstallDir/wp-content/plugins")
-      a) either directly from the BitBucket repository
-      b) or create a symlink (like described in the previous section)
-         $ ln -s ../../../blogtext
-  8.  Activate BlogText
-  9.  Make sure that you use the "Default" permalink structure (.../?p=123)
-      under "Settings" -> "Permalinks"
-  10. Run the tests (under Tools/BlogTextTests).
-  11. Check whether the output files have changed.
-      $ hg diff ...
+**Note:** The development server will create two named volumes (usually `blogtext-wp-latest_db` and `blogtext-wp-latest_wordpress`) in your Docker environment. You can list them via `docker volume ls`. Stopping the development server will **not delete these volumes**. You have to do this manually, if you want to get rid of them (but it's usually fine to keep them).
 
+## Run BlogText tests
 
-Manual WP-integration tests
----------------------------
+1. Run the tests (under **Tools/BlogTextTests**).
+1. Check whether any files have changed (via `git status`)
+
+## Manual WP-integration tests
+
 These tests test stuff that uses some internals of WordPress and therefor is prone to be broken on version
 changes.
 
- * Are the editor buttons in the editor and do they insert their code correctly?
- * Is previewing a post working?
- * Does the language lookup button work?
- * Does the settings page still look ok?
- * When clearing the page cache (using the BlogText settings page), do we get a notification that the page
-   cache was cleared?
+* Are the editor buttons in the editor and do they insert their code correctly?
+* Is previewing a post working?
+* Does the language lookup button work?
+* Does the settings page still look ok?
+* When clearing the page cache (using the BlogText settings page), do we get a notification that the page cache was cleared?
