@@ -11,8 +11,8 @@ For general help on Wordpress' plugin directory, see <https://developer.wordpres
 
 ## Steps **when** releasing a new version
 
-1. Make sure "Tested up to" and "Stable tag" in "readme.txt" have been properly updated
-1. Make sure "Version" in "blogtext.php" has been updated properly
+1. Make sure `Tested up to` and `Stable tag` in `src/readme.txt` have been updated.
+1. Make sure `Version` in `src/blogtext.php` has been updated.
 
 1. Run "build.sh"
 1. Create SVN tag for version
