@@ -32,6 +32,8 @@ try {
     $env:WORDPRESS_HOST_PORT = $HostPort
 
     $ProjectName = "$ProjectName-wp-$wordpressTag"
+    $env:WORDPRESS_WEB_CONTAINER_NAME = "$($ProjectName)_web"
+    $env:WORDPRESS_DB_CONTAINER_NAME = "$($ProjectName)_db"
 
     & docker-compose --project-name $ProjectName up --detach
     if (-Not $?) {
@@ -61,8 +63,8 @@ try {
     Write-Host
     Write-Host -ForegroundColor Cyan 'Installing WordPress...'
 
-    $containerId = & docker-compose --project-name $ProjectName ps -q wordpress
-    if (-Not $?) {
+    $containerId = & docker-compose --project-name $ProjectName ps -q web
+    if ((-Not $?) -or (-Not $containerId)) {
         throw 'Could not determine container id of wordpress container'
     }
 
@@ -72,6 +74,11 @@ try {
         throw 'Could change ownership of certain directories in the container.'
     }
 
+    #
+    # Wordpress CLI:
+    #  - https://wp-cli.org/
+    #  - https://developer.wordpress.org/cli/commands/
+    #
     # NOTE: For CLI commands, the PHP version doesn't really matter. Thus we don't use it.
     & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli core install `
         "--url=localhost:$HostPort" `

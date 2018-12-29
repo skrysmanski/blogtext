@@ -2,8 +2,9 @@ version: '3.1'
 
 services:
 
-  wordpress:
+  web:
     image: wordpress:${WORDPRESS_DOCKER_TAG}
+    container_name: ${WORDPRESS_WEB_CONTAINER_NAME}
     depends_on:
       - db
     ports:
@@ -19,6 +20,7 @@ services:
 
   db:
     image: mysql:5.7
+    container_name: ${WORDPRESS_DB_CONTAINER_NAME}
     volumes:
       - db:/var/lib/mysql
     environment:

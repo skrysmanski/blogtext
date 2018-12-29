@@ -25,6 +25,8 @@ try {
     }
 
     $ProjectName = "$ProjectName-wp-$wordpressTag"
+    $env:WORDPRESS_WEB_CONTAINER_NAME = "$($ProjectName)_web"
+    $env:WORDPRESS_DB_CONTAINER_NAME = "$($ProjectName)_db"
 
     # Env vars are required to supress warning (they're not used during "down")
     $env:WORDPRESS_DOCKER_TAG = 'xxx'
