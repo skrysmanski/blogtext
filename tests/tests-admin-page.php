@@ -18,7 +18,7 @@
 #
 #########################################################################################
 
-require_once(dirname(__FILE__).'/../api/commons.php');
+require_once(dirname(__FILE__).'/../blogtext/api/commons.php');
 MSCL_Api::load(MSCL_Api::OPTIONS_API);
 
 class BlogTextTestActionButtonsForm extends MSCL_ButtonsForm {
