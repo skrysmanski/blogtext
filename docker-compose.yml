@@ -9,6 +9,7 @@ services:
     ports:
       - 8080:80
     volumes:
+      - wordpress:/var/www/html
       - ./src:/var/www/html/wp-content/plugins/blogtext:ro
     environment:
       WORDPRESS_DB_HOST: db
@@ -18,8 +19,14 @@ services:
 
   db:
     image: mysql:5.7
+    volumes:
+      - db:/var/lib/mysql
     environment:
       MYSQL_DATABASE: wpdb
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: insecure-password123
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
+
+volumes:
+  wordpress:
+  db:
