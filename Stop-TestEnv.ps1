@@ -1,5 +1,9 @@
 #!/usr/bin/env pwsh
 param(
+    [string] $WordpressVersion = '',
+
+    [string] $PhpVersion = '',
+
     [string] $ProjectName = 'blogtext'
 )
 
@@ -7,6 +11,21 @@ param(
 $script:ErrorActionPreference = 'Stop'
 
 try {
+    if (($WordpressVersion -ne '') -and ($PhpVersion -ne '')) {
+        $wordpressTag = "$WordpressVersion-php$PhpVersion"
+    }
+    elseif ($WordpressVersion -ne '') {
+        $wordpressTag = $WordpressVersion
+    }
+    elseif ($PhpVersion -ne '') {
+        $wordpressTag = "php$PhpVersion"
+    }
+    else {
+        $wordpressTag = 'latest'
+    }
+
+    $ProjectName = "$ProjectName-wp-$wordpressTag"
+
     # Env vars are required to supress warning (they're not used during "down")
     $env:WORDPRESS_DOCKER_TAG = 'xxx'
     $env:WORDPRESS_HOST_PORT = 8080

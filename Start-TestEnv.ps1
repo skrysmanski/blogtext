@@ -31,6 +31,8 @@ try {
     $env:WORDPRESS_DOCKER_TAG = $wordpressTag
     $env:WORDPRESS_HOST_PORT = $HostPort
 
+    $ProjectName = "$ProjectName-wp-$wordpressTag"
+
     & docker-compose --project-name $ProjectName up --detach
     if (-Not $?) {
         throw '"docker-compose up" failed'
