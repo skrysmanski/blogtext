@@ -9,6 +9,7 @@ $script:ErrorActionPreference = 'Stop'
 try {
     # Env vars are required to supress warning (they're not used during "down")
     $env:WORDPRESS_DOCKER_TAG = 'xxx'
+    $env:WORDPRESS_HOST_PORT = 8080
 
     & docker-compose --project-name $ProjectName down
     if (-Not $?) {
