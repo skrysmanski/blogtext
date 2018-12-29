@@ -1,5 +1,7 @@
 #!/usr/bin/env pwsh
 param(
+    [string] $ProjectName = 'blogtext',
+
     [int] $MaxConnectRetries = 20
 )
 
@@ -7,7 +9,7 @@ param(
 $script:ErrorActionPreference = 'Stop'
 
 try {
-    & docker-compose up --detach
+    & docker-compose --project-name $ProjectName up --detach
     if (-Not $?) {
         throw '"docker-compose up" failed'
     }
@@ -35,7 +37,7 @@ try {
     Write-Host
     Write-Host -ForegroundColor Cyan 'Installing WordPress...'
 
-    $containerId = & docker-compose ps -q wordpress
+    $containerId = & docker-compose --project-name $ProjectName ps -q wordpress
     if (-Not $?) {
         throw 'Could not determine container id of wordpress container'
     }
