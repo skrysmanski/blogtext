@@ -61,6 +61,7 @@ try {
         throw 'Could not determine container id of wordpress container'
     }
 
+    # NOTE: For CLI commands, the PHP version doesn't really matter. Thus we don't use it.
     & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli core install `
         '--url=localhost:8080' `
         '--title=Wordpress Test Site' `
@@ -73,6 +74,7 @@ try {
         throw 'Could not install Wordpress'
     }
 
+    Write-Host
     Write-Host -ForegroundColor Cyan 'Activating plugin "BlogText"...'
     & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli plugin activate blogtext
     if (-Not $?) {
