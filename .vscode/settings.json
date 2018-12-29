@@ -1,0 +1,15 @@
+{
+    "cSpell.words": [
+        "MSCL",
+        "Wordpress",
+        "blogtext"
+    ],
+    "cSpell.ignorePaths": [
+        "**/package-lock.json",
+        "**/node_modules/**",
+        "**/vscode-extension/**",
+        "**/.git/**",
+        ".vscode",
+        "*.php" // <-- just too many false positives
+    ]
+}
