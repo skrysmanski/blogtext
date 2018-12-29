@@ -1,24 +1,4 @@
 <?php
-#########################################################################################
-#
-# Copyright 2010-2011  Maya Studios (http://www.mayastudios.com)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#########################################################################################
-
-
 abstract class MSCL_AbstractPlugin {
   private $plugin_name;
   private $plugin_dir;
@@ -174,7 +154,7 @@ abstract class MSCL_AbstractPlugin {
   /**
    * Returns the main options page. The link to this page is added to Wordpress' plugin list. Note that you
    * need to override this method to return the correct page.
-   * 
+   *
    * @return MSCL_OptionPage  the option page or "null", if there's no option page
    */
   protected function get_main_options_page() {

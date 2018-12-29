@@ -1,24 +1,4 @@
 <?php
-#########################################################################################
-#
-# Copyright 2010-2011  Maya Studios (http://www.mayastudios.com)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#########################################################################################
-
-
 abstract class MSCL_Option {
   private $option_name;
   private $default_value;
@@ -163,7 +143,7 @@ class MSCL_TextareaOption extends MSCL_Option {
   protected function print_input_control() {
     echo '<textarea id="'.$this->get_id().'" name="'.$this->get_name().'" cols="'.$this->cols.'" rows="'.$this->rows.'">'.$this->get_value().'</textarea>';
   }
-  
+
   protected function check_value(&$input) {
     return true;
   }
@@ -188,7 +168,7 @@ class MSCL_BoolOption extends MSCL_Option {
     if ($value === null) {
       return false;
     }
-    
+
     if (is_bool($value)) {
       return $value;
     }
@@ -243,7 +223,7 @@ class MSCL_ChoiceOption extends MSCL_Option {
     if (!is_array($choices)) {
       throw new Exception("The choices must be an array.");
     }
-    
+
     // Convert choices
     $converted_choices = array();
     foreach ($choices as $key => $value) {
@@ -318,11 +298,11 @@ class MSCL_OptionsPageSection {
     }
     echo '<p>'.htmlspecialchars($this->get_doc()).'</p>';
   }
-  
+
   public function add_option($option) {
     $this->options[$option->get_name()] = $option;
   }
-  
+
   public function get_options() {
     return $this->options;
   }
@@ -348,7 +328,7 @@ abstract class MSCL_AbstractOptionsForm {
 
     // Check whether options have been updated.
     if (   isset($_REQUEST['action'])
-        && $_REQUEST['action'] == 'update' 
+        && $_REQUEST['action'] == 'update'
         && @$_REQUEST['option_page'] == $this->get_form_id()) {
       add_action('updated_option', array($this, 'updated_option_wrapper'), 10, 3);
       add_filter('wp_redirect', array($this, 'option_update_finished_wrapper'));
@@ -403,7 +383,7 @@ abstract class MSCL_AbstractOptionsForm {
 
   /**
    * Adds the specified update or error message.
-   * 
+   *
    * @param string $code Slug-name to identify the error. Used as part of 'id' attribute in HTML output.
    * @param string $message The formatted message text to display to the user (will be shown inside styled <div> and <p>)
    * @param string $type The type of message it is, controls HTML class. Use 'error' or 'updated'.
@@ -496,7 +476,7 @@ class MSCL_OptionsForm extends MSCL_AbstractOptionsForm {
   public function register_settings() {
     foreach ($this->sections as $section) {
       // add section to page
-      add_settings_section($section->get_name(), $section->get_title(), array($section, 'print_doc_html'), 
+      add_settings_section($section->get_name(), $section->get_title(), array($section, 'print_doc_html'),
                            $this->get_form_id());
 
       foreach ($section->get_options() as $option) {
@@ -561,7 +541,7 @@ abstract class MSCL_ButtonsForm extends MSCL_AbstractOptionsForm {
   <?php settings_fields($this->get_form_id()); ?>
 
   <?php $this->print_form_items(); ?>
-  
+
   <?php foreach ($this->buttons as $button): ?>
   <p class="submit">
     <input type="submit" class="button" name="<?php echo $button[0]; ?>" value="<?php echo $button[1]; ?>" />
@@ -571,7 +551,7 @@ abstract class MSCL_ButtonsForm extends MSCL_AbstractOptionsForm {
 </form>
 <?php
   }
-  
+
   protected function print_form_items() { }
 
   protected function on_options_updated($updated_options) {
@@ -596,19 +576,19 @@ class MSCL_OptionsPage {
   // See: http://codex.wordpress.org/Creating_Options_Pages#See_It_All_Together_2
 
   const DEFAULT_CAPABILITY = 'manage_options';
-  
+
   const PARENT_CAT_SETTINGS = 'options-general.php';
   const PARENT_CAT_TOOLS = 'tools.php';
   const PARENT_CAT_USERS = 'users.php';
   const PARENT_CAT_PLUGINS = 'plugins.php';
   const PARENT_CAT_APPEARENCE = 'themes.php';
-  
+
   const PARENT_CAT_DASHBOARD = 'index.php';
   const PARENT_CAT_POSTS = 'edit.php';
   const PARENT_CAT_MEDIA = 'upload.php';
   const PARENT_CAT_LINKS = 'link-manager.php';
   const PARENT_CAT_COMMENTS = 'edit-comments.php';
-  
+
   private $page_id;
   private $menu_title;
   private $page_title;
@@ -704,13 +684,13 @@ class MSCL_OptionsPage {
 ?>
 <div class="wrap">
 <h2><?php echo $this->get_page_title(); ?></h2>
-<?php 
+<?php
 global $parent_file;
 if ($parent_file != 'options-general.php') {
-  // NOTE: Settings errors will only be displayed automatically on pages within the "Settings" section. For 
+  // NOTE: Settings errors will only be displayed automatically on pages within the "Settings" section. For
   //   all other sections, we need to display it manually.
   //   See: wp-admin/admin-header.php (at the end)
-  settings_errors(); 
+  settings_errors();
 }
 ?>
 <?php
@@ -720,7 +700,7 @@ if ($parent_file != 'options-general.php') {
 <?php
   }
 
-  protected function print_forms() { 
+  protected function print_forms() {
     foreach ($this->forms as $form) {
       $form->print_form();
     }

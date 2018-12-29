@@ -1,24 +1,4 @@
 <?php
-#########################################################################################
-#
-# Copyright 2010-2011  Maya Studios (http://www.mayastudios.com)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#########################################################################################
-
-
 class MarkupUtil {
   private static $fileicon_extensions = null;
   private static $fileicon_extensions_assoc = null;
@@ -121,14 +101,14 @@ class MarkupUtil {
    *
    * @param string $filename filename (eg. "myfile.jpg") or attachment name (eg. "myfile")
    * @param int $post_id the id of the post the attachment belongs to; can be "null".
-   * 
+   *
    * @return int the id or "null", if the attachment could not be found
    */
   public static function get_attachment_id($filename, $post_id) {
     global $wpdb;
     $ids = $wpdb->get_col($wpdb->prepare(
       "SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_wp_attached_file' AND meta_value LIKE '%%%s'", $filename));
-    
+
     if (count($ids) == 0) {
       // no attachment found; filename may not contain the file extension; check for the image's title
       $ids = $wpdb->get_col($wpdb->prepare(
@@ -210,7 +190,7 @@ class MarkupUtil {
     if (!empty($attachment->post_excerpt)) {
       return array($attachment->post_excerpt, $img_alt);
     }
-    
+
     // If no caption has been specified, use the alt text as title instead.
     if (!empty($img_alt)) {
       return array($img_alt, $img_alt);

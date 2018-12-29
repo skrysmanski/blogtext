@@ -1,24 +1,4 @@
 <?php
-#########################################################################################
-#
-# Copyright 2010-2011  Maya Studios (http://www.mayastudios.com)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#########################################################################################
-
-
 /*
  * This file contains all of the plugin's settings.
  */
@@ -50,7 +30,7 @@ class BlogTextSettings {
   public static function get_top_level_heading_level($get_option=false) {
     static $option = null;
     if ($option == null) {
-      $option = new MSCL_IntOption('blogtext_top_level_heading_level', 'Top Level Heading Level', 2, 
+      $option = new MSCL_IntOption('blogtext_top_level_heading_level', 'Top Level Heading Level', 2,
               'Specifies which heading level (1 - 6) the top-level heading represents. For example, '
               .'specifying "3" here, will result in "= Heading =" be converted into '
               .'"&lt;h3&gt;Heading&lt;/h3&gt;".',
@@ -76,7 +56,7 @@ class BlogTextSettings {
   public static function new_window_for_external_links($get_option=false) {
     static $option = null;
     if ($option == null) {
-      $option = new MSCL_BoolOption('blogtext_new_window_for_external_links', 
+      $option = new MSCL_BoolOption('blogtext_new_window_for_external_links',
               'Open external links in a new window/tab', true);
     }
     return $get_option ? $option : $option->get_value();
@@ -128,7 +108,7 @@ class BlogTextSettings {
         $desc_short = 'not specified';
         $desc_long = 'The theme does <strong>not</strong> specify a content width.';
       }
-      $option = new MSCL_IntOption('blogtext_content_width', 
+      $option = new MSCL_IntOption('blogtext_content_width',
               'Content Width (in Pixels)<br/>(by theme: '.$desc_short.')',
               0,
               'Specifies the width available for content (ie. a posting\'s text and images) in pixels. This '
@@ -301,7 +281,7 @@ class BlogTextPostSettings {
       if (!is_object($post)) {
         $post = get_post($post_id);
       }
-      
+
       // Already published posts/pages were written before BlogText was installed (as otherwise
       // the "use_blogtext" settings would have been set to either "true" or "false"). Only return true
       // for pages with "auto-draft" (new pages) and "draft" status.
