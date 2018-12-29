@@ -56,6 +56,7 @@ Manual way:
 
 = 0.9.8 =
 * Change: BlogText is now hosted as Git repo on GitHub. (Thus issue numbering will reset.)
+* Change: Updated GeSHi to 1.0.9.0 (plus pull request #100 which fixes a deprecation warning).
 * Fix: Replace instances of `mysql_query()` with `mysqli_query()` so that BlogText works on PHP 7. (#2)
 
 = 0.9.7 =
