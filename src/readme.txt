@@ -54,6 +54,10 @@ Manual way:
 
 == Changelog ==
 
+= 0.9.8 =
+* Change: BlogText is now hosted as Git repo on GitHub. (Thus issue numbering will reset.)
+* Fix: Replace instances of `mysql_query()` with `mysqli_query()` so that BlogText works on PHP 7. (#2)
+
 = 0.9.7 =
 * Breaking change: BlogText now requires at least PHP 5.3!
 * Feature: Added support for email addresses (plain text as well as interlink ones).
