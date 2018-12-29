@@ -1,11 +1,13 @@
 # Releasing a new BlogText version
 
+For general help on Wordpress' plugin directory, see <https://developer.wordpress.org/plugins/wordpress-org/>.
+
 ## Steps **before** releasing a new version
 
 1. Check readme at: <https://wordpress.org/plugins/developers/readme-validator/>
    * Especially for incorrect line breaks
 1. Check issue tracker for open issues
-1. Check support forum for open issue
+1. Check [support forum](https://wordpress.org/support/plugin/blogtext/) for open issue
 
 ## Steps **when** releasing a new version
 
