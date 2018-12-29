@@ -14,11 +14,10 @@ For general help on Wordpress' plugin directory, see <https://developer.wordpres
 1. Make sure `Tested up to` and `Stable tag` in `src/readme.txt` have been updated.
 1. Make sure `Version` in `src/blogtext.php` has been updated.
 
-1. Run "build.sh"
+1. Run `./Create-Release.ps1`
 1. Create SVN tag for version
-1. Create Mercurial tag version
+1. Create Git tag version
 
-1. Create new version in BitBucket's issue tracker
-1. Upload plugin as .zip to downloads section in BitBucket
+1. Upload plugin as .zip to downloads section in GitHub
 1. Close all resolved issues
 1. Close all resolved support tickets
