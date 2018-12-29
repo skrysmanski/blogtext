@@ -33,7 +33,7 @@ try {
     }
 
     Write-Host
-    Write-Host 'Installing WordPress...'
+    Write-Host -ForegroundColor Cyan 'Installing WordPress...'
 
     $containerId = & docker-compose ps -q wordpress
     if (-Not $?) {
@@ -50,6 +50,12 @@ try {
         --color
     if (-Not $?) {
         throw 'Could not install Wordpress'
+    }
+
+    Write-Host -ForegroundColor Cyan 'Activating plugin "BlogText"...'
+    & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli plugin activate blogtext
+    if (-Not $?) {
+        throw 'Could not activate the BlogText plugin'
     }
 }
 catch {
