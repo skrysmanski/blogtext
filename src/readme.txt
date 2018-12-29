@@ -2,8 +2,9 @@
 Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
-Tested up to: 4.3.1
-Stable tag: 0.9.7
+Tested up to: 5.0.2
+Stable tag: 0.9.8
+Requires PHP: 5.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -37,9 +38,6 @@ For more information, see [BlogText's feature list](http://blogtext.mayastudios.
 
 == Installation ==
 Installing BlogText is pretty much straight forward.
-
-You need **Wordpress 3.0 or higher** to install BlogText. You also need **PHP 5.3 or higher** installed on
-your webserver.
 
 Simple way: **Install via WordPress' plugin page.**
 
