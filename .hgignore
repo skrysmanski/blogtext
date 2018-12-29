@@ -1,9 +1,0 @@
-test\.php
-nbproject
-syntax: glob
-.idea/workspace.xml
-.idea/.name
-tests/log.txt
-.DS_Store
-dist
-node_modules
