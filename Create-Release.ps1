@@ -1,5 +1,10 @@
 #!/usr/bin/env pwsh
 
+param(
+    [Parameter(Mandatory=$True)]
+    [string] $Version
+)
+
 # Stop on every error
 $script:ErrorActionPreference = 'Stop'
 
@@ -41,6 +46,10 @@ try {
     if (-Not $?) {
         throw '"cleancss" failed'
     }
+
+    # Create release zip
+    New-Item dist-zip -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
+    Get-ChildItem $DEST_DIR -Exclude '.svn' | Compress-Archive -DestinationPath "dist-zip/blogtext-$Version.zip"
 }
 catch {
     # IMPORTANT: We compare type names(!) here - not actual types. This is important because - for example -
