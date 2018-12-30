@@ -45,20 +45,21 @@ Manual way:
 == Changelog ==
 
 = 0.9.8 =
+* Known Issue: Post previews don't work with the new Gutenberg editor introduced in Wordpress 5.0. (issue #3)
 * Change: BlogText is now hosted as Git repo on GitHub. (Thus issue numbering will reset.)
 * Change: Updated GeSHi to 1.0.9.0 (plus pull request #100 which fixes a deprecation warning).
-* Fix: Replace instances of `mysql_query()` with `mysqli_query()` so that BlogText works on PHP 7. (#2)
+* Fix: Replace instances of `mysql_query()` with `mysqli_query()` so that BlogText works on PHP 7. (issue #2)
 
 = 0.9.7 =
 * Breaking change: BlogText now requires at least PHP 5.3!
 * Feature: Added support for email addresses (plain text as well as interlink ones).
 * Change: Exceptions thrown while converting a post from BlogText to HTML no longer stops the whole PHP script (i.e. content coming after the affected post is now rendered).
-* Change: When a link to a page/post couldn't be created because the post status is not 'published', the post status will now be put in the link text. Before it would always say "[unpublished]" even if the post was trashed. (issue #24)
+* Change: When a link to a page/post couldn't be created because the post status is not 'published', the post status will now be put in the link text. Before it would always say "[unpublished]" even if the post was trashed.
 * Change/Fix: Removed BlogText comments from the beginning of every post/page as Wordpress was creating an extra paragraph for them (although it shouldn't).
 * Change: Updated to GeSHi 1.0.8.12 (from 1.0.8.10). This new version adds some more languages for code blocks. See [full changelog](https://github.com/GeSHi/geshi-1.0/blob/d9cfd3e0cc9b24e6bd3045a4d222e651e68accd8/src/docs/CHANGES).
 * Change: The default BlogText CSS file (now called `blogtext-default.css`) is now minified.
-* Fix: Wordpress instances using BlogText can now be moved to different folders (issue #15).
-* Fix: Fixed code blocks with line numbers in Twenty Fifteen theme (issue #27).
+* Fix: Wordpress instances using BlogText can now be moved to different folders.
+* Fix: Fixed code blocks with line numbers in Twenty Fifteen theme.
 
 = 0.9.6 =
 * Change: link anchors in TOC links in list view are now prepended with "post-" to meet the (arguably ancient) HTML 4 requirement for ids (must not start with a digit).
@@ -79,10 +80,10 @@ Manual way:
 
 = 0.9.5 =
 * BlogText now works with PHP 5.4.0 (did not work due to an error in BlogText's option API).
-* Removed all file type icons. Icons for links to external sites, attachments, and subsections in the same page remain. The icons have been replaced by a web-font though (making them scale with the font size). Additionally each icon type can now be disabled in BlogText's settings (issue #13).
-* Fix: Emphasis (`//`) can now surround an external link (issue #12)
+* Removed all file type icons. Icons for links to external sites, attachments, and subsections in the same page remain. The icons have been replaced by a web-font though (making them scale with the font size). Additionally each icon type can now be disabled in BlogText's settings.
+* Fix: Emphasis (`//`) can now surround an external link.
 * BlogText no longer creates thumbnails when the original image would work just fine.
-* A double space in a heading no longer breaks the parser (issue #10).
+* A double space in a heading no longer breaks the parser.
 * Fix/Change: If punctuation is written after a plain-text URL separated by one or more spaces, now the space will be removed only for certain punctuation. Especially, it won't be removed anymore for opening brackets. To force BlogText to keep the spaces, simply use more than one.
 
 = 0.9.4 =
@@ -98,7 +99,7 @@ Manual way:
 = 0.9.3 =
 * "cat:" is now allowed as alternative to the "category:" Interlink prefix
 * Now runs with Wordpress 3.3
-* Fixed anchors to headings not working in multi post view and RSS feed (issue #1)
+* Fixed anchors to headings not working in multi post view and RSS feed.
 * Anchor links (¶) are no longer added to headings in the RSS feed
 
 = 0.9.2.1 =
