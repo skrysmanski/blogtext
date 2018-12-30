@@ -7,12 +7,28 @@ try {
     $DEST_DIR = 'dist'
     $CSS_FILE = 'style/blogtext-default.css'
 
-    New-Item $DEST_DIR -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
+    if (-Not (Test-Path "$DEST_DIR/.svn")) {
+        Write-Host -ForegroundColor Cyan "The directory '$DEST_DIR' is not an SVN working copy. Creating it."
+        Write-Host
+
+        & svn checkout https://plugins.svn.wordpress.org/blogtext/trunk $DEST_DIR
+        if (-Not $?) {
+            throw '"svn checkout" failed'
+        }
+    }
+    else {
+        & svn update $DEST_DIR
+        if (-Not $?) {
+            throw '"svn update" failed'
+        }
+    }
 
     & rsync --recursive --human-readable --times --delete --exclude=.svn 'src/' "$DEST_DIR/"
     if (-Not $?) {
         throw '"rsync" failed'
     }
+
+    Copy-Item './license.txt' $DEST_DIR
 
     # Install all necessary node modules via package.json
     & yarn install
