@@ -8,7 +8,6 @@ For general help on Wordpress' plugin directory, see <https://developer.wordpres
    1. Run automated tests
    1. Run manual tests (see `HACKING.md`)
 1. Check readme at: <https://wordpress.org/plugins/developers/readme-validator/>
-   * Especially for incorrect line breaks
 1. Check issue tracker for open issues
 1. Check [support forum](https://wordpress.org/support/plugin/blogtext/) for open issue
 
