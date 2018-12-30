@@ -6,7 +6,7 @@ param(
 
     [string] $ProjectName = 'blogtext',
 
-    [int] $HostPort = 8080,
+    [int] $Port = 8080,
 
     [int] $MaxConnectRetries = 20
 )
@@ -29,7 +29,7 @@ try {
     }
 
     $env:WORDPRESS_DOCKER_TAG = $wordpressTag
-    $env:WORDPRESS_HOST_PORT = $HostPort
+    $env:WORDPRESS_HOST_PORT = $Port
 
     $ProjectName = "$ProjectName-wp-$wordpressTag"
     $env:WORDPRESS_WEB_CONTAINER_NAME = "$($ProjectName)_web"
@@ -45,7 +45,7 @@ try {
 
     for ($i = 0; $i -lt $MaxConnectRetries; $i++) {
         try {
-            Invoke-WebRequest -Uri "http://localhost:$HostPort" | Out-Null
+            Invoke-WebRequest -Uri "http://localhost:$Port" | Out-Null
             Write-Host -ForegroundColor Green 'Container is up'
             break
         }
@@ -81,7 +81,7 @@ try {
     #
     # NOTE: For CLI commands, the PHP version doesn't really matter. Thus we don't use it.
     & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli core install `
-        "--url=localhost:$HostPort" `
+        "--url=localhost:$Port" `
         '--title=Wordpress Test Site' `
         --admin_user=admin `
         --admin_password=test1234 `
