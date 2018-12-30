@@ -4,6 +4,9 @@ For general help on Wordpress' plugin directory, see <https://developer.wordpres
 
 ## Steps **before** releasing a new version
 
+1. Both for the **oldest** supported PHP version (`./Start-TestEnv.ps1 -PhpVersion 5.6`) and the **newest** supported PHP version (`./Start-TestEnv.ps1`) - as defined by the [Wordpress Docker image](https://hub.docker.com/_/wordpress):
+   1. Run automated tests
+   1. Run manual tests (see `HACKING.md`)
 1. Check readme at: <https://wordpress.org/plugins/developers/readme-validator/>
    * Especially for incorrect line breaks
 1. Check issue tracker for open issues
