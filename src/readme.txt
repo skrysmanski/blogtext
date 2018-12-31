@@ -25,7 +25,7 @@ Supported markup:
 * Table of contents
 * Preformatted text and code blocks with syntax highlighting
 
-BlogText also integrates into Wordpress' HTML editor by providing its own buttons (to create BlogText syntax), media browser integration, and help links. This make writing posts with BlogText even easier.
+BlogText also integrates itself into [Wordpress' classic editor](https://wordpress.org/plugins/classic-editor/) (which is the recommended way to write BlogText) by providing its own buttons (to create BlogText syntax), media browser integration, and help links. This make writing posts with BlogText even easier.
 
 For more information, see [BlogText's feature list](http://blogtext.mayastudios.com/features/)
 
