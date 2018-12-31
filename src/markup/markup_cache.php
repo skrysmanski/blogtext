@@ -17,17 +17,6 @@ interface IMarkupCacheHandler {
    * @return string  the HTML code
    */
   function convert_markup_to_html_uncached($markup_content, $post, $is_rss);
-
-  /**
-   * Determines the externals for the specified post. Externals are "links" to things that, if changed, will
-   * invalidate the post's cache. Externals are for example thumbnails or links to other posts. Changed means
-   * the "link" target has been deleted or created (if it didn't exist before), or for thumbnails that the
-   * thumbnail's size has changed.
-   *
-   * @param object $post  the post the be checked
-   * @param array $thumbnail_ids  an array of the ids of the thumbnails used in the post
-   */
-  function determine_externals($post, &$thumbnail_ids);
 }
 
 
@@ -129,38 +118,31 @@ class MarkupCache {
         return $html_code;
     }
 
-  private function check_and_register_externals($cache_handler, $post) {
-    $externals_last_determined_cache = $this->get_externals_last_determined_cache();
-    $externals_last_determined_date = $externals_last_determined_cache->get_value($post->ID);
 
-    // Check whether the post's code has changed and the externals (thumbnails, internal links) need to be
-    // determined again.
-    if (   $externals_last_determined_date >= $post->post_modified_gmt
-        && $externals_last_determined_date >= $this->markup_modification_date) {
-      // Code hasn't changed, so the externals haven't changed. Now check whether the externals are
-      // up-to-date.
-      if (!MSCL_ThumbnailCache::are_post_thumbnails_uptodate($post->ID)) {
-        log_info("Externals for post $post->ID need to be updated.");
+    /**
+     * @param $cache_handler
+     * @param $post
+     *
+     * @return bool Whether the externals are up-to-date.
+     */
+    private function check_and_register_externals($cache_handler, $post) {
+        $externals_last_determined_cache = $this->get_externals_last_determined_cache();
+        $externals_last_determined_date = $externals_last_determined_cache->get_value($post->ID);
+
+        // Check whether the post's code has changed and the externals (thumbnails, internal links) need to be
+        // determined again.
+        if (   $externals_last_determined_date >= $post->post_modified_gmt
+            && $externals_last_determined_date >= $this->markup_modification_date) {
+            return true;
+        }
+
+        // Store date of last thumbs check
+        $externals_last_determined_cache->set_value($post->ID, MarkupUtil::create_mysql_date());
+
+        log_info("Externals for post $post->ID have been determined.");
+
         return false;
-      } else {
-        return true;
-      }
     }
-
-    // Code has changed. Redetermine the externals.
-    $thumbnail_ids = array();
-    $cache_handler->determine_externals($post, $thumbnail_ids);
-
-    // registed used thumbnails
-    MSCL_ThumbnailCache::register_post($post->ID, $thumbnail_ids);
-
-    // Store date of last thumbs check
-    $externals_last_determined_cache->set_value($post->ID, MarkupUtil::create_mysql_date());
-
-    log_info("Externals for post $post->ID have been determined.");
-
-    return false;
-  }
 
   /**
    * Clears the page cache completely or only for the specified post.

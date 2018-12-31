@@ -5,12 +5,14 @@ use MSCL\FileInfo\AbstractFileInfo;
 use MSCL\FileInfo\ImageFileInfo;
 
 require_once(dirname(__FILE__) . '/../../api/commons.php');
-MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 
 MSCL_require_once('IMacroShortCodeHandler.php', __FILE__);
 
 class ImageShortCodeHandler implements IMacroShortCodeHandler
 {
+    const DEFAULT_THUMB_WIDTH = 128;
+    const DEFAULT_THUMB_HEIGHT = 96;
+
     public function get_handled_prefixes()
     {
         return array('img', 'image');
@@ -230,65 +232,44 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
             // Don't align images without a named size (like "200px" or no size at all).
         }
 
-        // Default values: If width/height is zero, it's omitted from the HTML code.
-        $img_width  = 0;
-        $img_height = 0;
+        // Default values: If width is zero, it's omitted from the HTML code.
+        $max_img_width  = 0;
 
         try
         {
+            if ($is_attachment)
+            {
+                $img_url = wp_get_attachment_url($ref);
+            }
+            else
+            {
+                $img_url = $ref;
+            }
+
             if (empty($img_size_attr))
             {
-                if ($is_attachment)
+                if ($display_caption && !empty($title))
                 {
-                    $img_url = wp_get_attachment_url($ref);
-                }
-                else
-                {
-                    $img_url = $ref;
-                }
-
-                $content_width = MSCL_ThumbnailApi::get_content_width();
-                if ($content_width != 0)
-                {
+                    # NOTE: If the image's caption is to be displayed, we need the image's width (see below).
                     $img_size = self::getImageSize($is_attachment, $ref);
                     if ($img_size !== false)
                     {
-                        if ($img_size[0] > $content_width)
-                        {
-                            # Image is larger then the content width. Create a "thumbnail" to limit its width.
-                            list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref,
-                                                                                             array($content_width, 0));
-                        }
-                        else
-                        {
-                            # If we've already determined the image's size, lets use it. Also required if we need to display the
-                            # image's caption.
-                            $img_width  = $img_size[0];
-                            $img_height = $img_size[1];
-                        }
-                    }
-                }
-                else if ($display_caption && !empty($title))
-                {
-                    # NOTE: If the image's caption is to be display, we need the image's width (see below).
-                    $img_size = self::getImageSize($is_attachment, $ref);
-                    if ($img_size !== false)
-                    {
-                        $img_width  = $img_size[0];
-                        $img_height = $img_size[1];
+                        $max_img_width  = $img_size[0];
                     }
                 }
             }
             else
             {
                 // Width is specified.
-                if (substr($img_size_attr, - 2) == 'px')
+                if (substr($img_size_attr, -2) == 'px')
                 {
                     // Actual size - not a symbolic one.
-                    $img_size_attr = array((int) substr($img_size_attr, 0, - 2), 0);
+                    $max_img_width = (int) substr($img_size_attr, 0, -2);
                 }
-
-                list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref, $img_size_attr);
+                else
+                {
+                    list($max_img_width, $img_height) = self::resolve_size_name($img_size_attr);
+                }
             }
         }
         catch (FileNotFoundException $e)
@@ -310,13 +291,9 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
         $html = '<img class="wp-post-image" src="' . $img_url . '" title="' . $title . '" alt="' . $alt_text . '"';
         // image width and height may be "null" for remote images for performance reasons. We let the browser
         // determine their size.
-        if ($img_width > 0)
+        if ($max_img_width > 0)
         {
-            $html .= ' width="' . $img_width . '"';
-        }
-        if ($img_height > 0)
-        {
-            $html .= ' height="' . $img_height . '"';
+            $html .= ' style="max-width: ' . $max_img_width . 'px;"';
         }
         $html .= '/>';
 
@@ -336,7 +313,7 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
 
             # NOTE: We need to specify the width here so that long titles break properly. Note also that the width needs
             #   to be specified on the container (image-frame) to prevent it from expanding to the full page width.
-            $html = '<div class="image-frame' . $align_style . '" style="width:' . $img_width . 'px;">'
+            $html = '<div class="image-frame' . $align_style . '" style="max-width:' . $max_img_width . 'px;">'
                     . '<div class="image">' . $html . '</div>'
                     . '<div class="image-caption">' . $title . '</div>'
                     . '</div>';
@@ -404,23 +381,95 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
     }
 
     /**
-     * @param              $linkResolver
-     * @param bool         $isAttachment  whether the ref is an attachment or URL
-     * @param string|int   $ref           the ref to the image
-     * @param array|string $requestedSize the maximum size for the image as array or one of the symbolic sizes ("large",
-     *                                    "small", ...) as string.
+     * Returns the maximum size (in pixels) for specified size (name; eg. "small", "medium", "large").
      *
-     * @return array Returns the thumbnail info as array with ($img_url, $img_width, $img_height)
+     * @param string $size the size as name (eg. "small", "medium", "large")
+     *
+     * @return array Returns "list($max_width, $max_height)". Either or both can be "0", if they're not
+     *   specified, meaning that the width or height isn't restricted for this size.
+     *
+     * @throws Exception thrown if an invalid size name has been specified.
      */
-    private static function getThumbnailInfo($linkResolver, $isAttachment, $ref, $requestedSize)
+    private static function resolve_size_name($size)
     {
-        if ($isAttachment)
+        //
+        // NOTE: This method is based on "image_constrain_size_for_editor()" defined in "media.php" in Wordpress.
+        //
+        global $_wp_additional_image_sizes;
+
+        if ($size == 'small')
         {
-            return MSCL_ThumbnailApi::get_thumbnail_info_from_attachment($linkResolver, $ref, $requestedSize);
+            $max_width = intval(get_option('thumbnail_size_w'));
+            $max_height = intval(get_option('thumbnail_size_h'));
+            // last chance thumbnail size defaults
+            if (!$max_width)
+            {
+                $max_width = self::DEFAULT_THUMB_WIDTH;
+            }
+            if (!$max_height)
+            {
+                $max_height = self::DEFAULT_THUMB_HEIGHT;
+            }
+            // Fix the size name for "apply_filters()" below.
+            $size = 'thumb';
+        }
+        elseif ($size == 'medium')
+        {
+            $max_width = intval(get_option('medium_size_w'));
+            $max_height = intval(get_option('medium_size_h'));
+        }
+        elseif ($size == 'large')
+        {
+            $max_width = intval(get_option('large_size_w'));
+            $max_height = intval(get_option('large_size_h'));
+        }
+        elseif (   isset($_wp_additional_image_sizes)
+                && count($_wp_additional_image_sizes)
+                && in_array($size, array_keys($_wp_additional_image_sizes)))
+        {
+            $max_width = intval($_wp_additional_image_sizes[$size]['width']);
+            $max_height = intval($_wp_additional_image_sizes[$size]['height']);
         }
         else
         {
-            return MSCL_ThumbnailApi::get_thumbnail_info($linkResolver, $ref, $requestedSize);
+            throw new Exception("Invalid image size: ".$size);
         }
+
+        $content_width = self::get_content_width();
+        if ($content_width != 0 && $max_width > $content_width)
+        {
+            $max_width = $content_width;
+        }
+
+        list($max_width, $max_height) = apply_filters('editor_max_image_size', array($max_width, $max_height), $size);
+        if ($max_width < 1)
+        {
+            $max_width = 0;
+        }
+        if ($max_height < 1)
+        {
+            $max_height = 0;
+        }
+
+        return array($max_width, $max_height);
+    }
+
+    /**
+     * Returns the width available for a post's content in pixels. Returns "0" (zero), if the content width is
+     * unknown.
+     */
+    private static function get_content_width() {
+        global $content_width;
+
+        if (is_numeric($content_width))
+        {
+            $width = (int)$content_width;
+            if ($width > 0)
+            {
+                return $width;
+            }
+        }
+
+        return 0;
     }
 }

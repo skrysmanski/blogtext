@@ -2,3 +2,6 @@
 /dist
 /dist-zip
 /node_modules
+
+# Via: https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
+.idea/**/workspace.xml

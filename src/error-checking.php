@@ -54,33 +54,6 @@ class BlogTextErrorNotifier extends MSCL_ErrorNotifier {
     }
     return null;
   }
-
-  /**
-   * Checks for errors that concern only admin (ie. users that can manage the blog's options).
-   *
-   * @return array|string|null Returns the error message(s) for the errors that have been found. If there's
-   *   only one, its returned as string. Multiple error messages will be returned as array of strings. If no
-   *   errors are found, returns "null" or an empty array.
-   */
-  protected function check_for_admin_errors() {
-    //
-    // check for thumbnail cache directory errors
-    //
-    MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
-
-    $error_msg = array();
-
-    try {
-      // check whether the cache directories could be created
-      if (   !is_writable(MSCL_ThumbnailCache::get_local_file_cache_dir())
-          || !is_writable(MSCL_ThumbnailCache::get_remote_file_cache_dir())) {
-        $error_msg[] = "Thumbnail cache directory is not writable.";
-      }
-    } catch (MSCL_AdminException $e) {
-      $error_msg[] = $e->getMessage();
-    }
-    return $error_msg;
-  }
 }
 
 ?>
