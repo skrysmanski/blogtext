@@ -10,6 +10,9 @@ MSCL_require_once('IMacroShortCodeHandler.php', __FILE__);
 
 class ImageShortCodeHandler implements IMacroShortCodeHandler
 {
+    const DEFAULT_THUMB_WIDTH = 128;
+    const DEFAULT_THUMB_HEIGHT = 96;
+    
     public function get_handled_prefixes()
     {
         return array('img', 'image');
