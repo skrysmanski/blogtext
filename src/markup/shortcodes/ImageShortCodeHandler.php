@@ -12,7 +12,7 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
 {
     const DEFAULT_THUMB_WIDTH = 128;
     const DEFAULT_THUMB_HEIGHT = 96;
-    
+
     public function get_handled_prefixes()
     {
         return array('img', 'image');
@@ -232,9 +232,8 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
             // Don't align images without a named size (like "200px" or no size at all).
         }
 
-        // Default values: If width/height is zero, it's omitted from the HTML code.
-        $img_width  = 0;
-        $img_height = 0;
+        // Default values: If width is zero, it's omitted from the HTML code.
+        $max_img_width  = 0;
 
         try
         {
@@ -255,8 +254,7 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
                     $img_size = self::getImageSize($is_attachment, $ref);
                     if ($img_size !== false)
                     {
-                        $img_width  = $img_size[0];
-                        $img_height = $img_size[1];
+                        $max_img_width  = $img_size[0];
                     }
                 }
             }
@@ -266,11 +264,11 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
                 if (substr($img_size_attr, -2) == 'px')
                 {
                     // Actual size - not a symbolic one.
-                    $img_width = (int) substr($img_size_attr, 0, -2);
+                    $max_img_width = (int) substr($img_size_attr, 0, -2);
                 }
                 else
                 {
-                    list($img_width, $img_height) = self::resolve_size_name($img_size_attr);
+                    list($max_img_width, $img_height) = self::resolve_size_name($img_size_attr);
                 }
             }
         }
@@ -293,13 +291,9 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
         $html = '<img class="wp-post-image" src="' . $img_url . '" title="' . $title . '" alt="' . $alt_text . '"';
         // image width and height may be "null" for remote images for performance reasons. We let the browser
         // determine their size.
-        if ($img_width > 0)
+        if ($max_img_width > 0)
         {
-            $html .= ' width="' . $img_width . '"';
-        }
-        if ($img_height > 0)
-        {
-            $html .= ' height="' . $img_height . '"';
+            $html .= ' style="max-width: ' . $max_img_width . 'px;"';
         }
         $html .= '/>';
 
@@ -319,7 +313,7 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
 
             # NOTE: We need to specify the width here so that long titles break properly. Note also that the width needs
             #   to be specified on the container (image-frame) to prevent it from expanding to the full page width.
-            $html = '<div class="image-frame' . $align_style . '" style="width:' . $img_width . 'px;">'
+            $html = '<div class="image-frame' . $align_style . '" style="max-width:' . $max_img_width . 'px;">'
                     . '<div class="image">' . $html . '</div>'
                     . '<div class="image-caption">' . $title . '</div>'
                     . '</div>';
