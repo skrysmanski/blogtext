@@ -3,7 +3,7 @@ Contributors: manski
 Tags: formatting, markup, post
 Requires at least: 3.0.0
 Tested up to: 5.0.2
-Stable tag: 0.9.8
+Stable tag: 0.9.9
 Requires PHP: 5.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -43,6 +43,9 @@ Manual way:
 1. Start writing your posts
 
 == Changelog ==
+
+= 0.9.9 =
+* Change: Removed all custom thumbnail creation code. Instead, BlogText now just uses the actual image - with appropriate `max-width` styling. For reasoning, see issue #22.
 
 = 0.9.8 =
 * Known Issue: Post previews don't work with the new Gutenberg editor introduced in Wordpress 5.0. (issue #3)

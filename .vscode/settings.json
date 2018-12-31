@@ -11,5 +11,8 @@
         "**/.git/**",
         ".vscode",
         "*.php" // <-- just too many false positives
-    ]
+    ],
+    "[plaintext]": {
+        "editor.wordWrap": "on"
+    }
 }
