@@ -47,22 +47,19 @@ class BlogTextEditor {
     }
   }
 
-  public function insert_editor_javascript() {
-    // Replace buttons (quick tags) in Wordpress' HTML editor
-    global $wp_version;
-    if (version_compare($wp_version, '3.3', '<')) {
-      $js_file = 'quicktags-pre33.js';
-    } else {
-      $js_file = 'quicktags.js';
-    }
-    echo '<script type="text/javascript" src="'.BlogTextPlugin::get_instance()->get_plugin_url().'/admin/editor/'.$js_file.'"></script>';
+    public function insert_editor_javascript()
+    {
+        // Replace buttons (quick tags) in Wordpress' HTML editor
+        $js_file = 'quicktags.js';
+
+        echo '<script type="text/javascript" src="'.BlogTextPlugin::get_instance()->get_plugin_url().'/admin/editor/'.$js_file.'"></script>';
 ?>
 <script type="text/javascript">
   var blogTextPluginDir = "<?php echo BlogTextPlugin::get_instance()->get_plugin_url(); ?>";
   var wordpressVersion = "<?php bloginfo('version'); ?>";
 </script>
 <?php
-  }
+    }
 
   public function add_blogtext_syntax_link($editor_html) {
     $syntax_link = '<div class="blogtext_syntax_link">'
