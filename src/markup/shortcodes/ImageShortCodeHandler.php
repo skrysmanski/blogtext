@@ -267,7 +267,7 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
                 }
                 else
                 {
-                    list($img_width, $img_height) = self::get_max_size($img_size_attr);
+                    list($img_width, $img_height) = self::resolve_size_name($img_size_attr);
                 }
             }
         }
@@ -393,7 +393,7 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
      *
      * @throws Exception thrown if an invalid size name has been specified.
      */
-    private static function get_max_size($size)
+    private static function resolve_size_name($size)
     {
         //
         // NOTE: This method is based on "image_constrain_size_for_editor()" defined in "media.php" in Wordpress.
