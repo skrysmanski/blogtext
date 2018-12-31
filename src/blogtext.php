@@ -75,7 +75,17 @@ class BlogTextPlugin extends MSCL_AbstractPlugin {
     return (is_dir(dirname(__FILE__).'/../blogtext-tests'));
   }
 
-  public function wordpress_initialize() {
+    /**
+     * Returns location of the old thumbnail cache folder. This folder was used up to
+     * version 0.9.8 and then got removed.
+     * @return string
+     */
+    public static function get_old_thumbs_cache_folder() {
+        $upload_dir_data = wp_upload_dir();
+        return $upload_dir_data['basedir'].'/thumb_cache';
+    }
+
+    public function wordpress_initialize() {
     // NOTE: Create option page here (after "init") so that the theme has already loaded and "content_width"
     //   is available.
     if (is_admin()) {
