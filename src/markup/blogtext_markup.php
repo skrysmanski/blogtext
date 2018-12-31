@@ -1,7 +1,6 @@
 <?php
 require_once(dirname(__FILE__).'/../api/commons.php');
 MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
-MSCL_Api::load(MSCL_Api::THUMBNAIL_CACHE);
 
 MSCL_require_once('textmarkup_base.php', __FILE__);
 MSCL_require_once('markup_cache.php', __FILE__);
@@ -15,7 +14,7 @@ class MarkupException extends Exception {
   }
 }
 
-class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, IMarkupCacheHandler {
+class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
   const CACHE_PREFIX = 'blogtext_';
 
   /**
@@ -121,8 +120,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private $headings_title_map = array();
 
-  private $thumbs_used = array();
-
   /**
    * Used to prevent the static constructor from running multiple times.
    * @var bool
@@ -167,7 +164,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
     $this->id_suffix = array();
     $this->headings = array();
     $this->headings_title_map = array();
-    $this->thumbs_used = array();
   }
 
   public function convert_post_to_html($post, $markup_content, $render_type, $is_excerpt) {
@@ -226,33 +222,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
   }
 
   /**
-   * Determines the externals for the specified post. Externals are "links" to things that, if changed, will
-   * invalidate the post's cache. Externals are for example thumbnails or links to other posts. Changed means
-   * the "link" target has been deleted or created (if it didn't exist before), or for thumbnails that the
-   * thumbnail's size has changed.
-   *
-   * (Required by IMarkupCacheHandler)
-   *
-   * @param object $post  the post the be checked
-   * @param array $thumbnail_ids  an array of the ids of the thumbnails used in the post
-   */
-  public function determine_externals($post, &$thumbnail_ids) {
-    // This method is a trimmed down version of "convert_markup_to_html_uncached()". It finds all shortcodes and processes
-    // them to find all thumbnails. Note that this method works on the original post content rather than on the
-    // content WordPress gives us. This is necessary since the content Wordpress gives us may be only an excerpt
-    // which in turn won't contain all image links.
-    $this->resetBlogTextMarkup(false, false);
-
-    // clean up line breaks - convert all to "\n"
-    $ret = preg_replace('/\r\n|\r/', "\n", $post->post_content);
-    $ret = $this->maskNoParseTextSections($ret);
-
-    $this->execute_regex('shortcodes', $ret);
-
-    $thumbnail_ids = array_keys($this->thumbs_used);
-  }
-
-  /**
    * Clears the page cache completely or only for the specified post.
    * @param int|null $post  if this is "null", the whole cache will be cleared. Otherwise only the cache for
    *   the specified post/page id will be cleared.
@@ -264,14 +233,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IThumbnailContainer, 
 
   private function is_single() {
     return is_single() || is_page();
-  }
-
-  /**
-   * @param MSCL_Thumbnail $thumbnail
-   */
-  public function add_used_thumbnail($thumbnail) {
-    $token = $thumbnail->get_token();
-    $this->thumbs_used[$token] = $thumbnail;
   }
 
   private function execute_regex($regex_name, $value) {

@@ -236,41 +236,20 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
 
         try
         {
+            if ($is_attachment)
+            {
+                $img_url = wp_get_attachment_url($ref);
+            }
+            else
+            {
+                $img_url = $ref;
+            }
+
             if (empty($img_size_attr))
             {
-                if ($is_attachment)
+                if ($display_caption && !empty($title))
                 {
-                    $img_url = wp_get_attachment_url($ref);
-                }
-                else
-                {
-                    $img_url = $ref;
-                }
-
-                $content_width = MSCL_ThumbnailApi::get_content_width();
-                if ($content_width != 0)
-                {
-                    $img_size = self::getImageSize($is_attachment, $ref);
-                    if ($img_size !== false)
-                    {
-                        if ($img_size[0] > $content_width)
-                        {
-                            # Image is larger then the content width. Create a "thumbnail" to limit its width.
-                            list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref,
-                                                                                             array($content_width, 0));
-                        }
-                        else
-                        {
-                            # If we've already determined the image's size, lets use it. Also required if we need to display the
-                            # image's caption.
-                            $img_width  = $img_size[0];
-                            $img_height = $img_size[1];
-                        }
-                    }
-                }
-                else if ($display_caption && !empty($title))
-                {
-                    # NOTE: If the image's caption is to be display, we need the image's width (see below).
+                    # NOTE: If the image's caption is to be displayed, we need the image's width (see below).
                     $img_size = self::getImageSize($is_attachment, $ref);
                     if ($img_size !== false)
                     {
@@ -282,13 +261,15 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
             else
             {
                 // Width is specified.
-                if (substr($img_size_attr, - 2) == 'px')
+                if (substr($img_size_attr, -2) == 'px')
                 {
                     // Actual size - not a symbolic one.
-                    $img_size_attr = array((int) substr($img_size_attr, 0, - 2), 0);
+                    $img_width = (int) substr($img_size_attr, 0, -2);
                 }
-
-                list($img_url, $img_width, $img_height) = self::getThumbnailInfo($link_resolver, $is_attachment, $ref, $img_size_attr);
+                else
+                {
+                    list($img_width, $img_height) = MSCL_ThumbnailApi::get_max_size($img_size_attr);
+                }
             }
         }
         catch (FileNotFoundException $e)
@@ -400,27 +381,6 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
             log_error($e->getMessage(), 'media info not available');
 
             return false;
-        }
-    }
-
-    /**
-     * @param              $linkResolver
-     * @param bool         $isAttachment  whether the ref is an attachment or URL
-     * @param string|int   $ref           the ref to the image
-     * @param array|string $requestedSize the maximum size for the image as array or one of the symbolic sizes ("large",
-     *                                    "small", ...) as string.
-     *
-     * @return array Returns the thumbnail info as array with ($img_url, $img_width, $img_height)
-     */
-    private static function getThumbnailInfo($linkResolver, $isAttachment, $ref, $requestedSize)
-    {
-        if ($isAttachment)
-        {
-            return MSCL_ThumbnailApi::get_thumbnail_info_from_attachment($linkResolver, $ref, $requestedSize);
-        }
-        else
-        {
-            return MSCL_ThumbnailApi::get_thumbnail_info($linkResolver, $ref, $requestedSize);
         }
     }
 }

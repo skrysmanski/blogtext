@@ -140,16 +140,16 @@ class MSCL_ThumbnailApi {
     return $mode;
   }
 
-  public static function get_thumbnail_info_from_attachment($thumbnail_container, $attachment_id, $size, $mode=null) {
+  public static function get_thumbnail_info_from_attachment($attachment_id, $size, $mode=null) {
     if (!wp_attachment_is_image($attachment_id)) {
       // not a image - let wordpress give us a media icon
       return wp_get_attachment_image_src($attachment_id, $size, true);
     }
 
-    return self::get_thumbnail_info($thumbnail_container, get_attached_file($attachment_id), $size, $mode);
+    return self::get_thumbnail_info(get_attached_file($attachment_id), $size, $mode);
   }
 
-  public static function get_thumbnail_info($thumbnail_container, $img_src, $size, $mode=null) {
+  public static function get_thumbnail_info($img_src, $size, $mode=null) {
     if (is_array($size)) {
       $requested_width = max(0, intval($size[0]));
       $requested_height = max(0, intval($size[1]));
@@ -165,11 +165,6 @@ class MSCL_ThumbnailApi {
       $instance = self::get_instance();
       $instance->thumbnails[$token] = $thumb;
     }
-    // NOTE: Always call this method (not only when the thumbnail instance hadn't been created yet), as we
-    //   can't assume that the same container was used when the thumbnail was first created. This is
-    //   especially true, when a post's content is checked for thumbnails (in a second "iteration", see
-    //   BlogTextMarkup::check_thumbnails()).
-    $thumbnail_container->add_used_thumbnail($thumb);
 
     return array($thumb->get_thumb_image_url(), $thumb->get_thumb_width(), $thumb->get_thumb_height());
   }
@@ -198,14 +193,6 @@ class MSCL_ThumbnailApi {
     MSCL_Thumbnail::delete_thumbnail($token);
   }
 }
-
-interface IThumbnailContainer {
-  /**
-   * Is called when a thumbnail is created for this "container" (usually this is a text that uses thumbnails).
-   */
-  public function add_used_thumbnail($thumbnail);
-}
-
 
 /**
  * Represents a single thumbnail image.
