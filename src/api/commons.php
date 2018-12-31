@@ -15,7 +15,6 @@ require_once(dirname(__FILE__).'/ClassLoader.php');
 define('MSCL_PLUGIN_ROOT_DIR', dirname(dirname(__FILE__)));
 
 class MSCL_Api {
-  const THUMBNAIL_API = 'thumbnail/api.php';
   const CACHE_API = 'cache-api.php';
   const OPTIONS_API = 'options-api.php';
   const USER_API = 'user-api.php';

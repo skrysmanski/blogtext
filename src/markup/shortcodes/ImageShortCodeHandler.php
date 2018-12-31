@@ -5,7 +5,6 @@ use MSCL\FileInfo\AbstractFileInfo;
 use MSCL\FileInfo\ImageFileInfo;
 
 require_once(dirname(__FILE__) . '/../../api/commons.php');
-MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 
 MSCL_require_once('IMacroShortCodeHandler.php', __FILE__);
 
@@ -268,7 +267,7 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
                 }
                 else
                 {
-                    list($img_width, $img_height) = MSCL_ThumbnailApi::get_max_size($img_size_attr);
+                    list($img_width, $img_height) = self::get_max_size($img_size_attr);
                 }
             }
         }
@@ -382,5 +381,98 @@ class ImageShortCodeHandler implements IMacroShortCodeHandler
 
             return false;
         }
+    }
+
+    /**
+     * Returns the maximum size (in pixels) for specified size (name; eg. "small", "medium", "large").
+     *
+     * @param string $size the size as name (eg. "small", "medium", "large")
+     *
+     * @return array Returns "list($max_width, $max_height)". Either or both can be "0", if they're not
+     *   specified, meaning that the width or height isn't restricted for this size.
+     *
+     * @throws Exception thrown if an invalid size name has been specified.
+     */
+    private static function get_max_size($size)
+    {
+        //
+        // NOTE: This method is based on "image_constrain_size_for_editor()" defined in "media.php" in Wordpress.
+        //
+        global $_wp_additional_image_sizes;
+
+        if ($size == 'small')
+        {
+            $max_width = intval(get_option('thumbnail_size_w'));
+            $max_height = intval(get_option('thumbnail_size_h'));
+            // last chance thumbnail size defaults
+            if (!$max_width)
+            {
+                $max_width = self::DEFAULT_THUMB_WIDTH;
+            }
+            if (!$max_height)
+            {
+                $max_height = self::DEFAULT_THUMB_HEIGHT;
+            }
+            // Fix the size name for "apply_filters()" below.
+            $size = 'thumb';
+        }
+        elseif ($size == 'medium')
+        {
+            $max_width = intval(get_option('medium_size_w'));
+            $max_height = intval(get_option('medium_size_h'));
+        }
+        elseif ($size == 'large')
+        {
+            $max_width = intval(get_option('large_size_w'));
+            $max_height = intval(get_option('large_size_h'));
+        }
+        elseif (   isset($_wp_additional_image_sizes)
+                && count($_wp_additional_image_sizes)
+                && in_array($size, array_keys($_wp_additional_image_sizes)))
+        {
+            $max_width = intval($_wp_additional_image_sizes[$size]['width']);
+            $max_height = intval($_wp_additional_image_sizes[$size]['height']);
+        }
+        else
+        {
+            throw new Exception("Invalid image size: ".$size);
+        }
+
+        $content_width = self::get_content_width();
+        if ($content_width != 0 && $max_width > $content_width)
+        {
+            $max_width = $content_width;
+        }
+
+        list($max_width, $max_height) = apply_filters('editor_max_image_size', array($max_width, $max_height), $size);
+        if ($max_width < 1)
+        {
+            $max_width = 0;
+        }
+        if ($max_height < 1)
+        {
+            $max_height = 0;
+        }
+
+        return array($max_width, $max_height);
+    }
+
+    /**
+     * Returns the width available for a post's content in pixels. Returns "0" (zero), if the content width is
+     * unknown.
+     */
+    private static function get_content_width() {
+        global $content_width;
+
+        if (is_numeric($content_width))
+        {
+            $width = (int)$content_width;
+            if ($width > 0)
+            {
+                return $width;
+            }
+        }
+
+        return 0;
     }
 }

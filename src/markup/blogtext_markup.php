@@ -1,6 +1,5 @@
 <?php
 require_once(dirname(__FILE__).'/../api/commons.php');
-MSCL_Api::load(MSCL_Api::THUMBNAIL_API);
 
 MSCL_require_once('textmarkup_base.php', __FILE__);
 MSCL_require_once('markup_cache.php', __FILE__);
