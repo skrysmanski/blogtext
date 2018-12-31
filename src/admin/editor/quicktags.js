@@ -169,11 +169,14 @@ function blogtext_edToolbar() {
 }
 
 function blogtext_get_editor_toolbar() {
-    var toolbar = QTags.getInstance(0);
+    // NOTE: The id can be obtained from the JavaScript console by calling "QTags.instances".
+    var toolbar = QTags.getInstance('content');
+
     if (!toolbar || !toolbar.settings || !toolbar.settings.buttons) {
         // Check object so that we don't break things.
         return false;
     }
+
     return toolbar;
 }
 
