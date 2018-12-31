@@ -68,60 +68,79 @@ class MSCL_ThumbnailApi {
     return 0;
   }
 
-  /**
-   * Returns the maximum size (in pixels) for specified size (name; eg. "small", "medium", "large").
-   *
-   * @param string $size the size as name (eg. "small", "medium", "large")
-   * @return array Returns "list($max_width, $max_height)". Either or both can be "0", if they're not
-   *   specified, meaning that the width or height isn't restricted for this size.
-   */
-  public static function get_max_size($size) {
-    //
-    // NOTE: This method is based on "image_constrain_size_for_editor()" defined in "media.php" in Wordpress.
-    //
-    global $_wp_additional_image_sizes;
+    /**
+     * Returns the maximum size (in pixels) for specified size (name; eg. "small", "medium", "large").
+     *
+     * @param string $size the size as name (eg. "small", "medium", "large")
+     *
+     * @return array Returns "list($max_width, $max_height)". Either or both can be "0", if they're not
+     *   specified, meaning that the width or height isn't restricted for this size.
+     *
+     * @throws MSCL_ThumbnailException thrown if an invalid size name has been specified.
+     */
+    public static function get_max_size($size)
+    {
+        //
+        // NOTE: This method is based on "image_constrain_size_for_editor()" defined in "media.php" in Wordpress.
+        //
+        global $_wp_additional_image_sizes;
 
-    if ($size == 'small') {
-      $max_width = intval(get_option('thumbnail_size_w'));
-      $max_height = intval(get_option('thumbnail_size_h'));
-      // last chance thumbnail size defaults
-      if (!$max_width) {
-        $max_width = self::DEFAULT_THUMB_WIDTH;
-      }
-      if (!$max_height) {
-        $max_height = self::DEFAULT_THUMB_HEIGHT;
-      }
-      // Fix the size name for "apply_filters()" below.
-      $size = 'thumb';
-    } elseif ( $size == 'medium' ) {
-      $max_width = intval(get_option('medium_size_w'));
-      $max_height = intval(get_option('medium_size_h'));
-    }
-    elseif ( $size == 'large' ) {
-      $max_width = intval(get_option('large_size_w'));
-      $max_height = intval(get_option('large_size_h'));
-    } elseif ( isset( $_wp_additional_image_sizes ) && count( $_wp_additional_image_sizes ) && in_array( $size, array_keys( $_wp_additional_image_sizes ) ) ) {
-      $max_width = intval( $_wp_additional_image_sizes[$size]['width'] );
-      $max_height = intval( $_wp_additional_image_sizes[$size]['height'] );
-    } else {
-      throw new MSCL_ThumbnailException("Invalid image size: ".$size);
-    }
+        if ($size == 'small')
+        {
+            $max_width = intval(get_option('thumbnail_size_w'));
+            $max_height = intval(get_option('thumbnail_size_h'));
+            // last chance thumbnail size defaults
+            if (!$max_width)
+            {
+                $max_width = self::DEFAULT_THUMB_WIDTH;
+            }
+            if (!$max_height)
+            {
+                $max_height = self::DEFAULT_THUMB_HEIGHT;
+            }
+            // Fix the size name for "apply_filters()" below.
+            $size = 'thumb';
+        }
+        elseif ( $size == 'medium' )
+        {
+            $max_width = intval(get_option('medium_size_w'));
+            $max_height = intval(get_option('medium_size_h'));
+        }
+        elseif ( $size == 'large' )
+        {
+            $max_width = intval(get_option('large_size_w'));
+            $max_height = intval(get_option('large_size_h'));
+        }
+        elseif (   isset($_wp_additional_image_sizes)
+                && count($_wp_additional_image_sizes)
+                && in_array($size, array_keys($_wp_additional_image_sizes)))
+        {
+            $max_width = intval($_wp_additional_image_sizes[$size]['width']);
+            $max_height = intval($_wp_additional_image_sizes[$size]['height']);
+        }
+        else
+        {
+            throw new MSCL_ThumbnailException("Invalid image size: ".$size);
+        }
 
-    $content_width = self::get_content_width();
-    if ($content_width != 0 && $max_width > $content_width) {
-      $max_width = $content_width;
-    }
+        $content_width = self::get_content_width();
+        if ($content_width != 0 && $max_width > $content_width)
+        {
+            $max_width = $content_width;
+        }
 
-    list($max_width, $max_height) = apply_filters('editor_max_image_size', array($max_width, $max_height), $size);
-    if ($max_width < 1) {
-      $max_width = 0;
-    }
-    if ($max_height < 1) {
-      $max_height = 0;
-    }
+        list($max_width, $max_height) = apply_filters('editor_max_image_size', array($max_width, $max_height), $size);
+        if ($max_width < 1)
+        {
+            $max_width = 0;
+        }
+        if ($max_height < 1)
+        {
+            $max_height = 0;
+        }
 
-    return array($max_width, $max_height);
-  }
+        return array($max_width, $max_height);
+    }
 
   public static function get_instance() {
     if (is_null(self::$_instance)) {
