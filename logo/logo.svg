@@ -1,15 +1,14 @@
-<svg width="500" height="500" xmlns="http://www.w3.org/2000/svg">
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg">
     <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
     <defs>
         <style type="text/css">@import url('https://fonts.googleapis.com/css?family=Audiowide');</style>
     </defs>
     <g>
         <title>background</title>
-        <rect x="-1" y="-1" width="502" height="502" id="canvas_background" fill="#f9f9f9"/>
+        <rect fill="#f9f9f9" id="canvas_background" height="258" width="258" y="-1" x="-1"/>
     </g>
     <g>
         <title>Logo Text</title>
-        <text fill="#f48c04" stroke="#000" stroke-width="0" x="47.699997" y="278" id="svg_1"
-              font-size="80" font-family="Audiowide" text-anchor="start" xml:space="preserve">BlogText</text>
+        <text xml:space="preserve" text-anchor="start" font-family="Audiowide" font-size="40" id="svg_1" y="142.25" x="26.85833" stroke-width="0" stroke="#000" fill="#f48c04">BlogText</text>
     </g>
 </svg>
