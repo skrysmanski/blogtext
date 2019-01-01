@@ -103,6 +103,10 @@ try {
     Write-Host -ForegroundColor Cyan 'Activating plugin "BlogText"...'
     Invoke-WordpressCli plugin activate blogtext
 
+    Write-Host
+    Write-Host -ForegroundColor Cyan 'Disabling visual editor for admin...'
+    Invoke-WordpressCli user meta update admin rich_editing false
+
     if (($WordpressVersion -eq '') -or ($WordpressVersion -ge '5.0')) {
         Write-Host
         Write-Host -ForegroundColor Cyan 'Installing and activating "Classic Editor"...'
