@@ -22,3 +22,4 @@ For general help on Wordpress' plugin directory, see <https://developer.wordpres
 1. Upload `dist-zip/blogtext-<VERSION>.zip` to downloads section in GitHub
 1. Close all resolved issues
 1. Close all resolved support tickets
+1. Update changelog at: <https://blogtext.mayastudios.com/changelog/>
