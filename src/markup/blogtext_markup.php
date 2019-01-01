@@ -47,7 +47,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
         'shortcodes' =>
             // language=RegExp
-            '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
+            '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\]|\](?!\]))+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
 
         // BlogText short codes without arguments [[[ ]]] (three brackets instead of two)
         // NOTE: For now this must run after "headings" as otherwise the TOC can't be generated (which is done

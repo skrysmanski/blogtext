@@ -136,3 +136,7 @@ some %% test
 {{!%%!}}
 
 abc %% comment
+
+----
+
+[[https://localhost|[Column] attribute]]

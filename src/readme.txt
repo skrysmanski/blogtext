@@ -51,6 +51,7 @@ Manual way:
 * Fix: The syntax highlighting language lookup window now has a proper width even in Chrome.
 * Fix: Quotes in Interlinks now work properly
 * Fix: `%%` can now be used in code blocks (issue #21)
+* Fix: A single `]` is now supported in shortcodes (issues #17)
 
 = 0.9.8 =
 * Known Issue: Post previews don't work with the new Gutenberg editor introduced in Wordpress 5.0. (issue #3)
