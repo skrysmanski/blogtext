@@ -37,69 +37,106 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         // heading with optional anchor names
         // NOTE: This syntax must also allow for # in the heading (like in "C# overview")
         //   and '=' (like in "a != b"). So we make this syntax more restrictive.
-        'headings' =>'/^[ \t]*(={1,6})(.*?)(?:[=]+[ \t]*#([^ \t].*)[ \t]*)?$/m',
+        'headings' =>
+            // language=RegExp
+            '/^[ \t]*(={1,6})(.*?)(?:[=]+[ \t]*#([^ \t].*)[ \t]*)?$/m',
 
         // BlogText short codes using the [[ ]] syntax
         // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
         // NOTE: Must run AFTER "headings" and BEFORE the tables, as the tables also use pipes
         // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
-        'shortcodes' => '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
+        'shortcodes' =>
+            // language=RegExp
+            '/(?<!\[)\[\[(?!\[)[ \t]*((?:[^\]]|\\\])+)[ \t]*(?<!(?<!\\\\)\\\\)\]\]([[:alpha:]]*(?![[:alpha:]]))/',
+
         // BlogText short codes without arguments [[[ ]]] (three brackets instead of two)
         // NOTE: For now this must run after "headings" as otherwise the TOC can't be generated (which is done
         //   by this rule.
-        'simple_shortcodes' => '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
+        'simple_shortcodes' =>
+            // language=RegExp
+            '/\[\[\[([a-zA-Z0-9\-]+)\]\]\]/',
 
         // External links (plain text urls)
         // NOTE: Plain text urls must also work in list. Lists may surround the links with <li>
         //   tags and then white space could no longer be used as sole delimiter for URLs. On the
         //   other hand we can't use < and > as delimiter as this would interfere with URL shortcodes.
         //   So plaintext urls need to be parsed before tables and lists.
-        'plain_text_urls' => '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[.,;:\?\!)\]}"\'])?/',
+        'plain_text_urls' =>
+            // language=RegExp
+            '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[.,;:\?\!)\]}"\'])?/',
 
-        'plain_text_email' => '/(?<=\s)[^\s]+@[^\s.]+(?:\.[^\s.]+)+(?=\s)/U',
+        'plain_text_email' =>
+            // language=RegExp
+            '/(?<=\s)[^\s]+@[^\s.]+(?:\.[^\s.]+)+(?=\s)/U',
 
         // complex tables (possibly contained in a list) - MediaWiki syntax
-        'complex_table' => '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
+        'complex_table' =>
+            // language=RegExp
+            '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
 
         // simple tables - Creole syntax
         // NOTE: Need to be done AFTER "complex_tables" as they syntaxes otherwise may collide (eg. on the
         //   table caption)
-        'simple_table' => '/\n(\|(?!\+)[^\|]+\|.+(?:\n\|(?!\+)[^\|]+\|.+)*)(?:\n\|\+(.+))?/',
+        'simple_table' =>
+            // language=RegExp
+            '/\n(\|(?!\+)[^\|]+\|.+(?:\n\|(?!\+)[^\|]+\|.+)*)(?:\n\|\+(.+))?/',
 
         // Ordered (#) and unordered (*) lists; definition list(;)
         // NOTE: The user can't start a list with "**" (list with sublist).
         // NOTE: Indentations in lists must be done with at least two spaces/tabs. Otherwise it's too easy to accidentally
         //   insert a space and thereby add a line to a list. This also "fixes" the problem of having a more-link directly
         //   after a list being placed inside the list.
-        'list' => '/\n[ \t]?[\*#;][^\*#;].*?\n(?:(?:(?:[ \t]?[\*#]+[\^!]? |[ \t]?;|[ \t]{2,}).*?)?\n)*/',
+        'list' =>
+            // language=RegExp
+            '/\n[ \t]?[\*#;][^\*#;].*?\n(?:(?:(?:[ \t]?[\*#]+[\^!]? |[ \t]?;|[ \t]{2,}).*?)?\n)*/',
 
         // Block quotes
-        'blockquote' => '/\n>(.*?\n)(?!>)/s',
+        'blockquote' =>
+            // language=RegExp
+            '/\n>(.*?\n)(?!>)/s',
 
         // Indentation (must be done AFTER lists)
-        'indentation' => '/\n((?:[ \t]{2,}.*?\n)+)/',
+        'indentation' =>
+            // language=RegExp
+            '/\n((?:[ \t]{2,}.*?\n)+)/',
 
         // Horizontal lines
-        'horizontal' => '/^----[\-]*[ \t]*$/m',
+        'horizontal' =>
+            // language=RegExp
+            '/^----[\-]*[ \t]*$/m',
 
         // Emphasis and bold
         // NOTE: We must check that there's no : before the // in emphasis so that URLs won't be interpreted as
         //   emphasis.
-        'bold' => '/(?<!\*)\*\*(.+?)\*\*(?!\*)/',
+        'bold' =>
+            // language=RegExp
+            '/(?<!\*)\*\*(.+?)\*\*(?!\*)/',
 
-        'emphasis' => '@(?<![/\:])//(.+?)//(?!/)@',
+        'emphasis' =>
+            // language=RegExp
+            '@(?<![/\:])//(.+?)//(?!/)@',
 
         // Underline, strike-though, super script, and sub script
-        'underline' => '/(?<!_)__(.+?)__(?!_)/',
+        'underline' =>
+            // language=RegExp
+            '/(?<!_)__(.+?)__(?!_)/',
 
-        'strike_through' => '/(?<!~)~~(.+?)~~(?!~)/',
+        'strike_through' =>
+            // language=RegExp
+            '/(?<!~)~~(.+?)~~(?!~)/',
 
-        'super_script' => '/(?<!\^)\^\^(.+?)\^\^(?!\^)/',
+        'super_script' =>
+            // language=RegExp
+            '/(?<!\^)\^\^(.+?)\^\^(?!\^)/',
 
-        'sub_script' => '/(?<!,),,(.+?),,(?!,)/',
+        'sub_script' =>
+            // language=RegExp
+            '/(?<!,),,(.+?),,(?!,)/',
 
         # Handle all code sections not yet handled (due to inability of the parser)
-        'mask_remaining_no_markup_section' => '/##(.+)##/U',
+        'mask_remaining_no_markup_section' =>
+            // language=RegExp
+            '/##(.+)##/U',
     );
 
   // Rules to remove white space at the beginning of line that don't expect this (headings, lists, quotes)
