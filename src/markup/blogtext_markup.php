@@ -722,7 +722,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
             }
             else
             {
-                throw new Exception("Invalid prefix handler: " . gettype($prefix_handler));
+                log_error("Invalid prefix handler: " . gettype($prefix_handler));
+                return '';
             }
         }
         else
