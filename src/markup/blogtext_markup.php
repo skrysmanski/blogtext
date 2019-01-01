@@ -616,25 +616,34 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
     return '<a'.$css_classes.' href="'.$url.'"'.$target_attr.'>'.$name.'</a>';
   }
 
-  private function shortcodes_callback($matches) {
-    // split at | (but not at \| but at \\|)
-    $params = preg_split('/(?<!(?<!\\\\)\\\\)\|/', $matches[1]);
-    // unescape \|, \[, and \] - don't escape \\ just yet, as it may still be used in \:
-    $params = str_replace(array('\\[', '\\]', '\\|'), array('[', ']', '|'), $params);
-    // find prefix (allow \: as escape for :)
-    $prefix_parts = preg_split('/(?<!(?<!\\\\)\\\\):/', $params[0], 2);
-    if (count($prefix_parts) == 2) {
-      $prefix = $prefix_parts[0];
-      $params[0] = $prefix_parts[1];
-    } else {
-      $prefix = '';
-      $params[0] = $prefix_parts[0];
-    }
-    $params = str_replace('\\\\', '\\', $params);
+    private function shortcodes_callback($matches)
+    {
+        // split at | (but not at \| but at \\|)
+        $params = preg_split('/(?<!(?<!\\\\)\\\\)\|/', $matches[1]);
 
-    $text_after = $matches[2]; // like in [[syntax]]es
-    return $this->resolve_link($prefix, $params, true, $text_after);
-  }
+        // unescape \|, \[, and \] - don't escape \\ just yet, as it may still be used in \:
+        $params = str_replace(array('\\[', '\\]', '\\|'), array('[', ']', '|'), $params);
+
+        // find prefix (allow \: as escape for :)
+        $prefix_parts = preg_split('/(?<!(?<!\\\\)\\\\):/', $params[0], 2);
+
+        if (count($prefix_parts) == 2)
+        {
+            $prefix    = $prefix_parts[0];
+            $params[0] = $prefix_parts[1];
+        }
+        else
+        {
+            $prefix    = '';
+            $params[0] = $prefix_parts[0];
+        }
+
+        $params = str_replace('\\\\', '\\', $params);
+
+        $text_after = $matches[2]; // like in [[syntax]]es
+
+        return $this->resolve_link($prefix, $params, true, $text_after);
+    }
 
   public static function get_prefix($link) {
     // determine prefix
