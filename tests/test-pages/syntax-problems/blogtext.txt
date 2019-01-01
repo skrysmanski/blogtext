@@ -112,3 +112,7 @@ Some mail addresses:
  * mail@mydomain.com
  * [[mymail@mydomain.com]]
  * Named [[mymail@mydomain.com|My Mail]]
+
+----
+
+Links with quotes: [[wiki:en|Clarence "Frogman" Henry]]
