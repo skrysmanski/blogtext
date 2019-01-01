@@ -145,3 +145,13 @@ Links with quotes: <a href="http://en.wikipedia.org/wiki/Clarence &quot;Frogman&
 <hr/>
 
 <script type="text/javascript"><!-- wpnl -->var a = "test";<!-- wpnl --><!-- wpnl -->window.alert(a);<!-- wpnl --></script>
+
+<hr/>
+
+<pre class="code">some %% test</pre>
+
+<code>%%</code>
+
+%%
+
+abc

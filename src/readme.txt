@@ -49,6 +49,7 @@ Manual way:
 * Fix: The editor toolbar got slightly broken in a previous Wordpress version. It's now fixed again.
 * Fix: The syntax highlighting language lookup window now has a proper width even in Chrome.
 * Fix: Quotes in Interlinks now work properly
+* Fix: `%%` can now be used in code blocks (issue #21)
 
 = 0.9.8 =
 * Known Issue: Post previews don't work with the new Gutenberg editor introduced in Wordpress 5.0. (issue #3)

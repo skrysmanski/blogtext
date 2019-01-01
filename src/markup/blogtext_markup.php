@@ -301,13 +301,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
      */
     private function maskNoParseTextSections($markup_code)
     {
-        # end-of-line comments (%%)
-        // language=RegExp
-        $pattern     = '/(?<!%)%%(.*)$/m';
-        $markup_code = preg_replace($pattern, '', $markup_code);
-
         # IMPORTANT: The implementation of "encode_no_markup_blocks_callback()" depends on the order of the
-        #   alternative in this regexp! So don't change the order unless you know what you're doing!
+        #   alternatives in this regexp! So don't change the order unless you know what you're doing!
         // language=RegExp
         $pattern = '/'
                  . '<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' # <pre> and <code>
@@ -332,6 +327,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         // language=RegExp
         $pattern     = '/<[a-zA-Z]+[ \t]+[^>]*[a-zA-Z0-9+.\-]+:\/\/[^>]*>/Us';
         $markup_code = preg_replace_callback($pattern, array($this, 'encode_inner_tag_urls_callback'), $markup_code);
+
+        # end-of-line comments (%%)
+        // language=RegExp
+        $pattern     = '/(?<!%)%%(.*)$/m';
+        $markup_code = preg_replace($pattern, '', $markup_code);
 
         return $markup_code;
     }

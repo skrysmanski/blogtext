@@ -124,3 +124,15 @@ var a = "test";
 
 window.alert(a);
 </script>!}}
+
+----
+
+{{{
+some %% test
+}}}
+
+##%%##
+
+{{!%%!}}
+
+abc %% comment
