@@ -60,9 +60,6 @@ try {
         }
     }
 
-    Write-Host
-    Write-Host -ForegroundColor Cyan 'Installing WordPress...'
-
     $containerId = & docker-compose --project-name $ProjectName ps -q web
     if ((-Not $?) -or (-Not $containerId)) {
         throw 'Could not determine container id of web container'
@@ -74,13 +71,22 @@ try {
         throw 'Could change ownership of certain directories in the container.'
     }
 
-    #
-    # Wordpress CLI:
-    #  - https://wp-cli.org/
-    #  - https://developer.wordpress.org/cli/commands/
-    #
-    # NOTE: For CLI commands, the PHP version doesn't really matter. Thus we don't use it.
-    & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli core install `
+    function Invoke-WordpressCli {
+        #
+        # Wordpress CLI:
+        #  - https://wp-cli.org/
+        #  - https://developer.wordpress.org/cli/commands/
+        #
+        # NOTE: For CLI commands, the PHP version doesn't really matter. Thus we don't use it.
+        & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli @args
+        if (-Not $?) {
+            throw "Wordpress CLI failed: $args"
+        }
+    }
+
+    Write-Host
+    Write-Host -ForegroundColor Cyan 'Installing WordPress...'
+    Invoke-WordpressCli core install `
         "--url=localhost:$Port" `
         '--title=Wordpress Test Site' `
         --admin_user=admin `
@@ -88,16 +94,10 @@ try {
         '--admin_email=test@test.com' `
         --skip-email `
         --color
-    if (-Not $?) {
-        throw 'Could not install Wordpress'
-    }
 
     Write-Host
     Write-Host -ForegroundColor Cyan 'Activating plugin "BlogText"...'
-    & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli plugin activate blogtext
-    if (-Not $?) {
-        throw 'Could not activate the BlogText plugin'
-    }
+    Invoke-WordpressCli  plugin activate blogtext
 }
 catch {
     # IMPORTANT: We compare type names(!) here - not actual types. This is important because - for example -
