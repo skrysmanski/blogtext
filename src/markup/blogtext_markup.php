@@ -336,65 +336,75 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         return $markup_code;
     }
 
-  /**
-   * The {@link preg_replace_callback()} callback function for encode_no_markup_blocks
-   *
-   * @param string[] $matches  array of matched elements in the complete markup text; this only includes the text to be
-   *   masked
-   *
-   * @return string  the masked text
-   */
-  private function mask_no_markup_section_callback($matches) {
-    $preceding_text = '';
+    /**
+     * The {@link preg_replace_callback()} callback function for encode_no_markup_blocks
+     *
+     * @param string[] $matches array of matched elements in the complete markup text; this
+     *                          only includes the text to be masked
+     *
+     * @return string  the masked text
+     *
+     * @throws Exception
+     */
+    private function mask_no_markup_section_callback($matches)
+    {
+        $preceding_text = '';
 
-    // Depending on the last array key we can find out which type of block was escaped.
-    switch (count($matches)) {
-      case 4: // capture groups: 3
-        // HTML tag
-        $value = $this->format_no_markup_block($matches[1], $matches[3], $matches[2]);
-        break;
+        // Depending on the last array key we can find out which type of block was escaped.
+        switch (count($matches))
+        {
+            case 4: // capture groups: 3
+                // HTML tag
+                $value = $this->format_no_markup_block($matches[1], $matches[3], $matches[2]);
+                break;
 
-      case 5: // capture groups: 1
-        // {{{ ... }}}
-        $parts = explode("\n", $matches[4], 2);
-        if (count($parts) == 2) {
-          $value = $this->format_no_markup_block('{{{', $parts[1], $parts[0]);
-        } else {
-          $value = $this->format_no_markup_block('{{{', $parts[0], '');
+            case 5: // capture groups: 1
+                // {{{ ... }}}
+                $parts = explode("\n", $matches[4], 2);
+                if (count($parts) == 2)
+                {
+                    $value = $this->format_no_markup_block('{{{', $parts[1], $parts[0]);
+                }
+                else
+                {
+                    $value = $this->format_no_markup_block('{{{', $parts[0], '');
+                }
+                break;
+
+            case 7: // capture groups: 2
+                // ##...##
+                $preceding_text = $matches[5];
+                $value          = $this->format_no_markup_block('##', $matches[6], '');
+                break;
+
+            case 8: // capture groups: 1
+                // `...`
+                $value = $this->format_no_markup_block('##', $matches[7], '');
+                break;
+
+            case 10: // capture groups: 2
+                // {{! ... !}}} and {{!! ... !}} - ignore syntax
+                if ($matches[8] != '!')
+                {
+                    // Simply return contents - also escape tag brackets (< and >); this way the user can use this
+                    // syntax to prevent a < to open an HTML tag.
+                    $value = htmlspecialchars($matches[9]);
+                }
+                else
+                {
+                    // Allow HTML
+                    $value = $matches[9];
+                }
+                break;
+
+            default:
+                throw new Exception('Plugin error: unexpected match count in "encode_callback()": '.count($matches)
+                                    ."\n".print_r($matches, true));
+
         }
-        break;
 
-      case 7: // capture groups: 2
-        // ##...##
-        $preceding_text = $matches[5];
-        $value = $this->format_no_markup_block('##', $matches[6], '');
-        break;
-
-      case 8: // capture groups: 1
-        // `...`
-        $value = $this->format_no_markup_block('##', $matches[7], '');
-        break;
-
-      case 10: // capture groups: 2
-        // {{! ... !}}} and {{!! ... !}} - ignore syntax
-        if ($matches[8] != '!') {
-          // Simply return contents - also escape tag brackets (< and >); this way the user can use this
-          // syntax to prevent a < to open an HTML tag.
-          $value = htmlspecialchars($matches[9]);
-        } else {
-          // Allow HTML
-          $value = $matches[9];
-        }
-        break;
-
-      default:
-        throw new Exception('Plugin error: unexpected match count in "encode_callback()": '.count($matches)
-                            ."\n".print_r($matches, true));
-
+        return $preceding_text . $this->registerMaskedText($value);
     }
-
-    return $preceding_text.$this->registerMaskedText($value);
-  }
 
   private function mask_remaining_no_markup_section_callback($matches) {
     $value = $this->format_no_markup_block('##', $matches[1], '');
