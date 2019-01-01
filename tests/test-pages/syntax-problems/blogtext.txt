@@ -116,3 +116,11 @@ Some mail addresses:
 ----
 
 Links with quotes: [[wiki:en|Clarence "Frogman" Henry]]
+
+----
+
+{{!!<script type="text/javascript">
+var a = "test";
+
+window.alert(a);
+</script>!}}

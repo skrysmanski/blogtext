@@ -393,7 +393,11 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
                 else
                 {
                     // Allow HTML
-                    $value = $matches[9];
+                    // NOTE: We also replace "\n" with '<!-- wpnl -->' to prevent them being replaced
+                    //   with <p></p> by Wordpress. We only do this for {{!! but not for {{! because
+                    //   this allows the user to write <script> tags properly.
+                    //   Note that the '<!-- wpnl -->' is an undocumented "feature" (defined in wpautop()).
+                    $value = str_replace("\n", '<!-- wpnl -->', $matches[9]);
                 }
                 break;
 
