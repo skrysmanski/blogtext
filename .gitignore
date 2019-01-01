@@ -1,7 +1,7 @@
 /tests/log.txt
 /dist
 /dist-zip
-/node_modules
+node_modules
 
 # Via: https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
 .idea/**/workspace.xml
