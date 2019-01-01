@@ -137,3 +137,7 @@ Some mail addresses:
 <li><a href="mailto:mymail@mydomain.com">mymail@mydomain.com</a></li>
 <li class="last-item"><p>Named <a href="mailto:mymail@mydomain.com">My Mail</a></p></li>
 </ul>
+
+<hr/>
+
+Links with quotes: <a href="http://en.wikipedia.org/wiki/Clarence &quot;Frogman&quot; Henry" target="_blank">Clarence "Frogman" Henry</a>
