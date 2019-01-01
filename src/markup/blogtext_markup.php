@@ -669,39 +669,46 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
      *
      * @return string HTML code or the link (which may be "null")
      */
-    public function resolve_link($prefix, $params, $generate_html, $text_after) {
+    public function resolve_link($prefix, $params, $generate_html, $text_after)
+    {
         $post_id = MarkupUtil::get_post(null, true);
 
-        $link = null;
-        $title = null;
-        $is_external = false;
+        $link          = null;
+        $title         = null;
+        $is_external   = false;
         $is_attachment = false;
-        $link_type = null;
+        $link_type     = null;
 
         $not_found_reason = '';
 
         $prefix_lowercase = strtolower($prefix);
 
-        if (isset(self::$interlinks[$prefix_lowercase])) {
+        if (isset(self::$interlinks[$prefix_lowercase]))
+        {
             // NOTE: The prefix may even be empty.
             $prefix_handler = self::$interlinks[$prefix_lowercase];
 
-            if ($prefix_handler instanceof IMacroShortCodeHandler) {
+            if ($prefix_handler instanceof IMacroShortCodeHandler)
+            {
                 // Let the macro create the HTML code and return it directly.
                 return $prefix_handler->handle_macro($this, $prefix_lowercase, $params, $generate_html, $text_after);
             }
 
-            if ($prefix_handler instanceof ILinkShortCodeHandler) {
-                try {
+            if ($prefix_handler instanceof ILinkShortCodeHandler)
+            {
+                try
+                {
                     list($link, $title, $is_external, $link_type) = $prefix_handler->resolve_link($post_id, $prefix_lowercase, $params);
                     $is_attachment = ($link_type == ILinkShortCodeHandler::TYPE_ATTACHMENT);
                 }
-                catch (LinkTargetNotFoundException $e) {
+                catch (LinkTargetNotFoundException $e)
+                {
                     $not_found_reason = $e->get_reason();
-                    $title = $e->get_link_name();
+                    $title            = $e->get_link_name();
                 }
             }
-            else if (is_array($prefix_handler)) {
+            else if (is_array($prefix_handler))
+            {
                 // Simple text replacement
                 // Unfortunately as a hack we need to store the current params in a member variable. This is necessary
                 // because we can't pass them directly to the callback method, nested functions can't be used as
@@ -711,38 +718,47 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
                                               self::$interlinks[$prefix_lowercase]['pattern']);
                 $is_external = self::$interlinks[$prefix_lowercase]['external'];
             }
-            else {
-                throw new Exception("Invalid prefix handler: ".gettype($prefix_handler));
+            else
+            {
+                throw new Exception("Invalid prefix handler: " . gettype($prefix_handler));
             }
         }
-        else {
+        else
+        {
             // Unknown prefix; in most cases this is a url like "http://www.lordb.de" where "http" is the prefix
             // and "//www.lordb.de" is the first parameter.
-            if (empty($prefix)) {
+            if (empty($prefix))
+            {
                 // Special case: if the user (for some reasons) has removed the interlink handler for the empty
                 // prefix.
                 $not_found_reason = LinkTargetNotFoundException::REASON_DONT_EXIST;
             }
-            else {
-                if (substr($params[0], 0, 2) == '//') {
+            else
+            {
+                if (substr($params[0], 0, 2) == '//')
+                {
                     // URL
-                    $link = $prefix.':'.$params[0];
+                    $link        = $prefix . ':' . $params[0];
                     $is_external = true;
-                    if (count($params) == 1 && substr($params[0], 0, 2) == '//') {
+                    if (count($params) == 1 && substr($params[0], 0, 2) == '//')
+                    {
                         $title = $this->get_plain_url_name($link);
                     }
                 }
-                else {
+                else
+                {
                     // not an url - assume wrong prefix
                     $not_found_reason = 'unknown prefix: ' . $prefix;
-                    if (count($params) == 1) {
+                    if (count($params) == 1)
+                    {
                         $title = "$prefix:$params[0]";
                     }
                 }
             }
         }
 
-        if (!$generate_html) {
+        if (!$generate_html)
+        {
             return $link;
         }
 
@@ -753,53 +769,65 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         // CSS classes
         // NOTE: We store them as associative array to prevent inserting the same CSS class twice.
         //
-        if ($is_attachment) {
+        if ($is_attachment)
+        {
             // Attachments are a special case.
             $css_classes = array('attachment' => true);
         }
-        else if ($link_type == ILinkShortCodeHandler::TYPE_EMAIL_ADDRESS) {
+        else if ($link_type == ILinkShortCodeHandler::TYPE_EMAIL_ADDRESS)
+        {
             $css_classes = array('mailto' => true);
         }
-        else if ($link_type == ILinkShortCodeHandler::TYPE_SAME_PAGE_ANCHOR) {
+        else if ($link_type == ILinkShortCodeHandler::TYPE_SAME_PAGE_ANCHOR)
+        {
             // Link on the same page - add text position requests to determine whether the heading is above or
             // below the link's position.
             // NOTE: We can't check whether the heading already exists in our headings array to determine whether
             //   it's above; this would only be possible, if we parsed character after character. We, however,
             //   execute rule after rule; so at this point all headings are already known.
             $anchor_name = substr($link, 1);
-            if ($this->heading_name_exists($anchor_name)) {
-                if ($this->needsHmlIdEscaping()) {
+            if ($this->heading_name_exists($anchor_name))
+            {
+                if ($this->needsHmlIdEscaping())
+                {
                     # Ids and anchor names are prefixed with the post's id
                     $escaped_anchor_name = $this->escapeHtmlId($anchor_name);
-                    $link = '#'.$escaped_anchor_name;
+                    $link                = '#' . $escaped_anchor_name;
                 }
 
                 # NOTE: Each anchor must be unique. Otherwise all links to the same anchor will get the same position calculated.
                 $placeholderText = $this->registerMaskedText($anchor_name, true, array($this, '_resolveHeadingRelativePos'));
                 $this->add_text_position_request($placeholderText);
-                $css_classes = array('section-link-'.$placeholderText => true);
+                $css_classes = array('section-link-' . $placeholderText => true);
             }
-            else {
-                if ($this->is_excerpt) {
+            else
+            {
+                if ($this->is_excerpt)
+                {
                     # This is just an excerpt. Assume that the link target is in the full text.
                     global $post;
-                    $link = get_permalink($post->ID).'#'.$anchor_name;
+                    $link        = get_permalink($post->ID) . '#' . $anchor_name;
                     $css_classes = array('section-link-below' => true);
                 }
-                else {
+                else
+                {
                     $not_found_reason = 'not existing';
                 }
             }
         }
-        else {
-            if ($is_external) {
+        else
+        {
+            if ($is_external)
+            {
                 $css_classes = array('external' => true);
             }
-            else {
+            else
+            {
                 $css_classes = array('internal' => true);
             }
 
-            if (!empty($prefix)) {
+            if (!empty($prefix))
+            {
                 // Replace "+" and "." for the css name as they have special meaning in CSS.
                 // NOTE: When this is just an URL the prefix will be the protocol (eg. "http", "ftp", ...)
                 $css_name = ($is_external ? 'external-' : 'internal-')
@@ -807,7 +835,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
                 $css_classes[$css_name] = true;
             }
 
-            if (!empty($link_type)) {
+            if (!empty($link_type))
+            {
                 // Replace "+" and "." for the css name as they have special meaning in CSS.
                 $css_name = ($is_external ? 'external-' : 'internal-')
                             . str_replace(array('+', '.'), '-', $link_type);
@@ -816,14 +845,17 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         }
 
 
-        if (!empty($not_found_reason)) {
+        if (!empty($not_found_reason))
+        {
             // Page or anchor not found
-            if ($link == '' || substr($link, 0, 1) != '#') {
+            if ($link == '' || substr($link, 0, 1) != '#')
+            {
                 // Replace link only for non anchors (i.e. full links).
                 $link = '#';
             }
             // NOTE: Create title as otherwise "#" (the link) will be used as title
-            if (empty($title) && count($params) == 1) {
+            if (empty($title) && count($params) == 1)
+            {
                 $title = $params[0];
             }
         }
@@ -831,59 +863,79 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         //
         // Determine link name
         //
-        if (empty($title)) {
-            if (count($params) > 1) {
+        if (empty($title))
+        {
+            if (count($params) > 1)
+            {
                 // if there's more than one parameter, the last parameter is the link's name
                 // NOTE: For "[[wiki:Portal|en]]" this would create a link to the Wikipedia article "Portal" and at the
                 // same time name the link "Portal"; this is quite clever. If this interlink had only one parameter,
                 // one would use "[[wiki:Portal|]]" (note the empty last param).
                 $title = $params[count($params) - 1];
-                if (empty($title)) {
+                if (empty($title))
+                {
                     // an empty name is a shortcut for using the first param as name
                     $title = $params[0];
                 }
             }
 
             // No "else if(empty($title))" here as (although unlikely) the last parameter may have been empty
-            if (empty($title)) {
-                if ($link_type == ILinkShortCodeHandler::TYPE_SAME_PAGE_ANCHOR) {
+            if (empty($title))
+            {
+                if ($link_type == ILinkShortCodeHandler::TYPE_SAME_PAGE_ANCHOR)
+                {
                     $anchor_name = substr($link, 1); // remove leading #
-                    if ($this->needsHmlIdEscaping()) {
+                    if ($this->needsHmlIdEscaping())
+                    {
                         $anchor_name = $this->unescapeHtmlId($anchor_name);
                     }
                     $title = $this->resolve_heading_name($anchor_name, true);
-                } else {
+                }
+                else
+                {
                     // If no name has been specified explicitly, we use the link instead.
                     $title = $link;
                 }
             }
         }
 
-        if (!empty($not_found_reason)) {
+        if (!empty($not_found_reason))
+        {
             // Page not found
-            $title .= '['.$not_found_reason.']';
-            if ($link_type != ILinkShortCodeHandler::TYPE_SAME_PAGE_ANCHOR) {
+            $title .= '[' . $not_found_reason . ']';
+            if ($link_type != ILinkShortCodeHandler::TYPE_SAME_PAGE_ANCHOR)
+            {
                 $css_classes = array('not-found' => true);
-            } else {
+            }
+            else
+            {
                 $css_classes = array('section-link-not-existing' => true);
             }
-        } else if ($is_attachment || $is_external) {
+        }
+        else if ($is_attachment || $is_external)
+        {
             // Check for file extension
-            if ($is_attachment) {
+            if ($is_attachment)
+            {
                 $filename = basename($link);
-            } else {
+            }
+            else
+            {
                 // we need to extract the path here, so that query (everything after ?) or the domain name doesn't
                 // "confuse" basename.
                 $filename = basename(parse_url($link, PHP_URL_PATH));
             }
             $dotpos = strrpos($filename, '.');
-            if ($dotpos !== false) {
+            if ($dotpos !== false)
+            {
                 $suffix = strtolower(substr($filename, $dotpos + 1));
-                if ($suffix == 'jpeg') {
+                if ($suffix == 'jpeg')
+                {
                     $suffix = 'jpg';
                 }
 
-                switch ($suffix) {
+                switch ($suffix)
+                {
                     case 'htm':
                     case 'html':
                     case 'php':
@@ -894,23 +946,29 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
                         break;
 
                     default:
-                        if (!$is_attachment) {
+                        if (!$is_attachment)
+                        {
                             $css_classes = array('external-file' => true);
                         }
-                        if ($suffix == 'txt') {
+                        if ($suffix == 'txt')
+                        {
                             // certain file types can't be uploaded by default (eg. .php). A common fix would be to add the
                             // ".txt" extension (eg. "phpinfo.php.txt"). Wordpress converts this file name to
                             // "phpinfo.php_.txt").
                             $olddotpos = $dotpos;
-                            $dotpos = strrpos($filename, '.', -5);
-                            if ($dotpos !== false) {
+                            $dotpos    = strrpos($filename, '.', - 5);
+                            if ($dotpos !== false)
+                            {
                                 $real_suffix = strtolower(substr($filename, $dotpos + 1, $olddotpos - $dotpos - 1));
-                                if (strlen($real_suffix) > 2) {
-                                    if ($real_suffix[strlen($real_suffix) - 1] == '_') {
-                                        $real_suffix = substr($real_suffix, 0, -1);
+                                if (strlen($real_suffix) > 2)
+                                {
+                                    if ($real_suffix[strlen($real_suffix) - 1] == '_')
+                                    {
+                                        $real_suffix = substr($real_suffix, 0, - 1);
                                     }
 
-                                    switch ($real_suffix) {
+                                    switch ($real_suffix)
+                                    {
                                         case 'htm':
                                         case 'html':
                                         case 'php':
@@ -923,14 +981,15 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
                                 }
                             }
                         }
-                        $css_classes['file-'.$suffix] = true;
+                        $css_classes['file-' . $suffix] = true;
                         break;
                 }
 
                 // Force new window for certain suffixes. Note most suffix will trigger a download, so for those
                 // there's no need to open them in a new window. Only open files in a new window that the browser
                 // usually displays "in-browser".
-                switch ($suffix) {
+                switch ($suffix)
+                {
                     // images
                     case 'png':
                     case 'jpg':
@@ -950,7 +1009,8 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
 
                     // special case for MacOSX, where PDFs are usually not displayed in the browser
                     case 'pdf':
-                        if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac OS X') === false) {
+                        if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac OS X') === false)
+                        {
                             $new_window = true;
                         }
                         break;
@@ -958,7 +1018,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
             }
         }
 
-        $title = $title.$text_after;
+        $title = $title . $text_after;
 
         return $this->generate_link_tag($link, $title, array_keys($css_classes), $new_window, $is_attachment);
     }
