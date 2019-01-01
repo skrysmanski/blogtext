@@ -46,6 +46,8 @@ Manual way:
 
 = 0.9.9 =
 * Change: Removed all custom thumbnail creation code. Instead, BlogText now just uses the actual image - with appropriate `max-width` styling. For reasoning, see issue #22.
+* Fix: The editor toolbar got slightly broken in a previous Wordpress version. It's now fixed again.
+* Fix: The syntax highlighting language lookup window now has a proper width even in Chrome.
 
 = 0.9.8 =
 * Known Issue: Post previews don't work with the new Gutenberg editor introduced in Wordpress 5.0. (issue #3)
