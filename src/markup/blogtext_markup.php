@@ -285,49 +285,51 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
   }
 
 
-  ######################################################################################################################
-  #
-  # region Masking Text Sections
-  #
-
-  /**
-   * Masks text sections that are to be excluded from markup parsing. This includes code blocks (<code>, <pre> and
-   * {{{ ... }}}, `...`), and no-markup blocks ({{! ... !}}). Also masks HTML attributes containing URLs (such as <a>
-   * or <img>), and removes end-of-line comments (%%).
-   *
-   * @param string $markup_code  the BlogText code
-   *
-   * @return string the masked BlogText code
-   */
-  private function maskNoParseTextSections($markup_code) {
-    # end-of-line comments (%%)
-    $pattern = '/(?<!%)%%(.*)$/m';
-    $markup_code = preg_replace($pattern, '', $markup_code);
-
-    # IMPORTANT: The implementation of "encode_no_markup_blocks_callback()" depends on the order of the
-    #   alternative in this regexp! So don't change the order unless you know what you're doing!
-    $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' # <pre> and <code>
-             . '|\{\{\{(.*?)\}\}\}'  # {{{ ... }}} - multi-line or single line code
-             . '|((?<!\n)[ \t]+|(?<![\*;:#\n \t]))##([^\n]*?)##(?!#)'  # ## ... ## single line code - a little bit more complicated
-             . '|(?<!\`)\`([^\n\`]*?)\`(?!\`)'  # ` ... ` single line code
-             . '|\{\{!(!)?(.*?)!\}\}/si';  # {{! ... !}} and {{!! ... !}} - no markup
-    $markup_code = preg_replace_callback($pattern, array($this, 'mask_no_markup_section_callback'), $markup_code);
-
-    # Fix for single line code blocks (##) starting at the beginning of a line. If we still find another "##" in the
-    # same line (now that all other existing ## blocks have already been masked), assume it's a code block and not a
-    # two-level ordered list. We additionally don't allow a space after the "##" here to make it safer. If there is
-    # a space, it's going to be replaced as regular rule.
-    $pattern = '/##([^ ].*)##/U';
-    $markup_code = preg_replace_callback($pattern, array($this, 'mask_remaining_no_markup_section_callback'), $markup_code);
-
+    ######################################################################################################################
     #
-    # URLs in HTML attributes
+    # region Masking Text Sections
     #
-    $pattern = '/<[a-zA-Z]+[ \t]+[^>]*[a-zA-Z0-9\+\.\-]+\:\/\/[^>]*>/Us';
-    $markup_code = preg_replace_callback($pattern, array($this, 'encode_inner_tag_urls_callback'), $markup_code);
 
-    return $markup_code;
-  }
+    /**
+     * Masks text sections that are to be excluded from markup parsing. This includes code blocks (<code>, <pre> and
+     * {{{ ... }}}, `...`), and no-markup blocks ({{! ... !}}). Also masks HTML attributes containing URLs (such as <a>
+     * or <img>), and removes end-of-line comments (%%).
+     *
+     * @param string $markup_code the BlogText code
+     *
+     * @return string the masked BlogText code
+     */
+    private function maskNoParseTextSections($markup_code)
+    {
+        # end-of-line comments (%%)
+        $pattern     = '/(?<!%)%%(.*)$/m';
+        $markup_code = preg_replace($pattern, '', $markup_code);
+
+        # IMPORTANT: The implementation of "encode_no_markup_blocks_callback()" depends on the order of the
+        #   alternative in this regexp! So don't change the order unless you know what you're doing!
+        $pattern = '/<(pre|code)([ \t]+[^>]*)?>(.*?)<\/\1>' # <pre> and <code>
+                 . '|\{\{\{(.*?)\}\}\}'  # {{{ ... }}} - multi-line or single line code
+                 . '|((?<!\n)[ \t]+|(?<![\*;:#\n \t]))##([^\n]*?)##(?!#)'  # ## ... ## single line code - a little bit more complicated
+                 . '|(?<!\`)\`([^\n\`]*?)\`(?!\`)'  # ` ... ` single line code
+                 . '|\{\{!(!)?(.*?)!\}\}/si'  # {{! ... !}} and {{!! ... !}} - no markup
+                 ;
+        $markup_code = preg_replace_callback($pattern, array($this, 'mask_no_markup_section_callback'), $markup_code);
+
+        # Fix for single line code blocks (##) starting at the beginning of a line. If we still find another "##" in the
+        # same line (now that all other existing ## blocks have already been masked), assume it's a code block and not a
+        # two-level ordered list. We additionally don't allow a space after the "##" here to make it safer. If there is
+        # a space, it's going to be replaced as regular rule.
+        $pattern     = '/##([^ ].*)##/U';
+        $markup_code = preg_replace_callback($pattern, array($this, 'mask_remaining_no_markup_section_callback'), $markup_code);
+
+        #
+        # URLs in HTML attributes
+        #
+        $pattern     = '/<[a-zA-Z]+[ \t]+[^>]*[a-zA-Z0-9\+\.\-]+\:\/\/[^>]*>/Us';
+        $markup_code = preg_replace_callback($pattern, array($this, 'encode_inner_tag_urls_callback'), $markup_code);
+
+        return $markup_code;
+    }
 
   /**
    * The {@link preg_replace_callback()} callback function for encode_no_markup_blocks
