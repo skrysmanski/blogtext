@@ -63,7 +63,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         //   So plaintext urls need to be parsed before tables and lists.
         'plain_text_urls' =>
             // language=RegExp
-            '/(?<=[ \t\n])(([a-zA-Z0-9+.\-]+)://((?:[^.,;: \t\n]|[.,;:](?![ \t\n]))+))([ \t]+[.,;:?!)\]}"\'])?/',
+            '/(?<=[ \t\n])(([a-zA-Z0-9+.\-]+):\/\/((?:[^.,;: \t\n]|[.,;:](?![ \t\n]))+))([ \t]+[.,;:?!)\]}"\'])?/',
 
         'plain_text_email' =>
             // language=RegExp
