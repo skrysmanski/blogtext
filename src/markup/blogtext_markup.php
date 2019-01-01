@@ -636,15 +636,6 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
     return $this->resolve_link($prefix, $params, true, $text_after);
   }
 
-  private function interlink_params_callback($matches) {
-    $key = $matches[1] - 1;
-    if (array_key_exists($key, $this->cur_interlink_params)) {
-      return $this->cur_interlink_params[$key];
-    } else {
-      return '';
-    }
-  }
-
   public static function get_prefix($link) {
     // determine prefix
     $parts = explode(':', $link, 2);
@@ -710,12 +701,23 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
             else if (is_array($prefix_handler))
             {
                 // Simple text replacement
-                // Unfortunately as a hack we need to store the current params in a member variable. This is necessary
-                // because we can't pass them directly to the callback method, nested functions can't be used as
-                // callback functions and anonymous function are only available in PHP 5.3 and higher.
-                $this->cur_interlink_params = $params;
-                $link = preg_replace_callback('/\$(\d+)/', array($this, 'interlink_params_callback'),
-                                              self::$interlinks[$prefix_lowercase]['pattern']);
+                $link = preg_replace_callback(
+                    '/\$(\d+)/',
+                    function ($matches) use ($params)
+                    {
+                        $key = $matches[1] - 1;
+                        if (array_key_exists($key, $params))
+                        {
+                            return $params[$key];
+                        }
+                        else
+                        {
+                            return '';
+                        }
+                    },
+                    self::$interlinks[$prefix_lowercase]['pattern']
+                );
+
                 $is_external = self::$interlinks[$prefix_lowercase]['external'];
             }
             else
