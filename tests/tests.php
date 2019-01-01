@@ -303,7 +303,7 @@ class BlogTextTests {
       }
 
       self::generate_output(AbstractTextMarkup::RENDER_KIND_REGULAR, $output_dir.'/output-multi.html', $template_code);
-      self::generate_output(AbstractTextMarkup::RENDER_KIND_RSS, $output_dir.'/output-rss.xml', '');
+      self::generate_output(AbstractTextMarkup::RENDER_KIND_RSS, $output_dir.'/output-rss.xml', "###page_content###\n");
 
       break;
     }
