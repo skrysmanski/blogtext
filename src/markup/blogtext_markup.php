@@ -717,7 +717,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
                         $key = $matches[1] - 1;
                         if (array_key_exists($key, $params))
                         {
-                            return $params[$key];
+                            return htmlspecialchars($params[$key]);
                         }
                         else
                         {
