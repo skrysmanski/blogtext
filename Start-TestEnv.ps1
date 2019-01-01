@@ -78,9 +78,13 @@ try {
         #  - https://developer.wordpress.org/cli/commands/
         #
         # NOTE: For CLI commands, the PHP version doesn't really matter. Thus we don't use it.
-        & docker run -it --rm --volumes-from $containerId --network container:$containerId wordpress:cli @args
+        #
+        # IMPORTANT: We need to specify the user id (33) explicitely here because in the CLI image the user id
+        #   for www-data is different than in the actual wordpress image (most likely because the cli image is
+        #   Alpine while the actual image is Debian). See also: https://github.com/docker-library/wordpress/issues/256
+        & docker run -it --rm --user 33 --volumes-from $containerId --network container:$containerId wordpress:cli @args
         if (-Not $?) {
-            throw "Wordpress CLI failed: $args"
+            Write-Error "Wordpress CLI failed: $args"
         }
     }
 
@@ -97,7 +101,7 @@ try {
 
     Write-Host
     Write-Host -ForegroundColor Cyan 'Activating plugin "BlogText"...'
-    Invoke-WordpressCli  plugin activate blogtext
+    Invoke-WordpressCli plugin activate blogtext
 }
 catch {
     # IMPORTANT: We compare type names(!) here - not actual types. This is important because - for example -
