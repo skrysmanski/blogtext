@@ -63,7 +63,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         //   So plaintext urls need to be parsed before tables and lists.
         'plain_text_urls' =>
             // language=RegExp
-            '/(?<=[ \t\n])(([a-zA-Z0-9\+\.\-]+)\:\/\/((?:[^\.,;: \t\n]|[\.,;:](?![ \t\n]))+))([ \t]+[.,;:\?\!)\]}"\'])?/',
+            '/(?<=[ \t\n])(([a-zA-Z0-9+.\-]+)://((?:[^.,;: \t\n]|[.,;:](?![ \t\n]))+))([ \t]+[.,;:?!)\]}"\'])?/',
 
         'plain_text_email' =>
             // language=RegExp
@@ -79,7 +79,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         //   table caption)
         'simple_table' =>
             // language=RegExp
-            '/\n(\|(?!\+)[^\|]+\|.+(?:\n\|(?!\+)[^\|]+\|.+)*)(?:\n\|\+(.+))?/',
+            '/\n(\|(?!\+)[^|]+\|.+(?:\n\|(?!\+)[^|]+\|.+)*)(?:\n\|\+(.+))?/',
 
         // Ordered (#) and unordered (*) lists; definition list(;)
         // NOTE: The user can't start a list with "**" (list with sublist).
@@ -88,7 +88,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
         //   after a list being placed inside the list.
         'list' =>
             // language=RegExp
-            '/\n[ \t]?[\*#;][^\*#;].*?\n(?:(?:(?:[ \t]?[\*#]+[\^!]? |[ \t]?;|[ \t]{2,}).*?)?\n)*/',
+            '/\n[ \t]?[*#;][^*#;].*?\n(?:(?:(?:[ \t]?[*#]+[\^!]? |[ \t]?;|[ \t]{2,}).*?)?\n)*/',
 
         // Block quotes
         'blockquote' =>
@@ -114,7 +114,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
 
         'emphasis' =>
             // language=RegExp
-            '@(?<![/\:])//(.+?)//(?!/)@',
+            '@(?<![/:])//(.+?)//(?!/)@',
 
         // Underline, strike-though, super script, and sub script
         'underline' =>
