@@ -1,10 +1,11 @@
 #!/usr/bin/env pwsh
 param(
+    [Parameter(Mandatory=$True)]
+    [string] $ProjectName,
+
     [string] $WordpressVersion = '',
 
     [string] $PhpVersion = '',
-
-    [string] $ProjectName = 'blogtext',
 
     [int] $Port = 8080,
 
@@ -15,6 +16,10 @@ param(
 $script:ErrorActionPreference = 'Stop'
 
 try {
+    if ([string]::IsNullOrWhiteSpace($ProjectName)) {
+        Write-Error 'No project name has been specified.'
+    }
+
     if (($WordpressVersion -ne '') -and ($PhpVersion -ne '')) {
         $wordpressTag = "$WordpressVersion-php$PhpVersion"
     }
@@ -35,7 +40,7 @@ try {
     $env:WORDPRESS_WEB_CONTAINER_NAME = "$($ProjectName)_web"
     $env:WORDPRESS_DB_CONTAINER_NAME = "$($ProjectName)_db"
 
-    & docker-compose --project-name $ProjectName up --detach
+    & docker-compose --file "$PSScriptRoot/docker-compose.yml" --project-name $ProjectName up --detach
     if (-Not $?) {
         throw '"docker-compose up" failed'
     }
@@ -60,7 +65,7 @@ try {
         }
     }
 
-    $containerId = & docker-compose --project-name $ProjectName ps -q web
+    $containerId = & docker-compose --file "$PSScriptRoot/docker-compose.yml" --project-name $ProjectName ps -q web
     if ((-Not $?) -or (-Not $containerId)) {
         throw 'Could not determine container id of web container'
     }

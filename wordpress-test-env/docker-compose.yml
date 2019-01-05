@@ -11,8 +11,8 @@ services:
       - ${WORDPRESS_HOST_PORT}:80
     volumes:
       - wordpress:/var/www/html
-      - ./src:/var/www/html/wp-content/plugins/blogtext:ro
-      - ./tests:/var/www/html/wp-content/plugins/blogtext-tests
+      - ../src:/var/www/html/wp-content/plugins/blogtext:ro
+      - ../tests:/var/www/html/wp-content/plugins/blogtext-tests
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: wordpress

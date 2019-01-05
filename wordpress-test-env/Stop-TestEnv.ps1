@@ -1,10 +1,11 @@
 #!/usr/bin/env pwsh
 param(
+    [Parameter(Mandatory=$True)]
+    [string] $ProjectName = 'blogtext',
+
     [string] $WordpressVersion = '',
 
-    [string] $PhpVersion = '',
-
-    [string] $ProjectName = 'blogtext'
+    [string] $PhpVersion = ''
 )
 
 # Stop on every error
@@ -32,7 +33,7 @@ try {
     $env:WORDPRESS_DOCKER_TAG = 'xxx'
     $env:WORDPRESS_HOST_PORT = 8080
 
-    & docker-compose --project-name $ProjectName down
+    & docker-compose --file "$PSScriptRoot/docker-compose.yml" --project-name $ProjectName down
     if (-Not $?) {
         throw '"docker-compose down" failed'
     }
