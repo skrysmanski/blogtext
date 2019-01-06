@@ -110,18 +110,21 @@ try {
         --skip-email `
         --color
 
-    Write-Host
-    Write-Host -ForegroundColor Cyan 'Activating plugin "BlogText"...'
-    Invoke-WordpressCli plugin activate blogtext
+    if ($projectDescriptor.SetupCommands) {
+        foreach ($setupCommand in $projectDescriptor.SetupCommands) {
+            if ($setupCommand.Condition) {
+                $conditionMet = Invoke-Expression $setupCommand.Condition
+                if (-Not $conditionMet) {
+                    continue
+                }
+            }
 
-    Write-Host
-    Write-Host -ForegroundColor Cyan 'Disabling visual editor for admin...'
-    Invoke-WordpressCli user meta update admin rich_editing false
+            Write-Host
+            Write-Host -ForegroundColor Cyan $setupCommand.Title
 
-    if (($WordpressVersion -eq '') -or ($WordpressVersion -ge '5.0')) {
-        Write-Host
-        Write-Host -ForegroundColor Cyan 'Installing and activating "Classic Editor"...'
-        Invoke-WordpressCli plugin install 'classic-editor' --activate
+            $commandArgs = $setupCommand.CommandArgs
+            Invoke-WordpressCli @commandArgs
+        }
     }
 }
 catch {
