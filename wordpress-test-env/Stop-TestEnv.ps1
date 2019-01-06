@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 param(
     [Parameter(Mandatory=$True)]
-    [string] $ProjectName = 'blogtext',
+    [string] $ProjectFile,
 
     [string] $WordpressVersion = '',
 
@@ -16,9 +16,11 @@ try {
 
     Import-Module "$PSScriptRoot/WordpressTestEnv.psm1" -DisableNameChecking
 
+    $projectDescriptor = Get-ProjectDescriptor $ProjectFile
+
     $wordpressTag = Get-DockerWordpressTag -WordpressVersion $WordpressVersion -PhpVersion $PhpVersion
 
-    $composeProjectName = Get-DockerComposeProjectName -ProjectName $ProjectName -WordpressTag $wordpressTag
+    $composeProjectName = Get-DockerComposeProjectName -ProjectName $projectDescriptor.ProjectName -WordpressTag $wordpressTag
 
     $composeFilePath = Get-ComposeFilePAth -ComposeProjectName $ComposeProjectName
 

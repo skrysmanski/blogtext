@@ -1,6 +1,20 @@
 # Stop on every error
 $script:ErrorActionPreference = 'Stop'
 
+function Get-ProjectDescriptor([string] $ProjectFile) {
+    if ([string]::IsNullOrWhiteSpace($ProjectFile)) {
+        Write-Error 'No project file has been specified.'
+    }
+
+    $projectDescriptor = Get-Content $ProjectFile -Encoding 'utf8' | ConvertFrom-Json
+
+    if ([string]::IsNullOrWhiteSpace($projectDescriptor.ProjectName)) {
+        Write-Error "Missing property 'ProjectName' in '$ProjectFile'."
+    }
+
+    return $projectDescriptor
+}
+
 function Get-DockerWordpressTag([string] $WordpressVersion, [string] $PhpVersion) {
     if (($WordpressVersion -ne '') -and ($PhpVersion -ne '')) {
         return "$WordpressVersion-php$PhpVersion"

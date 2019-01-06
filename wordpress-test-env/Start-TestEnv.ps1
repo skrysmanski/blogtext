@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 param(
     [Parameter(Mandatory=$True)]
-    [string] $ProjectName,
+    [string] $ProjectFile,
 
     [string] $WordpressVersion = '',
 
@@ -20,13 +20,11 @@ try {
 
     Import-Module "$PSScriptRoot/WordpressTestEnv.psm1" -DisableNameChecking
 
-    if ([string]::IsNullOrWhiteSpace($ProjectName)) {
-        Write-Error 'No project name has been specified.'
-    }
+    $projectDescriptor = Get-ProjectDescriptor $ProjectFile
 
     $wordpressTag = Get-DockerWordpressTag -WordpressVersion $WordpressVersion -PhpVersion $PhpVersion
 
-    $composeProjectName = Get-DockerComposeProjectName -ProjectName $ProjectName -WordpressTag $wordpressTag
+    $composeProjectName = Get-DockerComposeProjectName -ProjectName $projectDescriptor.ProjectName -WordpressTag $wordpressTag
 
     $volumes = @(
         "../../src:/var/www/html/wp-content/plugins/blogtext:ro"
