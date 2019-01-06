@@ -16,31 +16,30 @@ param(
 $script:ErrorActionPreference = 'Stop'
 
 try {
+    & $PSScriptRoot/Unload-Modules.ps1
+
+    Import-Module "$PSScriptRoot/WordpressTestEnv.psm1" -DisableNameChecking
+
     if ([string]::IsNullOrWhiteSpace($ProjectName)) {
         Write-Error 'No project name has been specified.'
     }
 
-    if (($WordpressVersion -ne '') -and ($PhpVersion -ne '')) {
-        $wordpressTag = "$WordpressVersion-php$PhpVersion"
-    }
-    elseif ($WordpressVersion -ne '') {
-        $wordpressTag = $WordpressVersion
-    }
-    elseif ($PhpVersion -ne '') {
-        $wordpressTag = "php$PhpVersion"
-    }
-    else {
-        $wordpressTag = 'latest'
-    }
+    $wordpressTag = Get-DockerWordpressTag -WordpressVersion $WordpressVersion -PhpVersion $PhpVersion
 
-    $env:WORDPRESS_DOCKER_TAG = $wordpressTag
-    $env:WORDPRESS_HOST_PORT = $Port
+    $composeProjectName = Get-DockerComposeProjectName -ProjectName $ProjectName -WordpressTag $wordpressTag
 
-    $ProjectName = "$ProjectName-wp-$wordpressTag"
-    $env:WORDPRESS_WEB_CONTAINER_NAME = "$($ProjectName)_web"
-    $env:WORDPRESS_DB_CONTAINER_NAME = "$($ProjectName)_db"
+    $volumes = @(
+        "../../src:/var/www/html/wp-content/plugins/blogtext:ro"
+        "../../tests:/var/www/html/wp-content/plugins/blogtext-tests"
+    )
 
-    & docker-compose --file "$PSScriptRoot/docker-compose.yml" --project-name $ProjectName up --detach
+    $composeFilePath = New-WordpressTestEnvComposeFile `
+        -ComposeProjectName $composeProjectName `
+        -WordpressTag $wordpressTag `
+        -Port $Port `
+        -Volumes $volumes
+
+    & docker-compose --file $composeFilePath --project-name $composeProjectName up --detach
     if (-Not $?) {
         throw '"docker-compose up" failed'
     }
@@ -65,7 +64,7 @@ try {
         }
     }
 
-    $containerId = & docker-compose --file "$PSScriptRoot/docker-compose.yml" --project-name $ProjectName ps -q web
+    $containerId = & docker-compose --file $composeFilePath --project-name $composeProjectName ps -q web
     if ((-Not $?) -or (-Not $containerId)) {
         throw 'Could not determine container id of web container'
     }

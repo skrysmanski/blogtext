@@ -12,28 +12,17 @@ param(
 $script:ErrorActionPreference = 'Stop'
 
 try {
-    if (($WordpressVersion -ne '') -and ($PhpVersion -ne '')) {
-        $wordpressTag = "$WordpressVersion-php$PhpVersion"
-    }
-    elseif ($WordpressVersion -ne '') {
-        $wordpressTag = $WordpressVersion
-    }
-    elseif ($PhpVersion -ne '') {
-        $wordpressTag = "php$PhpVersion"
-    }
-    else {
-        $wordpressTag = 'latest'
-    }
+    & $PSScriptRoot/Unload-Modules.ps1
 
-    $ProjectName = "$ProjectName-wp-$wordpressTag"
-    $env:WORDPRESS_WEB_CONTAINER_NAME = "$($ProjectName)_web"
-    $env:WORDPRESS_DB_CONTAINER_NAME = "$($ProjectName)_db"
+    Import-Module "$PSScriptRoot/WordpressTestEnv.psm1" -DisableNameChecking
 
-    # Env vars are required to supress warning (they're not used during "down")
-    $env:WORDPRESS_DOCKER_TAG = 'xxx'
-    $env:WORDPRESS_HOST_PORT = 8080
+    $wordpressTag = Get-DockerWordpressTag -WordpressVersion $WordpressVersion -PhpVersion $PhpVersion
 
-    & docker-compose --file "$PSScriptRoot/docker-compose.yml" --project-name $ProjectName down
+    $composeProjectName = Get-DockerComposeProjectName -ProjectName $ProjectName -WordpressTag $wordpressTag
+
+    $composeFilePath = Get-ComposeFilePAth -ComposeProjectName $ComposeProjectName
+
+    & docker-compose --file $composeFilePath --project-name $ComposeProjectName down
     if (-Not $?) {
         throw '"docker-compose down" failed'
     }
