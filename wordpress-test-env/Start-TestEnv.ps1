@@ -26,10 +26,19 @@ try {
 
     $composeProjectName = Get-DockerComposeProjectName -ProjectName $projectDescriptor.ProjectName -WordpressTag $wordpressTag
 
-    $volumes = @(
-        "../../src:/var/www/html/wp-content/plugins/blogtext:ro"
-        "../../tests:/var/www/html/wp-content/plugins/blogtext-tests"
-    )
+    $volumes = @()
+
+    if ($projectDescriptor.Mounts) {
+        foreach ($mount in $projectDescriptor.Mounts) {
+            $hostPath = [IO.Path]::GetFullPath($mount.Host)
+            $volumeString = "$($hostPath):/var/www/html/$($mount.Container)"
+            if ($mount.ReadOnly) {
+                $volumeString += ':ro'
+            }
+
+            $volumes += $volumeString
+        }
+    }
 
     $composeFilePath = New-WordpressTestEnvComposeFile `
         -ComposeProjectName $composeProjectName `

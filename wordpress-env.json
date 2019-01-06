@@ -1,3 +1,14 @@
 {
-    "ProjectName": "blogtext"
+    "ProjectName": "blogtext",
+    "Mounts": [
+        {
+            "Host": "src",
+            "Container": "wp-content/plugins/blogtext",
+            "ReadOnly": true
+        },
+        {
+            "Host": "tests",
+            "Container": "wp-content/plugins/blogtext-tests"
+        }
+    ]
 }
