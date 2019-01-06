@@ -1,0 +1,3 @@
+[submodule "wordpress-test-env"]
+	path = wordpress-test-env
+	url = https://github.com/skrysmanski/wordpress-test-env.git
