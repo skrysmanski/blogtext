@@ -1,0 +1,31 @@
+{
+    "ProjectName": "blogtext",
+
+    "Mounts": [
+        {
+            "Host": "src",
+            "Container": "wp-content/plugins/blogtext",
+            "ReadOnly": true
+        },
+        {
+            "Host": "tests",
+            "Container": "wp-content/plugins/blogtext-tests"
+        }
+    ],
+
+    "SetupCommands": [
+        {
+            "Title": "Activating plugin 'BlogText'...",
+            "CommandArgs": [ "plugin", "activate", "blogtext" ]
+        },
+        {
+            "Title": "Disabling visual editor for admin...",
+            "CommandArgs": [ "user", "meta", "update", "admin", "rich_editing", "false" ]
+        },
+        {
+            "Title": "Installing and activating 'Classic Editor'...",
+            "CommandArgs": [ "plugin", "install", "classic-editor", "--activate" ],
+            "Condition": "($WordpressVersion -eq '') -or ($WordpressVersion -ge '5.0')"
+        }
+    ]
+}
