@@ -1,3 +1,6 @@
 [submodule "wordpress-test-env"]
 	path = wordpress-test-env
 	url = https://github.com/skrysmanski/wordpress-test-env.git
+[submodule ".idea/codeStyles"]
+	path = .idea/codeStyles
+	url = https://github.com/skrysmanski/phpstorm-code-style.git
