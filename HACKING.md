@@ -2,19 +2,6 @@
 
 This file contains some hints for developing BlogText.
 
-See also: <http://codex.wordpress.org/Debugging_in_WordPress>
-
-Recommended WP-Plugins:
-
-* Debug Bar
-
-Debugging:
-
-* `var_dump()` : dumps the whole structure of the variable to the output
-* `MSCL_ErrorHandling::print_stacktrace()` : prints a brief stacktrace
-* `log_stacktrace()` : log the current stacktrace
-* `log_error()`, `log_warn()`, `log_info()`, `console()` : logs to the JavaScript browser console
-
 ## General Development
 
 To test out changes to BlogText, you can easily spin up a development server. To do this, you need two things:
@@ -59,3 +46,18 @@ changes.
 * Does the language lookup button work?
 * Does the settings page still look ok?
 * When clearing the page cache (using the BlogText settings page), do we get a notification that the page cache was cleared?
+
+## Debugging
+
+See also: <http://codex.wordpress.org/Debugging_in_WordPress>
+
+Recommended WP-Plugins:
+
+* Debug Bar
+
+Debugging:
+
+* `var_dump()` : dumps the whole structure of the variable to the output
+* `MSCL_ErrorHandling::print_stacktrace()` : prints a brief stacktrace
+* `log_stacktrace()` : log the current stacktrace
+* `log_error()`, `log_warn()`, `log_info()`, `console()` : logs to the JavaScript browser console
