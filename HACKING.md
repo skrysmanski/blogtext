@@ -21,15 +21,13 @@ The development server is then available at:
 
 You can customize both the Wordpress and the PHP version by specifying the appropriate parameters; e.g.:
 
-    ./Start-TestEnv.ps1 -WordpressVersion 5.0 -PhpVersion 7.1
+    ./Start-TestEnv.ps1 -WordpressVersion 5.0 -PhpVersion 7.1 -MySqlVersion 5.6
 
 **Note:** This only supports versions that are available in the [Wordpress Docker image](https://hub.docker.com/_/wordpress).
 
 To stop the development server, call:
 
     ./Stop-TestEnv.ps1
-
-**Note:** The development server will create two named volumes (usually `blogtext-wp-latest_db` and `blogtext-wp-latest_wordpress`) in your Docker environment. You can list them via `docker volume ls`. Stopping the development server will **not delete these volumes**. You have to do this manually, if you want to get rid of them (but it's usually fine to keep them).
 
 ## Run BlogText tests
 
