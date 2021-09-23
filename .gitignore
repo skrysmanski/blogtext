@@ -1,7 +1,31 @@
+#
+# This file list paths that are ignored by git.
+#
+# Tutorial: https://www.atlassian.com/git/tutorials/saving-changes/gitignore
+#
+# GitIgnore files for various project types: https://github.com/github/gitignore
+#
+
+
+#
+# Common ignores
+#
+
+# Log files
+*.log
+# Temporary files
+*.tmp
+
+#
+# IntelliJ IDE
+#
+# Via: https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
+.idea/**/workspace.xml
+
+#
+# Repository custom ignores
+#
 /tests/log.txt
 /dist
 /dist-zip
 node_modules
-
-# Via: https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
-.idea/**/workspace.xml
