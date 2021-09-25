@@ -9,7 +9,11 @@ class ATM_TableCell {
 
   public function __construct($cell_type, $cell_content) {
     $this->cell_type = $cell_type;
-    $this->cell_content = $cell_content;
+    $this->cell_content = trim(strval($cell_content));
+  }
+
+  public function isEmpty() {
+    return $this->cell_content === "";
   }
 }
 

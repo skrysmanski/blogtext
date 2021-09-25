@@ -1468,22 +1468,22 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
     foreach (explode("\n", $table_code) as $row_code) {
       $row = new ATM_TableRow();
 
-      foreach (explode('|', $row_code) as $cell_code) {
+      foreach (explode('|', substr($row_code, 1)) as $cell_code) {
         // NOTE: DON'T trim the cell code here as we need to differentiate between "|= text" and "| =text".
-        if (empty($cell_code)) {
+        if ($cell_code === "") {
           // can only be happening on the last element - still we need to add it so that we can remove the
           // last element below in a secure way
           $row->cells[] = new ATM_TableCell(ATM_TableCell::TYPE_TD, '');
         } else {
           if ($cell_code[0] == '=') {
-            $row->cells[] = new ATM_TableCell(ATM_TableCell::TYPE_TH, trim(substr($cell_code, 1)));
+            $row->cells[] = new ATM_TableCell(ATM_TableCell::TYPE_TH, substr($cell_code, 1));
           } else {
-            $row->cells[] = new ATM_TableCell(ATM_TableCell::TYPE_TD, trim($cell_code));
+            $row->cells[] = new ATM_TableCell(ATM_TableCell::TYPE_TD, $cell_code);
           }
         }
 
         $last_cell = $row->cells[count($row->cells) - 1];
-        if (empty($last_cell->cell_content) && $last_cell->cell_type == ATM_TableCell::TYPE_TD) {
+        if ($last_cell->isEmpty() && $last_cell->cell_type == ATM_TableCell::TYPE_TD) {
           // Remove the last cell, if it's empty. This is the result of "| my cell |" (which would otherwise
           // result in two cells).
           array_pop($row->cells);

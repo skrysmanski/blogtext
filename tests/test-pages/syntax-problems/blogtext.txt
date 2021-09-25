@@ -140,3 +140,8 @@ abc %% comment
 ----
 
 [[https://localhost|[Column] attribute]]
+
+----
+
+| 0 | text
+| 0 | def
