@@ -172,13 +172,13 @@ Inserting an image into a post or page works very similar to the process describ
 
 [[image:image-upload-properties.png|center|medium|link=source|Alignment and size when inserting an image]]
 
-The most important difference is that the form now allows you to specify the image's alignment and its size. Assume we've uploaded an image called ##reflections_for_the_day.jpg## (by [[http://www.flickr.com/photos/denemiles/3971887734/|Dene' (Seattle) Miles]]). By selecting "Center" as alignment, "Medium" as size, and clicking on the "File URL" button, inserting this image will create this code:
+The most important difference is that the form now allows you to specify the image's alignment and its size. Assume we've uploaded an image called ##acorns.jpg##. By selecting "Center" as alignment, "Medium" as size, and clicking on the "File URL" button, inserting this image will create this code:
 
-  ##[[image:reflections_for_the_day.jpg|center|medium|link=source]]##
+  ##[[image:acorns.jpg|center|medium|link=source]]##
 
 This will be rendered as:
 
-[[image:reflections_for_the_day.jpg|center|medium|link=source]]
+[[image:acorns.jpg|center|medium|link=source]]
 
 As you can see, the words ##medium## (size) and ##center## (alignment) appear as [[#interlinks-in-general|Interlink parameters]] along with ##link=source##. The parameter ##link=## defines what happens when the user clicks on the image. ##link=source## means "link to the source image" - which is the full-size version of the smaller version displayed here.
 
@@ -190,15 +190,15 @@ If you want to display a caption for an image, you can either specify the captio
 
 A caption for the image above will display as:
 
-[[image:reflections_for_the_day.jpg|center|medium|Reflection for the day - by Dene' (Seattle) Miles]]
+[[image:acorns.jpg|center|medium|Acorns - by Sebastian Krysmanski]]
 
-Note that you can specify the image parameters in any order. For example ##[[image:reflections_for_the_day.jpg|link=source|medium|center]]## will have the same result as the code above. For a full list of all available parameters and their values, see [[#image-param-ref]].
+Note that you can specify the image parameters in any order. For example ##[[image:acorns.jpg|link=source|medium|center]]## will have the same result as the code above. For a full list of all available parameters and their values, see [[#image-param-ref]].
 
 One more thing: Inserting a small image (possibly without alignment) with a link to its source image is a special case. In this case BlogText assumes you want to insert a so called "thumbnail" (which is basically a small image with a link to its source image). The code in this case (with alignment "None") would look like this:
 
-  ##[[image:eflections_for_the_day.jpg|thumb]]##
+  ##[[image:acorns.jpg|thumb]]##
 
-[[image:eflections_for_the_day.jpg|thumb]]
+[[image:acorns.jpg|thumb]]
 This code would be rendered as this.
 
 So, the parameter ##thumb## is equivalent to ##small|link=source##. Note that the image is cropped into a square and that it's right aligned. Both of these properties can be changed in the settings (the Media settings and the BlogText settings respectively).
