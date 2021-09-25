@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "clean-css": "^3.4.4"
+    "clean-css": "^5.1.5"
   }
 }
