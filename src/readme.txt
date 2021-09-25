@@ -1,12 +1,12 @@
 === BlogText ===
-Stable tag: 0.9.9
+Stable tag: 0.9.10
 Contributors: manski
 Tags: formatting, markup, post
 Requires PHP: 5.6
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 3.0.0
-Tested up to: 5.0.2
+Tested up to: 5.8.1
 
 BlogText is a plugin for WordPress that adds a simple wiki-like syntax to WordPress and enriches it with a good Wordpress editor integration.
 

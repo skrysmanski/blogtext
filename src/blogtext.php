@@ -3,7 +3,7 @@
 Plugin Name: BlogText for WordPress
 Plugin URI: https://blogtext.mayastudios.com/
 Description: Allows you to write your posts and pages with an alternative, easy-to-learn, and fast-to-type syntax
-Version: 0.9.9
+Version: 0.9.10
 Author: Sebastian Krysmanski
 Author URI: https://manski.net
 */
