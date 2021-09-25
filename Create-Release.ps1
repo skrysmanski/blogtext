@@ -1,5 +1,4 @@
 #!/usr/bin/env pwsh
-
 param(
     [Parameter(Mandatory=$True)]
     [string] $Version

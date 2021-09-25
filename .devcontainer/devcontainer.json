@@ -15,6 +15,7 @@
 		"editorconfig.editorconfig",
 		"davidanson.vscode-markdownlint",
 		"streetsidesoftware.code-spell-checker",
+		"ms-vscode.powershell",
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
