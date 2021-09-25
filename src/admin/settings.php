@@ -80,8 +80,8 @@ class BlogTextSettings {
               true,
               'Specifies whether image captions that are specified directly in the Interlink (ie. as '
               .'<code>[[image:myimage.jpg|My caption]]</code>) are displayed by default. If this is enabled, '
-              .'a caption can be disabled by adding <code>nocaption</code> as parameter. If this is disabled '
-              .'the caption will only be shown when the user moves the mouse cursor over the image - unless'
+              .'a caption can be disabled by adding <code>nocaption</code> as a parameter. If this is disabled '
+              .'the caption will only be shown when the user moves the mouse cursor over the image - unless '
               .'the parameter <code>caption</code> is added to the Interlink.');
     }
     return $get_option ? $option : $option->get_value();
@@ -102,7 +102,7 @@ class BlogTextSettings {
       global $content_width;
       if (isset($content_width) && $content_width > 0) {
         $desc_short = $content_width.' pixel';
-        $desc_long = 'The theme specifies its content width with '.$content_width.' pixel. Unless you want '
+        $desc_long = 'The current theme specifies its content width as '.$content_width.' pixel. Unless you want '
                    . 'another content width, you can set this option to zero (0).';
       } else {
         $desc_short = 'not specified';
@@ -114,7 +114,7 @@ class BlogTextSettings {
               'Specifies the width available for content (ie. a posting\'s text and images) in pixels. This '
               .'is used to limit the width of images used in posts and pages. If this is 0, the theme is '
               .'checked whether it specifies the width in the global variable <code>$content_width</code>. '
-              .'If this variable isn\'t available, the image widths won\' be constrained.'
+              .'If this variable isn\'t available, the image widths won\'t be constrained.'
               .'<br/><br/>'
               .$desc_long,
               'BlogTextSettings::check_content_width');
