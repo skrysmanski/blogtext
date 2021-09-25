@@ -46,7 +46,6 @@ Manual way:
 
 = 0.9.10 =
 * Fixed some bugs (issues #29, #35, #36)
-* Updated NPM packages to fix a security vulnerability
 
 = 0.9.9 =
 * Change: Removed all custom thumbnail creation code. Instead, BlogText now just uses the actual image - with appropriate `max-width` styling. For reasoning, see issue #22.
