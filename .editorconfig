@@ -55,3 +55,12 @@ indent_size = 2
 #
 [*.{bat,cmd}]
 end_of_line = crlf
+
+#
+# PHP files
+#
+[*.php]
+# IMPORTANT: .php files don't support a BOM because it's always sent to the browser and
+#   often produces a "Warning: Cannot modify header information - headers already sent"
+#   error. Verified in 09-2021 with PHP 7.4.
+charset = utf-8
