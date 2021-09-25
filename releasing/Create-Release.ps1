@@ -47,6 +47,9 @@ try {
         throw '"cleancss" failed'
     }
 
+    # Tracking Subversion files
+    & $PSScriptRoot/SvnAddRemove.ps1 $DEST_DIR
+
     # Create release zip
     New-Item dist-zip -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
     Get-ChildItem $DEST_DIR -Exclude '.svn' | Compress-Archive -DestinationPath "dist-zip/blogtext-$Version.zip"
