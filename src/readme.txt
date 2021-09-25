@@ -44,6 +44,10 @@ Manual way:
 
 == Changelog ==
 
+= 0.9.10 =
+* Fixed some bugs (issues #29, #35, #36)
+* Updated NPM packages to fix a security vulnerability
+
 = 0.9.9 =
 * Change: Removed all custom thumbnail creation code. Instead, BlogText now just uses the actual image - with appropriate `max-width` styling. For reasoning, see issue #22.
 * Change: `{{!!` now preserves line breaks by disabling Wordpress' auto-`<p>` functionality. `{{!` remains unchanged. (issue #19)
@@ -51,7 +55,7 @@ Manual way:
 * Fix: The syntax highlighting language lookup window now has a proper width even in Chrome.
 * Fix: Quotes in Interlinks now work properly
 * Fix: `%%` can now be used in code blocks (issue #21)
-* Fix: A single `]` is now supported in shortcodes (issues #17)
+* Fix: A single `]` is now supported in shortcodes (issue #17)
 
 = 0.9.8 =
 * Known Issue: Post previews don't work with the new Gutenberg editor introduced in Wordpress 5.0. (issue #3)
