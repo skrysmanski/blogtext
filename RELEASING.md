@@ -15,7 +15,7 @@ For general help on Wordpress' plugin directory, see <https://developer.wordpres
 
 1. Make sure `Tested up to` and `Stable tag` in `src/readme.txt` have been updated.
 1. Make sure `Version` in `src/blogtext.php` has been updated.
-1. Run `./Create-Release.ps1 <VERSION>`
+1. Run `./Create-Release.ps1 <VERSION>` in the VSCode dev container
 1. Check-in the SVN repository in the `dist/` directory.
 1. Create SVN tag for version
 1. Create Git tag version
