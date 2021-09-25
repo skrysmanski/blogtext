@@ -26,7 +26,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
     // * "\1" : Backreference
     // * "(?:" : non-capturing subpattern (http://www.php.net/manual/en/regexp.reference.subpatterns.php)
     // * "(?<=", "(?<!", "(?=", "(?!" : Assertions (http://www.php.net/manual/en/regexp.reference.assertions.php)
-    // * "+?", "*?" : ungreedy versions of "+" and "*" (http://www.php.net/manual/en/regexp.reference.repetition.php)
+    // * "+?", "*?" : non-greedy versions of "+" and "*" (http://www.php.net/manual/en/regexp.reference.repetition.php)
     // * "(?R)" : recursion
     // * Modifiers: http://php.net/manual/de/reference.pcre.pattern.modifiers.php
     //
@@ -42,7 +42,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
             '/^[ \t]*(={1,6})(.*?)(?:[=]+[ \t]*#([^ \t].*)[ \t]*)?$/m',
 
         // BlogText short codes using the [[ ]] syntax
-        // NOTE: We don't use just single brackets (ie. [ ]) as this is already use by Wordpress' Shortcode API
+        // NOTE: We don't use just single brackets (i.e. [ ]) as this is already use by WordPress' Shortcode API
         // NOTE: Must run AFTER "headings" and BEFORE the tables, as the tables also use pipes
         // NOTE: Must work with [[...\]]] (resulting in "...\]" being the content
         'shortcodes' =>
@@ -75,15 +75,15 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
             '/^\{\|(.*?)(?:^\|\+(.*?))?(^(?:((?R))|.)*?)^\|}/msi',
 
         // simple tables - Creole syntax
-        // NOTE: Need to be done AFTER "complex_tables" as they syntaxes otherwise may collide (eg. on the
+        // NOTE: Need to be done AFTER "complex_tables" as the syntaxes otherwise may collide (e.g. on the
         //   table caption)
         'simple_table' =>
             // language=RegExp
             '/\n(\|(?!\+)[^|]+\|.+(?:\n\|(?!\+)[^|]+\|.+)*)(?:\n\|\+(.+))?/',
 
-        // Ordered (#) and unordered (*) lists; definition list(;)
+        // Ordered (#) and unordered (*) lists; definition list (;)
         // NOTE: The user can't start a list with "**" (list with sublist).
-        // NOTE: Indentations in lists must be done with at least two spaces/tabs. Otherwise it's too easy to accidentally
+        // NOTE: Indentations in lists must be done with at least two spaces/tabs. Otherwise, it's too easy to accidentally
         //   insert a space and thereby add a line to a list. This also "fixes" the problem of having a more-link directly
         //   after a list being placed inside the list.
         'list' =>
@@ -154,7 +154,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
 
   /**
    * This array contains the amount each id has occurred in this posting. This is used to alter ids (by
-   * appending a number) so that the remain unique. Eg. this will result in "my_id", "my_id_2", "my_id_3", ...
+   * appending a number) so that they remain unique. E.g. this will result in "my_id", "my_id_2", "my_id_3", ...
    */
   private $id_suffix = array();
   /**
@@ -182,7 +182,7 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
     // shortcodes
     //
 
-    // Handles regular links to post (ie. without prefix), as well as attachment and WordPress links (such
+    // Handles regular links to post (i.e. without prefix), as well as attachment and WordPress links (such
     // as categories, tags, blogroll, and archive).
     self::register_interlink_handler(self::$interlinks, new WordpressLinkShortCodeHandler());
 
@@ -261,14 +261,14 @@ class BlogTextMarkup extends AbstractTextMarkup implements IMarkupCacheHandler {
     $this->determineTextPositions($ret);
     $ret = $this->unmaskAllTextSections($ret);
 
-    // Remove line breaks from the start and end to prevent Wordpress from adding unnecessary paragraphs
+    // Remove line breaks from the start and end to prevent WordPress from adding unnecessary paragraphs
     // and line breaks.
     return trim($ret);
   }
 
   /**
    * Clears the page cache completely or only for the specified post.
-   * @param int|null $post  if this is "null", the whole cache will be cleared. Otherwise only the cache for
+   * @param int|null $post  if this is "null", the whole cache will be cleared. Otherwise, only the cache for
    *   the specified post/page id will be cleared.
    */
   public static function clear_page_cache($post=null) {
