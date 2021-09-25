@@ -23,9 +23,13 @@
 .idea/**/workspace.xml
 
 #
+# Node.js
+#
+node_modules
+
+#
 # Repository custom ignores
 #
 /tests/log.txt
-/dist
-/dist-zip
-node_modules
+/releasing/dist
+/releasing/dist-zip

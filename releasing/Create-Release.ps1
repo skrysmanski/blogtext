@@ -8,6 +8,7 @@ param(
 $script:ErrorActionPreference = 'Stop'
 
 try {
+    $SOURCE_DIR = Resolve-Path "$PSScriptRoot/../src"
     $DEST_DIR = 'dist'
     $CSS_FILE = 'style/blogtext-default.css'
 
@@ -27,12 +28,12 @@ try {
         }
     }
 
-    & rsync --recursive --human-readable --times --delete --exclude=.svn 'src/' "$DEST_DIR/"
+    & rsync --recursive --human-readable --times --delete --exclude=.svn "$SOURCE_DIR/" "$DEST_DIR/"
     if (-Not $?) {
         throw '"rsync" failed'
     }
 
-    Copy-Item './license.txt' $DEST_DIR
+    Copy-Item '../license.txt' $DEST_DIR
 
     # Install all necessary node modules via package.json
     & yarn install
@@ -41,7 +42,7 @@ try {
     }
 
     # Minify CSS file
-    & node_modules/.bin/cleancss -o "$DEST_DIR/$CSS_FILE" "src/$CSS_FILE"
+    & node_modules/.bin/cleancss -o "$DEST_DIR/$CSS_FILE" "$SOURCE_DIR/$CSS_FILE"
     if (-Not $?) {
         throw '"cleancss" failed'
     }
