@@ -29,6 +29,14 @@ To stop the development server, call:
 
     ./Stop-TestEnv.ps1
 
+## Updating NPM modules
+
+To update all NPM modules, do the following:
+
+1. Open the BlogText directory with Visual Studio Code
+1. When prompted, click "Reopen in container"
+1. In the VSCode terminal, run `./update-npm-modules.sh`
+
 ## Tests
 
 ### Run BlogText's Semi-Automatic Tests
