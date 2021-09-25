@@ -29,12 +29,14 @@ To stop the development server, call:
 
     ./Stop-TestEnv.ps1
 
-## Run BlogText tests
+## Tests
+
+### Run BlogText's Semi-Automatic Tests
 
 1. Run the tests (under **Tools/BlogTextTests**).
 1. Check whether any files have changed (via `git status`)
 
-## Manual WP-integration tests
+### Manual WP-integration Tests
 
 These tests test stuff that uses some internals of WordPress and therefor is prone to be broken on version
 changes.
