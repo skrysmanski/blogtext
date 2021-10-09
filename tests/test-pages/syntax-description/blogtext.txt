@@ -201,7 +201,7 @@ One more thing: Inserting a small image (possibly without alignment) with a link
 [[image:acorns.jpg|thumb]]
 This code would be rendered as this.
 
-So, the parameter ##thumb## is equivalent to ##small|link=source##. Note that the image is cropped into a square and that it's right aligned. Both of these properties can be changed in the settings (the Media settings and the BlogText settings respectively).
+So, the parameter ##thumb## is equivalent to ##small|link=source##. Note that the image is right aligned automatically. The alignment can be changed in BlogText's settings.
 
 == Image Size ===============
 As mentioned before, the size of an image is specified as parameter to the image Interlink. The size can be specified like so:
