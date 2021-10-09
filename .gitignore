@@ -33,3 +33,6 @@ node_modules
 /tests/log.txt
 /releasing/dist
 /releasing/dist-zip
+/releasing/logo-svn
+/releasing/logo/package-lock.json
+/releasing/logo/icon-256x256.png
